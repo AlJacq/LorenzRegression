@@ -1,0 +1,8 @@
+\.o$
+\.so$
+^.*\.Rproj$
+^\.Rproj\.user$
+^Drafts$
+^\.httr-oauth$
+^doc$
+^Meta$

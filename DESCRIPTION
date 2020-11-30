@@ -1,0 +1,29 @@
+Package: LorenzRegression
+Type: Package
+Title: Lorenz Regression
+Version: 1.0.0
+Authors@R: person("Alexandre","Jacquemain",email="alexandre.jacquemain@uclouvain.be",role=c("aut","cre"))
+Description: A package undertaking Lorenz regressions.
+License: GPL-3 
+Encoding: UTF-8
+Depends: R (>= 3.3.1)
+LazyData: true
+Imports:
+  stats,
+  ggplot2,
+  parallel,
+  doParallel,
+  foreach,
+  MASS,
+  GA,
+  NonpModelCheck,
+  Rearrangement,
+  Rcpp (>= 0.11.0)
+RoxygenNote: 7.0.0
+Suggests:
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+LinkingTo: 
+  Rcpp,
+  RcppArmadillo
