@@ -6,3 +6,4 @@
 ^\.httr-oauth$
 ^doc$
 ^Meta$
+^README\.Rmd$
