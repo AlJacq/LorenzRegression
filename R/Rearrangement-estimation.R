@@ -42,7 +42,7 @@ Rearrangement.estimation<-function(Y, Index, t=Index, band="CV", degree.pol=1){
 
   # Original estimator ----
   H.LocPolyn<-NonpModelCheck::localpoly.reg(X=Index,Y=Y,points=t,
-                            bandwidth=band,degree.pol=1,kernel.type="gaussian")$predicted
+                            bandwidth=band,degree.pol=degree.pol,kernel.type="gaussian")$predicted
 
   # Transformed estimator ----
 
