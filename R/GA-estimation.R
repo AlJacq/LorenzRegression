@@ -10,7 +10,7 @@
 #' @param popSize Size of the population of candidates in the genetic algorithm. Default value is 50.
 #' @param maxiter Maximum number ot iterations in the genetic algorithm. Default value is 1500.
 #' @param run Number of iterations without improvement in the best fitness necessary for the algorithm to stop. Default value is 150.
-#' @param ties What method should be used to break the ties in the rank index. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.
+#' @param ties.method What method should be used to break the ties in the rank index. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.
 #' @param seed seed imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed is imposed.
 #' @param parallel Whether parallel computing should be used in the genetic algorithm. Default value is FALSE.
 #'
@@ -38,7 +38,9 @@
 #' @export
 
 # unit-norm normalization ----
-Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties=c("random","mean")[1], seed=NULL, parallel = F){
+Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties.method=c("random","mean"), seed=NULL, parallel = F){
+
+  ties.method <- match.arg(ties.method)
 
   YX_mat<-YX_mat[order(YX_mat[,1]),]
 
@@ -46,7 +48,7 @@ Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties=c("random",
   n<-length(YX_mat[,1])
 
   # The GA in itself
-  if (ties == "random"){
+  if (ties.method == "random"){
 
     if(!is.null(seed)) set.seed(seed)
     V<-stats::runif(n)
@@ -77,7 +79,9 @@ Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties=c("random",
     LR2<-as.numeric(LR2.num/LR2.denom)
     Gi.expl<-as.numeric(LR2.num)
 
-  }else{
+  }
+
+  if (ties.method == "mean"){
 
     GA <- GA::ga(type = "real-valued",
                  population = Lorenz.Population,
