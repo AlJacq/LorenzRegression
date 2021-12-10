@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // Fitness_cpp
-double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z);
-RcppExport SEXP _LorenzRegression_Fitness_cpp(SEXP xSEXP, SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP) {
+double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z, arma::vec pi);
+RcppExport SEXP _LorenzRegression_Fitness_cpp(SEXP xSEXP, SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP piSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -16,13 +16,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type Y(YSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type Z(ZSEXP);
-    rcpp_result_gen = Rcpp::wrap(Fitness_cpp(x, Y, X, Z));
+    Rcpp::traits::input_parameter< arma::vec >::type pi(piSEXP);
+    rcpp_result_gen = Rcpp::wrap(Fitness_cpp(x, Y, X, Z, pi));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_LorenzRegression_Fitness_cpp", (DL_FUNC) &_LorenzRegression_Fitness_cpp, 4},
+    {"_LorenzRegression_Fitness_cpp", (DL_FUNC) &_LorenzRegression_Fitness_cpp, 5},
     {NULL, NULL, 0}
 };
 

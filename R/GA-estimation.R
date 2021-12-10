@@ -12,6 +12,7 @@
 #' @param run Number of iterations without improvement in the best fitness necessary for the algorithm to stop. Default value is 150.
 #' @param ties.method What method should be used to break the ties in the rank index. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.
 #' @param seed seed imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed is imposed.
+#' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param parallel Whether parallel computing should be used in the genetic algorithm. Default value is FALSE.
 #'
 #' @return A list with several components:
@@ -38,14 +39,19 @@
 #' @export
 
 # unit-norm normalization ----
-Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties.method=c("random","mean"), seed=NULL, parallel = F){
+Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties.method=c("random","mean"), seed=NULL, weights=NULL, parallel = F){
 
   ties.method <- match.arg(ties.method)
 
-  YX_mat<-YX_mat[order(YX_mat[,1]),]
-
   n.param<-length(YX_mat[1,-1])
   n<-length(YX_mat[,1])
+
+  if(any(weights<0)) stop("Weights must be nonnegative")
+
+  if(is.null(weights)){
+    weights <- rep(1,n)
+  }
+  pi <- weights/sum(weights)
 
   # The GA in itself
   if (ties.method == "random"){
@@ -55,7 +61,7 @@ Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties.method=c("r
 
     GA <- GA::ga(type = "real-valued",
                  population = Lorenz.Population,
-                 fitness =  function(u)Fitness_cpp(u,as.vector(YX_mat[,1]),as.matrix(YX_mat[,-1]),V),
+                 fitness =  function(u)Fitness_cpp(u,as.vector(YX_mat[,1]),as.matrix(YX_mat[,-1]),V,pi),
                  lower = rep(-1,n.param-1), upper = rep(1,n.param-1),
                  popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
                  parallel = parallel)
@@ -66,16 +72,20 @@ Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties.method=c("r
     theta<-rbind(theta1,theta2)
     Index_1<-theta1%*%t(YX_mat[,-1])
     Y_1<-YX_mat[order(Index_1,V),1]
+    pi_1<-pi[order(Index_1,V)]
+    rank_1<-cumsum(pi_1)-pi_1/2
     Index_2<-theta2%*%t(YX_mat[,-1])
     Y_2<-YX_mat[order(Index_2,V),1]
-    theta.argmax<-theta[which.max(c(Y_1%*%seq(from=1,to=n),Y_2%*%seq(from=1,to=n))),]
+    pi_2<-pi[order(Index_2,V)]
+    rank_2<-cumsum(pi_2)-pi_2/2
+    theta.argmax<-theta[which.max(c((Y_1*pi_1)%*%rank_1,(Y_2*pi_2)%*%rank_2)),]
 
     # We compute the Lorenz-Rsquared
     Index.sol<-theta.argmax%*%t(YX_mat[,-1])
-    Y.sol<-YX_mat[order(Index.sol,V),1]
     Y<-YX_mat[,1]
-    LR2.num<-2*(Y.sol%*%seq(from=1,to=n))/n^2/mean(Y) - (n+1)/n
-    LR2.denom<-2*(Y%*%seq(from=1,to=n))/n^2/mean(Y) - (n+1)/n
+
+    LR2.num<-Gini.coef(Y, x=Index.sol, na.rm=T, ties.method="random", seed=seed, weights=weights)
+    LR2.denom<-Gini.coef(Y, na.rm=T, ties.method="random", seed=seed, weights=weights)
     LR2<-as.numeric(LR2.num/LR2.denom)
     Gi.expl<-as.numeric(LR2.num)
 
@@ -85,7 +95,7 @@ Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties.method=c("r
 
     GA <- GA::ga(type = "real-valued",
                  population = Lorenz.Population,
-                 fitness =  function(u)Fitness_meanrank(u,as.vector(YX_mat[,1]),as.matrix(YX_mat[,-1])),
+                 fitness =  function(u)Fitness_meanrank(u,as.vector(YX_mat[,1]),as.matrix(YX_mat[,-1]),pi),
                  lower = rep(-1,n.param-1), upper = rep(1,n.param-1),
                  popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
                  parallel = parallel)
@@ -95,16 +105,24 @@ Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties.method=c("r
     theta2<-c(GA@solution[1,],-(1-sum(abs(GA@solution[1,])))) #The theta solution if the last coeff is negative
     theta<-rbind(theta1,theta2)
     Y <- YX_mat[,1]
-    Index_1<-theta1%*%t(YX_mat[,-1])
-    Index_2<-theta2%*%t(YX_mat[,-1])
-    theta.argmax<-theta[which.max(c(Y%*%rank(Index_1,ties.method="average"),Y%*%rank(Index_2,ties.method="average"))),]
+    index1<-theta1%*%t(YX_mat[,-1])
+    index2<-theta2%*%t(YX_mat[,-1])
+    index1_k <- sort(unique(index1))
+    pi1_k <- sapply(1:length(index1_k),function(k)sum(pi[index1==index1_k[k]]))
+    F1_k <- cumsum(pi1_k) - 0.5*pi1_k
+    F1_i <- sapply(1:length(index1),function(i)sum(F1_k[index1_k==index1[i]])) # Ensures that sum(F_i*pi) = 0.5
+    index2_k <- sort(unique(index2))
+    pi2_k <- sapply(1:length(index2_k),function(k)sum(pi[index2==index2_k[k]]))
+    F2_k <- cumsum(pi2_k) - 0.5*pi2_k
+    F2_i <- sapply(1:length(index2),function(i)sum(F2_k[index2_k==index2[i]])) # Ensures that sum(F_i*pi) = 0.5
+    theta.argmax<-theta[which.max(c((pi*Y)%*%F1_i,(pi*Y)%*%F2_i)),]
 
     # We compute the Lorenz-Rsquared
     Index.sol<-theta.argmax%*%t(YX_mat[,-1])
     Y<-YX_mat[,1]
 
-    LR2.num<-2*Y%*%rank(Index.sol,ties.method="average")/n^2/mean(Y) - (n+1)/n
-    LR2.denom<-2*(Y%*%seq(from=1,to=n))/n^2/mean(Y) - (n+1)/n
+    LR2.num<-Gini.coef(Y, x=Index.sol, na.rm=T, ties.method="mean", seed=seed, weights=weights)
+    LR2.denom<-Gini.coef(Y, na.rm=T, ties.method="mean", seed=seed, weights=weights)
     LR2<-as.numeric(LR2.num/LR2.denom)
     Gi.expl<-as.numeric(LR2.num)
 

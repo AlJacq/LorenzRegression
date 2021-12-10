@@ -7,8 +7,9 @@
 #' @param Y vector of size n gathering the response, where n is the sample size
 #' @param X matrix of dimension (n*p) gathering the covariates
 #' @param Z vector of size n gathering iid repetitions of a U[0,1]
+#' @param pi vector of size n gathering the observation weights (notice that sum(pi)=1)
 #' @return Fitness of candidate x
-Fitness_cpp <- function(x, Y, X, Z) {
-    .Call('_LorenzRegression_Fitness_cpp', PACKAGE = 'LorenzRegression', x, Y, X, Z)
+Fitness_cpp <- function(x, Y, X, Z, pi) {
+    .Call('_LorenzRegression_Fitness_cpp', PACKAGE = 'LorenzRegression', x, Y, X, Z, pi)
 }
 

@@ -4,7 +4,7 @@
 using namespace arma;
 
 // Function to sort x in terms of first y and then if ties occur in terms of z
-vec arma_sort(arma::vec x, arma::vec y, arma::vec z) {
+uvec arma_sort(arma::vec y, arma::vec z) {
   vec y1 = y + ::fabs(min(y));
   vec z1 = z + ::fabs(min(z));
   vec a = nonzeros(diff(y1(arma::sort_index(y1))));
@@ -15,7 +15,8 @@ vec arma_sort(arma::vec x, arma::vec y, arma::vec z) {
     bound = min(a) - exp(-10);
   }
   vec b = y1 + z1/max(z1)*bound;
-  return x(sort_index(b));
+  uvec c = sort_index(b);
+  return c;
 }
 
 //' @title Computes the fitness used in the GA
@@ -24,9 +25,10 @@ vec arma_sort(arma::vec x, arma::vec y, arma::vec z) {
 //' @param Y vector of size n gathering the response, where n is the sample size
 //' @param X matrix of dimension (n*p) gathering the covariates
 //' @param Z vector of size n gathering iid repetitions of a U[0,1]
+//' @param pi vector of size n gathering the observation weights (notice that sum(pi)=1)
 //' @return Fitness of candidate x
 // [[Rcpp::export]]
-double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z) {
+double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z, arma::vec pi) {
   // 0. Let us define some basic objects
   int nx = x.n_rows;
   // 1. We must acknowledge the fact that the last coefficient is constrained
@@ -44,12 +46,21 @@ double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z) {
   vec index1 = X*theta1;
   vec index2 = X*theta2;
   // 2. We need to sort the Y's first in terms of index (a) and then in terms of a unif(0,1) (b)
-  vec Y_sort1 = arma_sort(Y,index1,Z);
-  vec Y_sort2 = arma_sort(Y,index2,Z);
-  vec seq = linspace(1,Y.n_rows,Y.n_rows);
+  uvec sort1 = arma_sort(index1,Z);
+  uvec sort2 = arma_sort(index2,Z);
+  vec Y_sort1 = Y(sort1);
+  vec Y_sort2 = Y(sort2);
+  // 3. We proceed similarly for the weights
+  vec pi_sort1 = pi(sort1);
+  vec pi_sort2 = pi(sort2);
+  vec Y_pi_sort1 = Y_sort1%pi_sort1;
+  vec Y_pi_sort2 = Y_sort2%pi_sort2;
+  // 4. We can compute the ranks
+  vec rank1 = cumsum(pi_sort1) - pi_sort1/2;
+  vec rank2 = cumsum(pi_sort2) - pi_sort2/2;
   vec Obj(2);
-  Obj(0) = as_scalar(Y_sort1.t()*seq);
-  Obj(1) = as_scalar(Y_sort2.t()*seq);
+  Obj(0) = as_scalar(Y_pi_sort1.t()*rank1);
+  Obj(1) = as_scalar(Y_pi_sort2.t()*rank2);
   double Fit = max(Obj);
   double pen = ::fabs(Fit)*::fabs(accu(abs(theta1))-1);
   return Fit-pen;
