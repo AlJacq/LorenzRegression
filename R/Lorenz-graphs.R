@@ -4,6 +4,7 @@
 #'
 #' @param formula A formula object of the form \emph{response} ~ \emph{other_variables}.
 #' @param data A dataframe containing the variables of interest
+#' @param ... other arguments (see Section 'Arguments' in \code{\link{Lorenz.curve}}).
 #'
 #' @return A plot comprising
 #' \describe{
@@ -19,7 +20,7 @@
 #'
 #' @export
 
-Lorenz.graphs <- function(formula, data){
+Lorenz.graphs <- function(formula, data, ...){
 
   p <- NULL
   Data.temp.X <- as.data.frame(stats::model.matrix(formula,data=data)[,-1])
@@ -33,13 +34,13 @@ Lorenz.graphs <- function(formula, data){
     scale_color_manual(values = 2:(length(Data.temp[1,])+1),
                        breaks = colnames(Data.temp)) +
     stat_function(fun=function(p)p, geom="line", color=1) +
-    stat_function(fun=function(p)Lorenz.curve(Data.temp.Y)(p), geom="line",aes(color=colnames(Data.temp)[1])) +
+    stat_function(fun=function(p)Lorenz.curve(Data.temp.Y, ...)(p), geom="line",aes(color=colnames(Data.temp)[1])) +
     labs(x = "Cumulative share of the population",y = paste0("Cumulative share of ",colnames(Data.temp)[1]), color= "Ranking:")
 
   for (i in 1:length(Data.temp.X[1,])){
     graph <- local({
     j <- i
-    graph + stat_function(fun=function(p)Lorenz.curve(Data.temp.Y,Data.temp.X[,j])(p), geom="line", aes(color=colnames(Data.temp)[j+1]))
+    graph + stat_function(fun=function(p)Lorenz.curve(Data.temp.Y,Data.temp.X[,j], ...)(p), geom="line", aes(color=colnames(Data.temp)[j+1]))
     })
   }
   graph
