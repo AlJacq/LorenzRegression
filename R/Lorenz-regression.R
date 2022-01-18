@@ -5,7 +5,8 @@
 #' @param formula A formula object of the form \emph{response} ~ \emph{other_variables}.
 #' @param data A data frame containing the variables displayed in the formula.
 #' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
-#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}} (i.e. parameters of the genetic algorithm).
+#' @param weights vector of sample weights. By default, each observation is given the same weight.
+#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}
 #'
 #' @return A list with several components:
 #' \describe{
@@ -26,7 +27,7 @@
 #'
 #' @export
 
-Lorenz.Reg <- function(formula, data, standardize=T, ...){
+Lorenz.Reg <- function(formula, data, standardize=T, weights=NULL, ...){
 
   return.list <- list()
 
@@ -67,42 +68,24 @@ Lorenz.Reg <- function(formula, data, standardize=T, ...){
   # 1. Standardize X ----
 
   if (standardize){
-    X <- YX_mat[,-1]
-    X.temp <- stats::setNames(data.frame(matrix(ncol = p, nrow = n)), colnames(X))
-    which.disc <- which(apply(X,2,function(x)length(unique(x)))<=2)
-    n.disc <- length(which.disc)
-    X.scale <- rep(NA,p)
 
-    if(n.disc>0){
-        X.temp[,which.disc] <- X[,which.disc]
-        X.scale[which.disc] <- 1
-    }
-      if( (n.disc<p) & (n.disc>0) ){
-        if (n.disc<(p-1)){
-          X.center <- colMeans(X[,-which.disc])
-        }else{
-          X.center <- mean(X[,-which.disc])
-        }
-        X[,-which.disc] <- X[,-which.disc] - rep(X.center, rep.int(n,p-n.disc))
-        if (n.disc<(p-1)){
-          X.scale[-which.disc] <- sqrt(colSums(X[,-which.disc]^2)/(n-1))
-        }else{
-          X.scale[-which.disc] <- sqrt(sum(X[,-which.disc]^2)/(n-1))
-        }
-        X[,-which.disc] <- X[,-which.disc] / rep(X.scale[-which.disc], rep.int(n,p-n.disc))
-    }
-      if(n.disc==0){
-        X.center <- colMeans(X)
-        X <- X - rep(X.center, rep.int(n,p))
-        X.scale <- sqrt(colSums(X^2)/(n-1))
-        X <- X / rep(X.scale, rep.int(n,p))
-    }
+    X <- YX_mat[,-1]
+    X.center <- colMeans(X)
+    X <- X - rep(X.center, rep.int(n,p))
+    X.scale <- sqrt(colSums(X^2)/(n-1))
+    X <- X / rep(X.scale, rep.int(n,p))
+
     YX_mat[,-1] <- X
+
   }
 
   # 2. Estimation of theta ----
 
-  LR <- Lorenz.GA.cpp(YX_mat,...)
+  if(is.null(weights)){
+    weights <- rep(1,n)
+  }
+
+  LR <- Lorenz.GA.cpp(YX_mat, weights=weights, ...)
 
   # Estimation of the explained Gini coef
   Gi.expl <- LR$Gi.expl
@@ -111,9 +94,9 @@ Lorenz.Reg <- function(formula, data, standardize=T, ...){
   # Vector of estimated thetas
   theta <- LR$sol
   if (standardize){# Should take into account the standardization
-    theta.standardize <- theta
-    names(theta.standardize) <- colnames(YX_mat[,-1])
-    MRS.standardize <- outer(theta.standardize,theta.standardize,"/")
+    # theta.standardize <- theta
+    # names(theta.standardize) <- colnames(YX_mat[,-1])
+    # MRS.standardize <- outer(theta.standardize,theta.standardize,"/")
     theta <- theta/X.scale
     theta <- theta/sum(abs(theta))
   }
@@ -128,10 +111,6 @@ Lorenz.Reg <- function(formula, data, standardize=T, ...){
   return.list$LorenzR2 <- LorenzR2
   return.list$MRS <- MRS
   return.list$Fit <- Fit
-
-  # 3. Estimation of regression curve ----
-
-  # 4. Estimation of marginal impacts ----
 
   return(return.list)
 }

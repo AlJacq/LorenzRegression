@@ -16,10 +16,10 @@ Imports:
   foreach,
   MASS,
   GA,
-  NonpModelCheck,
+  locpol,
   Rearrangement,
   Rcpp (>= 0.11.0)
-RoxygenNote: 7.0.0
+RoxygenNote: 7.1.1
 Suggests:
     knitr,
     rmarkdown

@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // Fitness_cpp
 double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z, arma::vec pi);
 RcppExport SEXP _LorenzRegression_Fitness_cpp(SEXP xSEXP, SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP piSEXP) {

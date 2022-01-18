@@ -9,13 +9,15 @@
 #' @param data A data frame containing the variables displayed in the formula.
 #' @param Lorenz.est Output of a Lorenz.Reg on the original dataset. Default value is NULL, in which case the vector of parameters is estimated internally.
 #' @param standardize should the variables be standardized before the estimation process? Default value is TRUE
+#' @param weights vector of sample weights. By default, each observation is given the same weight. When bootstrap is used, two possibilities arise for incorporating sample weights. Either, one can adapt the sampling mechanism or we can correct the estimation procedures. Here, the second route is taken.
 #' @param testorCI whether we should do a bootstrap test of joint significance or a CI or both. Possibles values are "test", "CI" or "both".
 #' @param which.CI vector gathering the methods to construct the CI, among Basic Bootstrap ("Basic"), Percentile Bootstrap ("Perc") and Parametric Bootstrap
 #' ("Param"). Default value is c("Basic","Perc","Param"), meaning that the three methods are used.
 #' @param which.vars.test names of the variables to consider for the test of joint significance.
 #' @param alpha level of the CI and/or tests.
 #' @param B the number of bootstrap iterations.
-#' @param parallel whether parallel computing should be used. Default value is FALSE.
+#' @param parallel whether parallel computing should be used. Default value is FALSE. The number of used CPU is then detectCores()-1.
+#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}.
 #'
 #' @return A list containing at most the following elements
 #' \describe{
@@ -36,8 +38,7 @@
 #' Heuchenne, C. and A. Jacquemain. 2020. “Inference for monotone single-index conditional means: a Lorenz regression approach”
 #'
 #' @examples
-#' # # Example A) takes approx 7.8 minutes to complete.
-#' # # Example B) takes approx 3.9 minutes to complete.
+#' # # Both examples take several minutes to run
 #' # # In practice, we advise to set B at least 200
 #' # # Example A)
 #' # a <- Sys.time()
@@ -45,6 +46,7 @@
 #' # Lorenz.boot(Income ~ ., data = Data.Incomes, B = 50, which.vars.test = c("Age","Seniority"))
 #' # b <- Sys.time() - a
 #' # b
+#' # # Example B)
 #' # # Computation time can be sped up using parallel computing
 #' # c <- Sys.time()
 #' # Lorenz.boot(Income ~ ., data = Data.Incomes, B = 50,
@@ -62,13 +64,21 @@ Lorenz.boot<-function(formula,
                       data,
                       Lorenz.est=NULL,
                       standardize=T,
+                      weights=NULL,
                       testorCI="both",
                       which.CI=c("Basic","Perc","Param"),
                       which.vars.test,
                       alpha=0.05,
                       B,
-                      parallel=F
+                      parallel=F,
+                      ...
 ){
+
+  # Check on which.CI
+  if( !all(which.CI%in%c("Basic","Perc","Param")) ) stop("which.CI should be a subvector of c(\"Basic\",\"Perc\",\"Param\")")
+
+  # Check on which.vars.test
+  if ( !all(which.vars.test%in%names(data)) ) stop(paste0("which.vars.test should be a subvector of ",names(data)))
 
   b <- NULL
   # PRE-BOOT ----
@@ -115,42 +125,24 @@ Lorenz.boot<-function(formula,
   # PRE-BOOT > STANDARDIZE X ----
 
   if (standardize){
-    X <- YX_mat[,-1]
-    X.temp <- stats::setNames(data.frame(matrix(ncol = p, nrow = n)), colnames(X))
-    which.disc <- which(apply(X,2,function(x)length(unique(x)))<=2)
-    n.disc <- length(which.disc)
-    X.scale <- rep(NA,p)
 
-    if(n.disc>0){
-      X.temp[,which.disc] <- X[,which.disc]
-      X.scale[which.disc] <- 1
-    }
-    if( (n.disc<p) & (n.disc>0) ){
-      if (n.disc<(p-1)){
-        X.center <- colMeans(X[,-which.disc])
-      }else{
-        X.center <- mean(X[,-which.disc])
-      }
-      X[,-which.disc] <- X[,-which.disc] - rep(X.center, rep.int(n,p-n.disc))
-      if (n.disc<(p-1)){
-        X.scale[-which.disc] <- sqrt(colSums(X[,-which.disc]^2)/(n-1))
-      }else{
-        X.scale[-which.disc] <- sqrt(sum(X[,-which.disc]^2)/(n-1))
-      }
-      X[,-which.disc] <- X[,-which.disc] / rep(X.scale[-which.disc], rep.int(n,p-n.disc))
-    }
-    if(n.disc==0){
-      X.center <- colMeans(X)
-      X <- X - rep(X.center, rep.int(n,p))
-      X.scale <- sqrt(colSums(X^2)/(n-1))
-      X <- X / rep(X.scale, rep.int(n,p))
-    }
+    X <- YX_mat[,-1]
+    X.center <- colMeans(X)
+    X <- X - rep(X.center, rep.int(n,p))
+    X.scale <- sqrt(colSums(X^2)/(n-1))
+    X <- X / rep(X.scale, rep.int(n,p))
+
     YX_mat[,-1] <- X
+
+  }
+
+  if(is.null(weights)){
+    weights <- rep(1,n)
   }
 
   # Initial Lorenz regression
   if(is.null(Lorenz.est)){
-    Lorenz.est <- LorenzRegression::Lorenz.Reg(formula, data, standardize)
+    Lorenz.est <- LorenzRegression::Lorenz.Reg(formula, data, standardize, weights=weights, ...)
   }
   theta.hat <- Lorenz.est$theta
   LR2 <- Lorenz.est$LorenzR2
@@ -167,11 +159,11 @@ Lorenz.boot<-function(formula,
     YX_mat.0 <- YX_mat[,-col.0]
 
     #We need to estimate theta, LR2 and H under H0. Then we can compute the residuals under H0
-    Reg.0 <- LorenzRegression::Lorenz.GA.cpp(YX_mat.0)
+    Reg.0 <- LorenzRegression::Lorenz.GA.cpp(YX_mat.0, weights=weights, ...)
     theta.0 <- Reg.0$sol
     LR2.0 <- Reg.0$LR2
     Data.H.Est.0 <- data.frame(Y=YX_mat.0[,1],Index=t(theta.0%*%t(YX_mat.0[,-1])))
-    H.hat.0 <- LorenzRegression::Rearrangement.estimation(Data.H.Est.0$Y,Data.H.Est.0$Index)$H
+    H.hat.0 <- LorenzRegression::Rearrangement.estimation(Data.H.Est.0$Y,Data.H.Est.0$Index, weights=weights)$H
     Res.0 <- YX_mat.0[,1]-H.hat.0
     Res.0 <- Res.0-mean(Res.0)
 
@@ -179,30 +171,30 @@ Lorenz.boot<-function(formula,
 
   # BOOT > INNER ----
 
-  Boot.inner <- function(b){
+  Boot.inner <- function(b, ...){
     Return.list <- list()
     # BOOT > INNER > CI ----
+    idx.b <- sample(1:n,replace=T) # Even if sample weights are used, they are not incorporated here
+    weights.b <- weights[idx.b]
     if(CI.T){
-      YX_mat.b <- YX_mat[sample(1:n,replace=T),]
-      Lorenz.est.star <- LorenzRegression::Lorenz.GA.cpp(YX_mat.b)
+      YX_mat.b <- YX_mat[idx.b,]
+      Lorenz.est.star <- LorenzRegression::Lorenz.GA.cpp(YX_mat.b, weights=weights.b, parallel=F, ...) # Rather, they are used here
       theta.hat.star <- Lorenz.est.star$sol
-      X.b <- as.matrix(YX_mat.b[,-1])
-      Y.b <- YX_mat.b[,1]
-      Index.b <- X.b%*%theta.hat.star
-      Gi.hat.star <- Gini.coef(Y.b,Index.b)
+      Gi.hat.star <- Lorenz.est.star$Gi.expl
       Return.list$theta.hat.star <- theta.hat.star
       Return.list$Gi.hat.star <- Gi.hat.star
     }
 
     # BOOT > INNER > TEST ----
     if(test.T){
-      Y.b<-H.hat.0+sample(Res.0,replace=T)
+      Res.0.b <- Res.0[idx.b]
+      Y.b<-H.hat.0+Res.0.b
       #Compute the bootstrapped LR2 unrestricted
       YX_mat.b<-cbind(Y.b,YX_mat[,-1])
-      LR2.b<-LorenzRegression::Lorenz.GA.cpp(YX_mat.b)$LR2
+      LR2.b<-LorenzRegression::Lorenz.GA.cpp(YX_mat.b, weights=weights.b, parallel=F, ...)$LR2
       #Compute the bootstrapped LR2 under H0
       YX_mat.b0<-cbind(Y.b,YX_mat[,-c(1,col.0)])
-      LR2.b0<-LorenzRegression::Lorenz.GA.cpp(YX_mat.b0)$LR2
+      LR2.b0<-LorenzRegression::Lorenz.GA.cpp(YX_mat.b0, weights=weights.b, parallel=F, ...)$LR2
       #We return the bootstrapped test statistic
       U.b<-LR2.b/LR2.b0
       Return.list$U.b <- U.b
@@ -216,7 +208,7 @@ Lorenz.boot<-function(formula,
 
   if(parallel){
     numCores <- detectCores()
-    registerDoParallel(numCores)
+    registerDoParallel(numCores-1)
     Boot.b <- foreach(b=1:B) %dopar% {
       Boot.inner(b)
     }
