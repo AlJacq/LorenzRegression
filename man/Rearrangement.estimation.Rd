@@ -4,7 +4,7 @@
 \alias{Rearrangement.estimation}
 \title{Estimates a monotonic regression curve via Chernozhukov et al (2009)}
 \usage{
-Rearrangement.estimation(Y, Index, t = Index, band = "CV", degree.pol = 1)
+Rearrangement.estimation(Y, Index, t = Index, degree.pol = 1)
 }
 \arguments{
 \item{Y}{The response variable.}
@@ -12,8 +12,6 @@ Rearrangement.estimation(Y, Index, t = Index, band = "CV", degree.pol = 1)
 \item{Index}{The estimated index. The user may obtain it using function \code{\link{Lorenz.Reg}}.}
 
 \item{t}{A vector of points over which the link function \eqn{H(.)} should be estimated. Default is the estimated index.}
-
-\item{band}{the method used to estimate the bandwidth in the local polynomial regression}
 
 \item{degree.pol}{degree of the polynomial used in the local polynomial regression}
 }
@@ -28,7 +26,7 @@ A list with the following components
 \code{Rearrangement.estimation} estimates the increasing link function of a single index model via the methodology proposed in Chernozhukov et al (2009).
 }
 \details{
-A first estimator of the link function, neglecting the assumption of monotonicity, is obtained with function \code{\link[NonpModelCheck]{localpoly.reg}} from the \emph{NonpModelCheck} package.
+A first estimator of the link function, neglecting the assumption of monotonicity, is obtained with function \code{\link[locpol]{locpol}} from the \emph{locpol} package.
 The final estimator is obtained through the rearrangement operation explained in Chernozhukov et al (2009). This operation is carried out with function \code{\link[Rearrangement]{rearrangement}} from package \code{Rearrangement}.
 }
 \section{References}{
@@ -45,5 +43,5 @@ Rearrangement.estimation(Y = Y, Index = Index)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link[NonpModelCheck]{localpoly.reg}}, \code{\link[Rearrangement]{rearrangement}}
+\code{\link{Lorenz.Reg}}, \code{\link[locpol]{locpol}}, \code{\link[Rearrangement]{rearrangement}}
 }

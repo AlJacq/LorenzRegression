@@ -4,7 +4,7 @@
 \alias{Lorenz.Reg}
 \title{Undertakes a Lorenz regression}
 \usage{
-Lorenz.Reg(formula, data, standardize = T, ...)
+Lorenz.Reg(formula, data, standardize = T, weights = NULL, ...)
 }
 \arguments{
 \item{formula}{A formula object of the form \emph{response} ~ \emph{other_variables}.}
@@ -13,7 +13,9 @@ Lorenz.Reg(formula, data, standardize = T, ...)
 
 \item{standardize}{Should the variables be standardized before the estimation process? Default value is TRUE.}
 
-\item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}} (i.e. parameters of the genetic algorithm).}
+\item{weights}{vector of sample weights. By default, each observation is given the same weight.}
+
+\item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}}
 }
 \value{
 A list with several components:

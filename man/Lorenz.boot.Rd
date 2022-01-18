@@ -9,12 +9,14 @@ Lorenz.boot(
   data,
   Lorenz.est = NULL,
   standardize = T,
+  weights = NULL,
   testorCI = "both",
   which.CI = c("Basic", "Perc", "Param"),
   which.vars.test,
   alpha = 0.05,
   B,
-  parallel = F
+  parallel = F,
+  ...
 )
 }
 \arguments{
@@ -25,6 +27,8 @@ Lorenz.boot(
 \item{Lorenz.est}{Output of a Lorenz.Reg on the original dataset. Default value is NULL, in which case the vector of parameters is estimated internally.}
 
 \item{standardize}{should the variables be standardized before the estimation process? Default value is TRUE}
+
+\item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
 \item{testorCI}{whether we should do a bootstrap test of joint significance or a CI or both. Possibles values are "test", "CI" or "both".}
 
@@ -37,7 +41,9 @@ Lorenz.boot(
 
 \item{B}{the number of bootstrap iterations.}
 
-\item{parallel}{whether parallel computing should be used. Default value is FALSE.}
+\item{parallel}{whether parallel computing should be used. Default value is FALSE. The number of used CPU is then detectCores()-1.}
+
+\item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}.}
 }
 \value{
 A list containing at most the following elements

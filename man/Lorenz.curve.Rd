@@ -4,7 +4,15 @@
 \alias{Lorenz.curve}
 \title{Concentration curve of \emph{y} with respect to \emph{x}}
 \usage{
-Lorenz.curve(y, x = y, graph = F)
+Lorenz.curve(
+  y,
+  x = y,
+  graph = F,
+  na.rm = T,
+  ties.method = c("mean", "random"),
+  seed = NULL,
+  weights = NULL
+)
 }
 \arguments{
 \item{y}{variable of interest.}
@@ -12,6 +20,14 @@ Lorenz.curve(y, x = y, graph = F)
 \item{x}{variable to use for the ranking. By default \eqn{x=y}, and the obtained concentration curve is the Lorenz curve of \emph{y}.}
 
 \item{graph}{whether a graph of the obtained concentration curve should be traced. Default value is FALSE.}
+
+\item{na.rm}{should missing values be deleted. Default value is \code{TRUE}. If \code{FALSE} is selected, missing values generate an error message}
+
+\item{ties.method}{What method should be used to break the ties in the rank index. Possible values are "mean" (default value) or "random". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.}
+
+\item{seed}{seed imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed is imposed.}
+
+\item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 }
 \value{
 A function corresponding to the estimated Lorenz or concentration curve. If \code{graph} is TRUE, the curve is also plotted.

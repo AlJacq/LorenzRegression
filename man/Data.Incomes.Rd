@@ -4,7 +4,8 @@
 \name{Data.Incomes}
 \alias{Data.Incomes}
 \title{Simulated income data}
-\format{A data frame with 200 rows and 7 columns:
+\format{
+A data frame with 200 rows and 7 columns:
 \describe{
     \item{Income}{Individual's labor income}
     \item{Sex}{Sex (0=Female, 1=Male)}
@@ -13,7 +14,8 @@
     \item{Work.Hours}{Individual's weekly work hours}
     \item{Education}{Individual's highest grade completed in years}
     \item{Seniority}{Length of service in years with the individual's employer}
-}}
+}
+}
 \usage{
 data(Data.Incomes)
 }
