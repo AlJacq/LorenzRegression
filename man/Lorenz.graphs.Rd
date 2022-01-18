@@ -4,12 +4,14 @@
 \alias{Lorenz.graphs}
 \title{Graphs of concentration curves}
 \usage{
-Lorenz.graphs(formula, data)
+Lorenz.graphs(formula, data, ...)
 }
 \arguments{
 \item{formula}{A formula object of the form \emph{response} ~ \emph{other_variables}.}
 
 \item{data}{A dataframe containing the variables of interest}
+
+\item{...}{other arguments (see Section 'Arguments' in \code{\link{Lorenz.curve}}).}
 }
 \value{
 A plot comprising

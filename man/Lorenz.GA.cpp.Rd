@@ -4,7 +4,16 @@
 \alias{Lorenz.GA.cpp}
 \title{Estimates the parameter vector in Lorenz regression using a genetic algorithm}
 \usage{
-Lorenz.GA.cpp(YX_mat, popSize = 50, maxiter = 1500, run = 150, parallel = F)
+Lorenz.GA.cpp(
+  YX_mat,
+  popSize = 50,
+  maxiter = 1500,
+  run = 150,
+  ties.method = c("random", "mean"),
+  seed = NULL,
+  weights = NULL,
+  parallel = F
+)
 }
 \arguments{
 \item{YX_mat}{A matrix with the first column corresponding to the response vector, the remaining ones being the explanatory variables.}
@@ -14,6 +23,12 @@ Lorenz.GA.cpp(YX_mat, popSize = 50, maxiter = 1500, run = 150, parallel = F)
 \item{maxiter}{Maximum number ot iterations in the genetic algorithm. Default value is 1500.}
 
 \item{run}{Number of iterations without improvement in the best fitness necessary for the algorithm to stop. Default value is 150.}
+
+\item{ties.method}{What method should be used to break the ties in the rank index. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.}
+
+\item{seed}{seed imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed is imposed.}
+
+\item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
 \item{parallel}{Whether parallel computing should be used in the genetic algorithm. Default value is FALSE.}
 }
@@ -29,15 +44,15 @@ A list with several components:
 }
 \description{
 \code{Lorenz.GA.cpp} estimates the vector of parameters in Lorenz regression using the unit-norm normalization
-It also returns the Lorenz-\eqn{R^2} of the regression.
+It also returns the Lorenz-\eqn{R^2} of the regression as well as the estimated explained Gini coefficient.
 }
 \details{
 The genetic algorithm is solved using function \code{\link[GA]{ga}} from the \emph{GA} package. The fitness function is coded in Rcpp to speed up computation time.
-When discrete covariates are introduced and ties occur in the index, they are randomly broken, as advised in Section 3 of Heuchenne and Jacquemain (2020)
+When discrete covariates are introduced and ties occur in the index, the default option randomly breaks them, as advised in Section 3 of Heuchenne and Jacquemain (2020)
 }
 \section{References}{
 
-Heuchenne, C. and A. Jacquemain. 2020. “Inference for monotone single-index conditional means: a Lorenz regression approach”
+Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
 }
 
 \examples{

@@ -9,12 +9,14 @@ Lorenz.boot(
   data,
   Lorenz.est = NULL,
   standardize = T,
+  weights = NULL,
   testorCI = "both",
   which.CI = c("Basic", "Perc", "Param"),
   which.vars.test,
   alpha = 0.05,
   B,
-  parallel = F
+  parallel = F,
+  ...
 )
 }
 \arguments{
@@ -25,6 +27,8 @@ Lorenz.boot(
 \item{Lorenz.est}{Output of a Lorenz.Reg on the original dataset. Default value is NULL, in which case the vector of parameters is estimated internally.}
 
 \item{standardize}{should the variables be standardized before the estimation process? Default value is TRUE}
+
+\item{weights}{vector of sample weights. By default, each observation is given the same weight. When bootstrap is used, two possibilities arise for incorporating sample weights. Either, one can adapt the sampling mechanism or we can correct the estimation procedures. Here, the second route is taken.}
 
 \item{testorCI}{whether we should do a bootstrap test of joint significance or a CI or both. Possibles values are "test", "CI" or "both".}
 
@@ -37,7 +41,9 @@ Lorenz.boot(
 
 \item{B}{the number of bootstrap iterations.}
 
-\item{parallel}{whether parallel computing should be used. Default value is FALSE.}
+\item{parallel}{whether parallel computing should be used. Default value is FALSE. The number of used CPU is then detectCores()-1.}
+
+\item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}.}
 }
 \value{
 A list containing at most the following elements
@@ -65,8 +71,7 @@ Heuchenne, C. and A. Jacquemain. 2020. “Inference for monotone single-index co
 }
 
 \examples{
-# # Example A) takes approx 7.8 minutes to complete.
-# # Example B) takes approx 3.9 minutes to complete.
+# # Both examples take several minutes to run
 # # In practice, we advise to set B at least 200
 # # Example A)
 # a <- Sys.time()
@@ -74,6 +79,7 @@ Heuchenne, C. and A. Jacquemain. 2020. “Inference for monotone single-index co
 # Lorenz.boot(Income ~ ., data = Data.Incomes, B = 50, which.vars.test = c("Age","Seniority"))
 # b <- Sys.time() - a
 # b
+# # Example B)
 # # Computation time can be sped up using parallel computing
 # c <- Sys.time()
 # Lorenz.boot(Income ~ ., data = Data.Incomes, B = 50,

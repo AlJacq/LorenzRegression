@@ -4,7 +4,14 @@
 \alias{Gini.coef}
 \title{Concentration index of \emph{y} wrt \emph{x}}
 \usage{
-Gini.coef(y, x = y, na.rm = T)
+Gini.coef(
+  y,
+  x = y,
+  na.rm = T,
+  ties.method = c("mean", "random"),
+  seed = NULL,
+  weights = NULL
+)
 }
 \arguments{
 \item{y}{variable of interest.}
@@ -12,6 +19,12 @@ Gini.coef(y, x = y, na.rm = T)
 \item{x}{variable to use for the ranking. By default \eqn{x=y}, and the obtained concentration index is the Gini coefficient of \emph{y}.}
 
 \item{na.rm}{should missing values be deleted. Default value is \code{TRUE}. If \code{FALSE} is selected, missing values generate an error message}
+
+\item{ties.method}{What method should be used to break the ties in the rank index. Possible values are "mean" (default value) or "random". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.}
+
+\item{seed}{seed imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed is imposed.}
+
+\item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 }
 \value{
 The value of the concentration index (or Gini coefficient)

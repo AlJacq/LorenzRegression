@@ -4,7 +4,7 @@
 \alias{Fitness_cpp}
 \title{Computes the fitness used in the GA}
 \usage{
-Fitness_cpp(x, Y, X, Z)
+Fitness_cpp(x, Y, X, Z, pi)
 }
 \arguments{
 \item{x}{vector of size (p-1) giving the proposed candidate, where p is the number of covariates}
@@ -14,6 +14,8 @@ Fitness_cpp(x, Y, X, Z)
 \item{X}{matrix of dimension (n*p) gathering the covariates}
 
 \item{Z}{vector of size n gathering iid repetitions of a U[0,1]}
+
+\item{pi}{vector of size n gathering the observation weights (notice that sum(pi)=1)}
 }
 \value{
 Fitness of candidate x
