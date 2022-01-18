@@ -20,6 +20,9 @@
 #'
 #' @seealso \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.boot}}
 #'
+#' @section References:
+#' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
+#'
 #' @examples
 #' data(Data.Incomes)
 #' Lorenz.Reg(Income ~ Age + Work.Hours, data = Data.Incomes)

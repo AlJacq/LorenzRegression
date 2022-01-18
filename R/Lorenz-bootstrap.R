@@ -35,7 +35,7 @@
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
 #' @section References:
-#' Heuchenne, C. and A. Jacquemain. 2020. “Inference for monotone single-index conditional means: a Lorenz regression approach”
+#' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
 #'
 #' @examples
 #' # # Both examples take several minutes to run

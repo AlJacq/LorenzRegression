@@ -9,7 +9,7 @@
 #' We direct the user to Heuchenne and Jacquemain (2020) for a rigorous exposition of the methodology and to the vignette \href{../doc/Vignette.html}{Learning Lorenz regressions with examples} for a motivational introduction of the \code{LorenzRegression} package.
 #'
 #' @section References:
-#' Heuchenne, C. and A. Jacquemain. 2020. “Inference for monotone single-index conditional means: a Lorenz regression approach”
+#' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
 #'
 #' @useDynLib LorenzRegression
 #' @exportPattern "^[[:alpha:]]+"
