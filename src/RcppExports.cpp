@@ -26,9 +26,57 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// PLR_derivative_cpp
+arma::vec PLR_derivative_cpp(arma::vec y, arma::mat X, arma::vec pi, arma::vec theta, double sigma, double gamma);
+RcppExport SEXP _LorenzRegression_PLR_derivative_cpp(SEXP ySEXP, SEXP XSEXP, SEXP piSEXP, SEXP thetaSEXP, SEXP sigmaSEXP, SEXP gammaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type pi(piSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    rcpp_result_gen = Rcpp::wrap(PLR_derivative_cpp(y, X, pi, theta, sigma, gamma));
+    return rcpp_result_gen;
+END_RCPP
+}
+// PLR_loss_cpp
+double PLR_loss_cpp(arma::mat X, arma::vec y, arma::vec pi, arma::vec theta, double sigma, double gamma);
+RcppExport SEXP _LorenzRegression_PLR_loss_cpp(SEXP XSEXP, SEXP ySEXP, SEXP piSEXP, SEXP thetaSEXP, SEXP sigmaSEXP, SEXP gammaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type pi(piSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    rcpp_result_gen = Rcpp::wrap(PLR_loss_cpp(X, y, pi, theta, sigma, gamma));
+    return rcpp_result_gen;
+END_RCPP
+}
+// SCAD_derivative_cpp
+arma::vec SCAD_derivative_cpp(arma::vec x, double lambda, double a);
+RcppExport SEXP _LorenzRegression_SCAD_derivative_cpp(SEXP xSEXP, SEXP lambdaSEXP, SEXP aSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type a(aSEXP);
+    rcpp_result_gen = Rcpp::wrap(SCAD_derivative_cpp(x, lambda, a));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_LorenzRegression_Fitness_cpp", (DL_FUNC) &_LorenzRegression_Fitness_cpp, 5},
+    {"_LorenzRegression_PLR_derivative_cpp", (DL_FUNC) &_LorenzRegression_PLR_derivative_cpp, 6},
+    {"_LorenzRegression_PLR_loss_cpp", (DL_FUNC) &_LorenzRegression_PLR_loss_cpp, 6},
+    {"_LorenzRegression_SCAD_derivative_cpp", (DL_FUNC) &_LorenzRegression_SCAD_derivative_cpp, 3},
     {NULL, NULL, 0}
 };
 
