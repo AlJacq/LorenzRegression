@@ -31,6 +31,11 @@ A list with several components:
 \description{
 \code{Lorenz.Reg} performs the Lorenz regression of a response with respect to several covariates.
 }
+\section{References}{
+
+Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
+}
+
 \examples{
 data(Data.Incomes)
 Lorenz.Reg(Income ~ Age + Work.Hours, data = Data.Incomes)

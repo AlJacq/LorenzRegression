@@ -33,7 +33,7 @@ The final estimator is obtained through the rearrangement operation explained in
 }
 \section{References}{
 
-Chernozhukov, V., I. Fernández-Val, and A. Galichon. 2009. “Improving Point and Interval Estimators of Monotone Functions by Rearrangement.” Biometrika 96 (3): 559–75.
+Chernozhukov, V., I. Fernández-Val, and A. Galichon (2009). Improving Point and Interval Estimators of Monotone Functions by Rearrangement. \emph{Biometrika 96 (3)}. 559–75.
 }
 
 \examples{
