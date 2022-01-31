@@ -33,7 +33,7 @@
 #'    \item{\code{Gi.expl}}{the estimated explained Gini coefficient.}
 #' }
 #'
-#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.SCADFABS}}
+#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.SCADFABS}}
 #'
 #' @section References:
 #' Heuchenne, C., A. Jacquemain and E. Pircalabelu (xxxx). Penalized Lorenz Regression.

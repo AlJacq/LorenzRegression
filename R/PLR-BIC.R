@@ -14,7 +14,7 @@
 #'    \item{\code{best}}{index of the column where the optimum is attained.}
 #' }
 #'
-#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.SCADFABS}}
+#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.SCADFABS}}
 #'
 #' @section References:
 #' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
@@ -22,10 +22,8 @@
 #' @examples
 #' data(Data.Incomes)
 #' YX_mat <- Data.Incomes
-#' PLR <- Lorenz.SCADFABS(YX_mat, eps = 0.005)
+#' PLR <- PLR.wrap(YX_mat, eps = 0.005)
 #' PLR.BIC(YX_mat, PLR$theta)
-#'
-#' @import GA
 #'
 #' @export
 

@@ -145,8 +145,8 @@ Lorenz.boot<-function(formula,
     Lorenz.est <- LorenzRegression::Lorenz.Reg(formula, data, standardize, weights=weights, ...)
   }
   theta.hat <- Lorenz.est$theta
-  LR2 <- Lorenz.est$LorenzR2
-  Gi.hat <- Lorenz.est$expl.Gini
+  LR2 <- Lorenz.est$LR2
+  Gi.hat <- Lorenz.est$Gi.expl
 
   # BOOT > PRE-ITER ----
 
