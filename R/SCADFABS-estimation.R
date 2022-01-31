@@ -188,6 +188,11 @@ Lorenz.SCADFABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), ep
   LR2<-as.numeric(LR2.num/LR2.denom)
   Gi.expl<-as.numeric(LR2.num)
 
+  # WARNING ----
+
+  # If eps is too large, the path may be really rough
+  if (length(unique(lambda.out[1:i]))<15) warning("The algorithm generated less than 15 different values for lambda. We suggest you to consider decreasing eps to have a finer grid")
+
   # OUTPUT ----
 
   return.list <- list(
