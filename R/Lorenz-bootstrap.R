@@ -160,7 +160,7 @@ Lorenz.boot<-function(formula,
 
     #We need to estimate theta, LR2 and H under H0. Then we can compute the residuals under H0
     Reg.0 <- LorenzRegression::Lorenz.GA.cpp(YX_mat.0, weights=weights, ...)
-    theta.0 <- Reg.0$sol
+    theta.0 <- Reg.0$theta
     LR2.0 <- Reg.0$LR2
     Data.H.Est.0 <- data.frame(Y=YX_mat.0[,1],Index=t(theta.0%*%t(YX_mat.0[,-1])))
     H.hat.0 <- LorenzRegression::Rearrangement.estimation(Data.H.Est.0$Y,Data.H.Est.0$Index, weights=weights)$H
@@ -179,7 +179,7 @@ Lorenz.boot<-function(formula,
     if(CI.T){
       YX_mat.b <- YX_mat[idx.b,]
       Lorenz.est.star <- LorenzRegression::Lorenz.GA.cpp(YX_mat.b, weights=weights.b, parallel=F, ...) # Rather, they are used here
-      theta.hat.star <- Lorenz.est.star$sol
+      theta.hat.star <- Lorenz.est.star$theta
       Gi.hat.star <- Lorenz.est.star$Gi.expl
       Return.list$theta.hat.star <- theta.hat.star
       Return.list$Gi.hat.star <- Gi.hat.star

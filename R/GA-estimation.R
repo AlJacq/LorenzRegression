@@ -7,6 +7,7 @@
 #' When discrete covariates are introduced and ties occur in the index, the default option randomly breaks them, as advised in Section 3 of Heuchenne and Jacquemain (2020)
 #'
 #' @param YX_mat A matrix with the first column corresponding to the response vector, the remaining ones being the explanatory variables.
+#' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
 #' @param popSize Size of the population of candidates in the genetic algorithm. Default value is 50.
 #' @param maxiter Maximum number ot iterations in the genetic algorithm. Default value is 1500.
 #' @param run Number of iterations without improvement in the best fitness necessary for the algorithm to stop. Default value is 150.
@@ -17,7 +18,7 @@
 #'
 #' @return A list with several components:
 #' \describe{
-#'    \item{\code{sol}}{the estimated vector of parameters.}
+#'    \item{\code{theta}}{the estimated vector of parameters.}
 #'    \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression.}
 #'    \item{\code{Gi.expl}}{the estimated explained Gini coefficient.}
 #'    \item{\code{niter}}{number of iterations attained by the genetic algorithm.}
@@ -39,12 +40,14 @@
 #' @export
 
 # unit-norm normalization ----
-Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties.method=c("random","mean"), seed=NULL, weights=NULL, parallel = F){
+Lorenz.GA.cpp<-function(YX_mat, standardize=T, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), seed=NULL, weights=NULL, parallel = F){
+
+  # PRE-GA ----
 
   ties.method <- match.arg(ties.method)
 
-  n.param<-length(YX_mat[1,-1])
-  n<-length(YX_mat[,1])
+  n <- length(YX_mat[,1])
+  p <- length(YX_mat[1,])-1
 
   if(any(weights<0)) stop("Weights must be nonnegative")
 
@@ -53,7 +56,22 @@ Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties.method=c("r
   }
   pi <- weights/sum(weights)
 
-  # The GA in itself
+  # PRE-GA > STANDARDIZE X ----
+
+  if (standardize){
+
+    X <- YX_mat[,-1]
+    X.center <- colMeans(X)
+    X <- X - rep(X.center, rep.int(n,p))
+    X.scale <- sqrt(colSums(X^2)/(n-1))
+    X <- X / rep(X.scale, rep.int(n,p))
+
+    YX_mat[,-1] <- X
+
+  }
+
+  # GA ----
+
   if (ties.method == "random"){
 
     if(!is.null(seed)) set.seed(seed)
@@ -62,7 +80,7 @@ Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties.method=c("r
     GA <- GA::ga(type = "real-valued",
                  population = Lorenz.Population,
                  fitness =  function(u)Fitness_cpp(u,as.vector(YX_mat[,1]),as.matrix(YX_mat[,-1]),V,pi),
-                 lower = rep(-1,n.param-1), upper = rep(1,n.param-1),
+                 lower = rep(-1,p-1), upper = rep(1,p-1),
                  popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
                  parallel = parallel)
 
@@ -96,7 +114,7 @@ Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties.method=c("r
     GA <- GA::ga(type = "real-valued",
                  population = Lorenz.Population,
                  fitness =  function(u)Fitness_meanrank(u,as.vector(YX_mat[,1]),as.matrix(YX_mat[,-1]),pi),
-                 lower = rep(-1,n.param-1), upper = rep(1,n.param-1),
+                 lower = rep(-1,p-1), upper = rep(1,p-1),
                  popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
                  parallel = parallel)
 
@@ -128,9 +146,18 @@ Lorenz.GA.cpp<-function(YX_mat,popSize=50,maxiter=1500,run=150, ties.method=c("r
 
   }
 
-  # We spit out the actual solution, with the right sign for the last coeff as well as the Lorenz-Rsquared
-  result <- list(sol=theta.argmax,LR2=LR2,Gi.expl=Gi.expl,niter=length(GA@summary[,1]),fit=GA@fitnessValue)
+  # POST-PLR ----
 
-  return(result)
+  if (standardize) theta.argmax <- theta.argmax/X.scale # Need to put back on the original scale
+  theta <- theta.argmax/sum(abs(theta.argmax))
+
+  Return.list <- list()
+  Return.list$theta <- theta
+  Return.list$LR2 <- LR2
+  Return.list$Gi.expl <- Gi.expl
+  Return.list$niter <- length(GA@summary[,1])
+  Return.list$fit <- GA@fitnessValue
+
+  return(Return.list)
 
 }
