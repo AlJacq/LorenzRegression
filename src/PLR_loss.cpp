@@ -20,7 +20,7 @@ double PLR_loss_cpp(arma::mat X, arma::vec y, arma::vec pi, arma::vec theta, dou
     for (j=0; j<i; j++)
     {
       u = (index(i)-index(j))/sigma;
-      sum =  sum + 1.0* (y(i)*pi(j)-y(j)*pi(i)) / (1 + exp(-1.0*u));
+      sum =  sum + 1.0* pi(i)*pi(j)*(y(i)-y(j)) / (1 + exp(-1.0*u));
     }
   }
 

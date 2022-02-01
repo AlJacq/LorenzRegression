@@ -34,7 +34,7 @@ arma::vec PLR_derivative_cpp(arma::vec y, arma::mat X, arma::vec pi, arma::vec t
         else a0 = exp(-1.0*u)/pow(1.0 + exp(-1.0*u),2.0);
 
         for (k=0; k<p; k++){
-          der(k) = der(k) + 1.0 * (y(i)*pi(j)-y(j)*pi(i)) * a0 * (v(k));
+          der(k) = der(k) + 1.0 * pi(i)*pi(j)*(y(i)-y(j)) * a0 * (v(k));
         }
 
       }
