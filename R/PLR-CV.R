@@ -10,8 +10,9 @@
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param eps Step size in the FABS or SCADFABS algorithm. Default value is 0.005.
 #' @param nfolds Number of folds. Default value is 10.
+#' @param seed.CV Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
 #' @param parallel Whether parallel computing should be used to distribute the \code{nfolds} computations on different CPUs. Default value is FALSE.
-#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.SCADFABS} or \code{\link{Lorenz.FABS} depending on the argument chosen in penalty.
+#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #'
 #' @return A list with two components
 #' \describe{
@@ -43,6 +44,7 @@ PLR.CV<-function(formula,
                  weights=NULL,
                  eps,
                  nfolds=10,
+                 seed.CV=NULL,
                  parallel=F,
                  ...
 ){
@@ -85,13 +87,14 @@ PLR.CV<-function(formula,
   # No need to do it since it will be dealt with in PLR.wrap
 
   # PRE-CV > INITIAL EST ----
-  if(is.null(PLR.est)) PLR.est <- PLR.Wrap(YX_mat, standardize = standardize, weights = weights, penalty = penalty, eps = eps, ...)
+  if(is.null(PLR.est)) PLR.est <- PLR.wrap(YX_mat, standardize = standardize, weights = weights, penalty = penalty, eps = eps, ...)
 
   # CV > INNER ----
 
+  if(!is.null(seed.CV)) set.seed(seed.CV)
   folds <- cut(sample(seq(1,n)),breaks=nfolds,labels=FALSE)
 
-  CV.inner <- function(k){
+  CV.inner <- function(k, ...){
 
     # Construct Test and Validation bootstrap samples
     fold.k <- folds==k
