@@ -6,6 +6,7 @@
 \usage{
 Lorenz.GA.cpp(
   YX_mat,
+  standardize = T,
   popSize = 50,
   maxiter = 1500,
   run = 150,
@@ -17,6 +18,8 @@ Lorenz.GA.cpp(
 }
 \arguments{
 \item{YX_mat}{A matrix with the first column corresponding to the response vector, the remaining ones being the explanatory variables.}
+
+\item{standardize}{Should the variables be standardized before the estimation process? Default value is TRUE.}
 
 \item{popSize}{Size of the population of candidates in the genetic algorithm. Default value is 50.}
 
@@ -35,7 +38,7 @@ Lorenz.GA.cpp(
 \value{
 A list with several components:
 \describe{
-   \item{\code{sol}}{the estimated vector of parameters.}
+   \item{\code{theta}}{the estimated vector of parameters.}
    \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression.}
    \item{\code{Gi.expl}}{the estimated explained Gini coefficient.}
    \item{\code{niter}}{number of iterations attained by the genetic algorithm.}

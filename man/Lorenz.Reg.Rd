@@ -4,7 +4,19 @@
 \alias{Lorenz.Reg}
 \title{Undertakes a Lorenz regression}
 \usage{
-Lorenz.Reg(formula, data, standardize = T, weights = NULL, ...)
+Lorenz.Reg(
+  formula,
+  data,
+  standardize = T,
+  weights = NULL,
+  parallel = F,
+  penalty = c("none", "SCAD", "LASSO"),
+  eps = 0.005,
+  lambda.choice = c("BIC", "CV")[1],
+  nfolds = 10,
+  seed.CV = NULL,
+  ...
+)
 }
 \arguments{
 \item{formula}{A formula object of the form \emph{response} ~ \emph{other_variables}.}
@@ -15,17 +27,43 @@ Lorenz.Reg(formula, data, standardize = T, weights = NULL, ...)
 
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
-\item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}}
+\item{parallel}{Whether parallel computing should be used. Default value is FALSE.}
+
+\item{penalty}{should the regression include a penalty on the coefficients size.
+If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA.cpp}}.
+If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
+IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.}
+
+\item{eps}{Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
+
+\item{lambda.choice}{Only used if penalty="SCAD" or penalty="LASSO". Determines what method is used to determine the optimal regularization parameter. Possibles values are "BIC" (Default), "CV" or c("BIC","CV"). In the last case, both methods are used.}
+
+\item{nfolds}{Only used if lambda.choice contains "CV". Number of folds in the cross-validation.}
+
+\item{seed.CV}{Only used if lambda.choice contains "CV". Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.}
+
+\item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.}
 }
 \value{
-A list with several components:
+For the Non-penalized Lorenz Regression, a list with the following elements :
 \describe{
-   \item{\code{theta}}{the estimated vector of parameters (on the original scale, even if \code{standardize} is TRUE).}
-   \item{\code{expl.Gini}}{the estimated explained Gini coefficient}
-   \item{\code{LorenzR2}}{the Lorenz-\eqn{R^2} of the regression.}
+   \item{\code{theta}}{the estimated vector of parameters.}
+   \item{\code{summary}}{a vector including the estimated explained Gini coefficient and the Lorenz-\eqn{R^2}.}
+   \item{\code{Gi.expl}}{the estimated explained Gini coefficient}
+   \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression.}
    \item{\code{MRS}}{the matrix of estimated marginal rates of substitution. More precisely, if we want the MRS of X1 (numerator) with respect to X2 (denominator),
-   we should look for row corresponding to X1 and column corresponding to X2}.
+   we should look for row corresponding to X1 and column corresponding to X2.}
    \item{\code{Fit}}{A data frame containing the response (first column) and the estimated index (second column).}
+}
+For the Penalized Lorenz Regression, a list with the following elements.
+\describe{
+   \item{\code{path}}{a matrix where the first line displays the path of regularization parameters. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that path. The remaining lines display the evolution of the estimated parameter vector.}
+   \item{\code{theta}}{the estimated vector of parameters at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), it becomes a matrix where the first line corresponds to cross-validation, the second to BIC.}
+   \item{\code{summary}}{a vector including the estimated explained Gini coefficient and the Lorenz-\eqn{R^2} at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), it becomes a matrix where the first line corresponds to cross-validation, the second to BIC.}
+   \item{\code{Gi.expl}}{the estimated explained Gini coefficient at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), it becomes a vector where the first element corresponds to cross-validation, the second to BIC.}
+   \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression. If lambda.choice=c("BIC","CV"), it becomes a vector where the first element corresponds to cross-validation, the second to BIC.}
+   \item{\code{MRS}}{the matrix of estimated marginal rates of substitution for non-zero coefficients at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), it becomes a list where the first element corresponds to cross-validation, the second to BIC.}
+   \item{\code{Fit}}{A data frame containing the response (first column) and the estimated index (second column) at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), the dataframe contains three columns: the first corresponding to the response, the second to the estimated index obtained using CV. Finally, the third corresponds to the estimated index using BIC.}
 }
 }
 \description{
@@ -38,10 +76,15 @@ Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index cond
 
 \examples{
 data(Data.Incomes)
-Lorenz.Reg(Income ~ Age + Work.Hours, data = Data.Incomes)
-
+# 1. Non-penalized regression
+NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
+# 2. Penalized regression
+PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", lambda.choice = c("BIC","CV"), eps = 0.01, nfolds = 5)
+# Comparison
+NPLR$theta/sqrt(sum(NPLR$theta**2));PLR$theta
+NPLR$summary;PLR$summary
 
 }
 \seealso{
-\code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.boot}}
+\code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}
 }

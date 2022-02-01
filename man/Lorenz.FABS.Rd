@@ -74,5 +74,5 @@ Lorenz.FABS(YX_mat, eps = 0.005)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.SCADFABS}}
+\code{\link{Lorenz.Reg}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.SCADFABS}}
 }

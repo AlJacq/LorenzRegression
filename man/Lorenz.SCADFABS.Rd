@@ -49,9 +49,9 @@ A list with several components:
    \item{\code{direction}}{vector providing the direction (-1 = backward step, 1 = forward step) for each iteration.}
    \item{\code{lambda}}{value of the regularization parameter for each iteration.}
    \item{\code{sigma}}{value of the smoothing parameter.}
-   \item{\code{theta}}{matrix where column i provides the estimated parameter vector for iteration i.}
-   \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression.}
-   \item{\code{Gi.expl}}{the estimated explained Gini coefficient.}
+   \item{\code{theta}}{matrix where column i provides the non-normalized estimated parameter vector for iteration i.}
+   \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} of the regression for iteration i.}
+   \item{\code{Gi.expl}}{vector where element i provides the estimated explained Gini coefficient for iteration i.}
 }
 }
 \description{
@@ -76,5 +76,5 @@ Lorenz.SCADFABS(YX_mat, eps = 0.005)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.FABS}}
+\code{\link{Lorenz.Reg}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.FABS}}
 }

@@ -19,7 +19,7 @@ PLR.BIC(YX_mat, theta, weights = NULL, IC = c("BIC", "AIC"))
 A list with two components
 \describe{
    \item{\code{val}}{vector indicating the value attained by the information criterion for each value of lambda.}
-   \item{\code{best}}{index of the column where the optimum is attained.}
+   \item{\code{best}}{index of the value of lambda where the optimum is attained.}
 }
 }
 \description{
@@ -34,10 +34,10 @@ Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index cond
 \examples{
 data(Data.Incomes)
 YX_mat <- Data.Incomes
-PLR <- Lorenz.SCADFABS(YX_mat, eps = 0.005)
+PLR <- PLR.wrap(YX_mat, eps = 0.005)
 PLR.BIC(YX_mat, PLR$theta)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.SCADFABS}}
+\code{\link{Lorenz.Reg}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.SCADFABS}}
 }
