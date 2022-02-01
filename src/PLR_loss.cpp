@@ -27,7 +27,7 @@ double PLR_loss_cpp(arma::mat X, arma::vec y, arma::vec pi, arma::vec theta, dou
   for (k=0; k<p; k++)
     pen = pen + pow(theta[k],2.0);
 
-  sum = -sum/(n-1) + gamma*pen;
+  sum = -sum + gamma*pen;
 
   return sum;
 }

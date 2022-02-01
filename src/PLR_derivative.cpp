@@ -42,7 +42,7 @@ arma::vec PLR_derivative_cpp(arma::vec y, arma::mat X, arma::vec pi, arma::vec t
   }
 
   for (k=0; k<p; k++)
-    der[k] = der[k]/(n-1) - 2*gamma*theta[k];
+    der[k] = der[k] - 2*gamma*theta[k];
 
   return der;
 }
