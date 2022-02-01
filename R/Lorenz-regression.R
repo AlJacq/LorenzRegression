@@ -6,31 +6,62 @@
 #' @param data A data frame containing the variables displayed in the formula.
 #' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
-#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}
+#' @param parallel Whether parallel computing should be used. Default value is FALSE.
+#' @param penalty should the regression include a penalty on the coefficients size.
+#' If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA.cpp}}.
+#' If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
+#' IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.
+#' @param eps Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.
+#' @param lambda.choice Only used if penalty="SCAD" or penalty="LASSO". Determines what method is used to determine the optimal regularization parameter. Possibles values are "BIC" (Default), "CV" or c("BIC","CV"). In the last case, both methods are used.
+#' @param nfolds Only used if lambda.choice contains "CV". Number of folds in the cross-validation.
+#' @param seed.CV Only used if lambda.choice contains "CV". Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
+#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #'
-#' @return A list with several components:
+#' @return For the Non-penalized Lorenz Regression, a list with the following elements :
 #' \describe{
-#'    \item{\code{theta}}{the estimated vector of parameters (on the original scale, even if \code{standardize} is TRUE).}
-#'    \item{\code{expl.Gini}}{the estimated explained Gini coefficient}
-#'    \item{\code{LorenzR2}}{the Lorenz-\eqn{R^2} of the regression.}
+#'    \item{\code{theta}}{the estimated vector of parameters.}
+#'    \item{\code{summary}}{a vector including the estimated explained Gini coefficient and the Lorenz-\eqn{R^2}.}
+#'    \item{\code{Gi.expl}}{the estimated explained Gini coefficient}
+#'    \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression.}
 #'    \item{\code{MRS}}{the matrix of estimated marginal rates of substitution. More precisely, if we want the MRS of X1 (numerator) with respect to X2 (denominator),
-#'    we should look for row corresponding to X1 and column corresponding to X2}.
+#'    we should look for row corresponding to X1 and column corresponding to X2.}
 #'    \item{\code{Fit}}{A data frame containing the response (first column) and the estimated index (second column).}
 #' }
+#' For the Penalized Lorenz Regression, a list with the following elements.
+#' \describe{
+#'    \item{\code{path}}{a matrix where the first line displays the path of regularization parameters. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that path. The remaining lines display the evolution of the estimated parameter vector.}
+#'    \item{\code{theta}}{the estimated vector of parameters at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), it becomes a matrix where the first line corresponds to cross-validation, the second to BIC.}
+#'    \item{\code{summary}}{a vector including the estimated explained Gini coefficient and the Lorenz-\eqn{R^2} at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), it becomes a matrix where the first line corresponds to cross-validation, the second to BIC.}
+#'    \item{\code{Gi.expl}}{the estimated explained Gini coefficient at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), it becomes a vector where the first element corresponds to cross-validation, the second to BIC.}
+#'    \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression. If lambda.choice=c("BIC","CV"), it becomes a vector where the first element corresponds to cross-validation, the second to BIC.}
+#'    \item{\code{MRS}}{the matrix of estimated marginal rates of substitution for non-zero coefficients at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), it becomes a list where the first element corresponds to cross-validation, the second to BIC.}
+#'    \item{\code{Fit}}{A data frame containing the response (first column) and the estimated index (second column) at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), the dataframe contains three columns: the first corresponding to the response, the second to the estimated index obtained using CV. Finally, the third corresponds to the estimated index using BIC.}
+#' }
 #'
-#' @seealso \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.boot}}
+#' @seealso \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}
 #'
 #' @section References:
 #' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
 #'
 #' @examples
 #' data(Data.Incomes)
-#' Lorenz.Reg(Income ~ Age + Work.Hours, data = Data.Incomes)
-#'
+#' # 1. Non-penalized regression
+#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
+#' # 2. Penalized regression
+#' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", lambda.choice = c("BIC","CV"), eps = 0.01, nfolds = 5)
+#' # Comparison
+#' NPLR$theta/sqrt(sum(NPLR$theta**2));PLR$theta
+#' NPLR$summary;PLR$summary
 #'
 #' @export
 
-Lorenz.Reg <- function(formula, data, standardize=T, weights=NULL, ...){
+Lorenz.Reg <- function(formula, data, standardize=T, weights=NULL, parallel=F, penalty=c("none","SCAD","LASSO"), eps=0.005, lambda.choice=c("BIC","CV")[1], nfolds=10, seed.CV=NULL, ...){
+
+  # Check on penalty
+  penalty <- match.arg(penalty)
+
+  # Check on lambda.choice
+  if( !all(lambda.choice%in%c("BIC","CV")) ) stop("lambda.choice should be a subvector of c(\"BIC\",\"CV\")")
 
   return.list <- list()
 
@@ -68,52 +99,124 @@ Lorenz.Reg <- function(formula, data, standardize=T, weights=NULL, ...){
   n <- length(YX_mat[,1])
   p <- length(YX_mat[1,])-1
 
-  # 1. Standardize X ----
+  # 1. (Penalized) Lorenz Regression ----
 
-  if (standardize){
-
-    X <- YX_mat[,-1]
-    X.center <- colMeans(X)
-    X <- X - rep(X.center, rep.int(n,p))
-    X.scale <- sqrt(colSums(X^2)/(n-1))
-    X <- X / rep(X.scale, rep.int(n,p))
-
-    YX_mat[,-1] <- X
-
+  if(penalty == "none"){
+    LR <- Lorenz.GA.cpp(YX_mat, standardize=standardize, weights=weights, parallel=parallel, ...)
+  }else{
+    LR <- PLR.wrap(YX_mat, standardize=standardize, weights=weights, penalty=penalty, eps=eps, ...)
   }
 
-  # 2. Estimation of theta ----
+  # 2. Output of the PLR ----
 
-  if(is.null(weights)){
-    weights <- rep(1,n)
+  if(penalty == "none"){
+
+    # Estimation of theta
+    theta <- LR$theta # Vector of estimated coefficients
+    names(theta) <- colnames(YX_mat[,-1])
+    # Summary
+    summary <- c()
+    summary["Explained Gini"] <- LR$Gi.expl
+    summary["Lorenz-R2"] <- LR$LR2
+    # Matrix of MRS
+    MRS <- outer(theta,theta,"/")
+    # Estimated index
+    Fit <- data.frame(Response = Data.temp[,1], Index = as.vector(theta%*%t(Data.temp[,-1])))
+    # Return
+    return.list$theta <- theta
+    return.list$summary <- summary
+    return.list$Gi.expl <- LR$Gi.expl
+    return.list$LR2 <- LR$LR2
+    return.list$MRS <- MRS
+    return.list$Fit <- Fit
+
+  }else{
+
+    # Path
+    Path <- rbind(LR$lambda, LR$LR2, LR$Gi.expl, LR$theta)
+    rownames(Path) <- c("lambda","Lorenz-R2","Explained Gini",colnames(YX_mat[,-1]))
+    # BIC and/or CV
+    if ("BIC" %in% lambda.choice) best.BIC <- PLR.BIC(YX_mat, LR$theta, weights = weights)$best
+    if ("CV" %in% lambda.choice) best.CV <- PLR.CV(formula, data, penalty = penalty, PLR.est = LR, standardize = standardize, weights = weights, eps = eps, nfolds = nfolds, parallel = parallel, seed.CV = seed.CV, ...)$best
+    # BIC only output
+    if ( ("BIC" %in% lambda.choice) & !("CV" %in% lambda.choice) ){
+      # Estimation of theta
+      theta <- LR$theta[,best.BIC] # Vector of estimated coefficients
+      names(theta) <- colnames(YX_mat[,-1])
+      # Summary
+      summary <- c()
+      summary["Explained Gini"] <- LR$Gi.expl[best.BIC]
+      summary["Lorenz-R2"] <- LR$LR2[best.BIC]
+      summary["lambda"] <- LR$lambda[best.BIC]
+      # Matrix of MRS
+      theta.MRS <- theta[theta!=0]
+      MRS <- outer(theta.MRS,theta.MRS,"/")
+      # Estimated index
+      Fit <- data.frame(Response = Data.temp[,1], Index = as.vector(theta%*%t(Data.temp[,-1])))
+      # Return
+      return.list$path <- Path
+      return.list$theta <- theta
+      return.list$summary <- summary
+      return.list$Gi.expl <- LR$Gi.expl[best.BIC]
+      return.list$LR2 <- LR$LR2[best.BIC]
+      return.list$MRS <- MRS
+      return.list$Fit <- Fit
+    }
+    # CV only output
+    if ( ("CV" %in% lambda.choice) & !("BIC" %in% lambda.choice) ){
+      # Estimation of theta
+      theta <- LR$theta[,best.CV] # Vector of estimated coefficients
+      names(theta) <- colnames(YX_mat[,-1])
+      # Summary
+      summary <- c()
+      summary["Explained Gini"] <- LR$Gi.expl[best.CV]
+      summary["Lorenz-R2"] <- LR$LR2[best.CV]
+      summary["lambda"] <- LR$lambda[best.CV]
+      # Matrix of MRS
+      theta.MRS <- theta[theta!=0]
+      MRS <- outer(theta.MRS,theta.MRS,"/")
+      # Estimated index
+      Fit <- data.frame(Response = Data.temp[,1], Index = as.vector(theta%*%t(Data.temp[,-1])))
+      # Return
+      return.list$path <- Path
+      return.list$theta <- theta
+      return.list$summary <- summary
+      return.list$Gi.expl <- LR$Gi.expl[best.CV]
+      return.list$LR2 <- LR$LR2[best.CV]
+      return.list$MRS <- MRS
+      return.list$Fit <- Fit
+    }
+    # CV and BIC output
+    if ( ("CV" %in% lambda.choice) & ("BIC" %in% lambda.choice) ){
+      # Estimation of theta
+      theta <- t(LR$theta[,c(best.CV,best.BIC)]) # Vector of estimated coefficients
+      colnames(theta) <- colnames(YX_mat[,-1])
+      rownames(theta) <- c("CV","BIC")
+      # Summary
+      summary <- matrix(nrow=2,ncol=3)
+      summary[,1] <- LR$Gi.expl[c(best.CV, best.BIC)]
+      summary[,2] <- LR$LR2[c(best.CV, best.BIC)]
+      summary[,3] <- LR$lambda[c(best.CV, best.BIC)]
+      rownames(summary) <- c("CV","BIC")
+      colnames(summary) <- c("Explained Gini", "Lorenz-R2", "lambda")
+      # Matrix of MRS
+      MRS <- list()
+      theta.MRS.CV <- theta["CV",][theta["CV",]!=0]
+      MRS$CV <- outer(theta.MRS.CV,theta.MRS.CV,"/")
+      theta.MRS.BIC <- theta["BIC",][theta["BIC",]!=0]
+      MRS$BIC <- outer(theta.MRS.BIC,theta.MRS.BIC,"/")
+      # Estimated index
+      Fit <- data.frame(Response = Data.temp[,1], Index.CV = as.vector(theta["CV",]%*%t(Data.temp[,-1])), Index.BIC = as.vector(theta["BIC",]%*%t(Data.temp[,-1])))
+      # Return
+      return.list$path <- Path
+      return.list$theta <- theta
+      return.list$summary <- summary
+      return.list$Gi.expl <- summary[,1]
+      return.list$LR2 <- summary[,2]
+      return.list$MRS <- MRS
+      return.list$Fit <- Fit
+    }
   }
-
-  LR <- Lorenz.GA.cpp(YX_mat, weights=weights, ...)
-
-  # Estimation of the explained Gini coef
-  Gi.expl <- LR$Gi.expl
-  # Computation of Lorenz-R2
-  LorenzR2 <- LR$LR2
-  # Vector of estimated thetas
-  theta <- LR$sol
-  if (standardize){# Should take into account the standardization
-    # theta.standardize <- theta
-    # names(theta.standardize) <- colnames(YX_mat[,-1])
-    # MRS.standardize <- outer(theta.standardize,theta.standardize,"/")
-    theta <- theta/X.scale
-    theta <- theta/sum(abs(theta))
-  }
-  names(theta) <- colnames(YX_mat[,-1])
-  # Matrix of MRS
-  MRS <- outer(theta,theta,"/")
-  # Estimated index
-  Fit <- data.frame(Response = Data.temp[,1], Index = as.vector(theta%*%t(Data.temp[,-1])))
-
-  return.list$theta <- theta
-  return.list$expl.Gini <- Gi.expl
-  return.list$LorenzR2 <- LorenzR2
-  return.list$MRS <- MRS
-  return.list$Fit <- Fit
 
   return(return.list)
 }

@@ -7,7 +7,7 @@
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param penalty penalty used in the Penalized Lorenz Regression. Possible values are "SCAD" (default) or "LASSO".
 #' @param eps Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.
-#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.SCADFABS} or \code{\link{Lorenz.FABS} depending on the argument chosen in penalty.
+#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #'
 #' @return A list with several components:
 #' \describe{
