@@ -10,6 +10,7 @@
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param eps Step size in the FABS or SCADFABS algorithm. Default value is 0.005.
 #' @param nfolds Number of folds. Default value is 10.
+#' @param foldID vector taking value from 1 to nfolds specifying the fold index of each observation. Default value is NULL in which case the folds are defined internally.
 #' @param seed.CV Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
 #' @param parallel Whether parallel computing should be used to distribute the \code{nfolds} computations on different CPUs. Default value is FALSE.
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
@@ -44,6 +45,7 @@ PLR.CV<-function(formula,
                  weights=NULL,
                  eps,
                  nfolds=10,
+                 foldID=NULL,
                  seed.CV=NULL,
                  parallel=F,
                  ...
@@ -91,8 +93,12 @@ PLR.CV<-function(formula,
 
   # CV > INNER ----
 
-  if(!is.null(seed.CV)) set.seed(seed.CV)
-  folds <- cut(sample(seq(1,n)),breaks=nfolds,labels=FALSE)
+  if (is.null(foldID)){
+    if(!is.null(seed.CV)) set.seed(seed.CV)
+    folds <- cut(sample(seq(1,n)),breaks=nfolds,labels=FALSE)
+  }else{
+    folds <- foldID
+  }
 
   CV.inner <- function(k, ...){
 
