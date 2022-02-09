@@ -18,6 +18,8 @@
 #' data(Data.Incomes)
 #' Lorenz.graphs(Income ~ Age + Work.Hours, data = Data.Incomes)
 #'
+#' @import ggplot2
+#'
 #' @export
 
 Lorenz.graphs <- function(formula, data, ...){
