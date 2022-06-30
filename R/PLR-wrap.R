@@ -40,7 +40,8 @@ PLR.wrap <- function(YX_mat, standardize=T, weights=NULL, penalty=c("SCAD","LASS
     X <- YX_mat[,-1]
     X.center <- colMeans(X)
     X <- X - rep(X.center, rep.int(n,p))
-    X.scale <- sqrt(colSums(X^2)/(n-1))
+    # X.scale <- sqrt(colSums(X^2)/(n-1))
+    X.scale <- sqrt(colSums(X^2)/(n)) # Changé le 25-04-2022 pour assurer l'équivalence au niveau des catégorielles
     X <- X / rep(X.scale, rep.int(n,p))
 
     YX_mat[,-1] <- X
@@ -51,7 +52,7 @@ PLR.wrap <- function(YX_mat, standardize=T, weights=NULL, penalty=c("SCAD","LASS
 
   if(penalty == "SCAD"){
     PLR <- Lorenz.SCADFABS(YX_mat, weights=weights, eps=eps, ...)
-  }else{
+  }else if(penalty == "LASSO"){
     PLR <- Lorenz.FABS(YX_mat, weights=weights, eps=eps, ...)
   }
 
