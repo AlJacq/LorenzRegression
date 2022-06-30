@@ -51,6 +51,10 @@ PLR.CV<-function(formula,
                  ...
 ){
 
+  if(!is.null(foldID)){
+    nfolds <- length(unique(foldID))
+  }
+
   # PRE-CV ---- GETTING YX_mat ----
 
   # Transform the formula into dataframe

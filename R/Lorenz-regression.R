@@ -15,6 +15,7 @@
 #' @param lambda.choice Only used if penalty="SCAD" or penalty="LASSO". Determines what method is used to determine the optimal regularization parameter. Possibles values are "BIC" (Default), "CV" or c("BIC","CV"). In the last case, both methods are used.
 #' @param nfolds Only used if lambda.choice contains "CV". Number of folds in the cross-validation.
 #' @param seed.CV Only used if lambda.choice contains "CV". Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
+#' @param foldID vector taking value from 1 to nfolds specifying the fold index of each observation. Default value is NULL in which case the folds are defined internally.
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #'
 #' @return For the Non-penalized Lorenz Regression, a list with the following elements :
@@ -55,7 +56,7 @@
 #'
 #' @export
 
-Lorenz.Reg <- function(formula, data, standardize=T, weights=NULL, parallel=F, penalty=c("none","SCAD","LASSO"), eps=0.005, lambda.choice=c("BIC","CV")[1], nfolds=10, seed.CV=NULL, ...){
+Lorenz.Reg <- function(formula, data, standardize=T, weights=NULL, parallel=F, penalty=c("none","SCAD","LASSO"), eps=0.005, lambda.choice=c("BIC","CV")[1], nfolds=10, seed.CV=NULL, foldID=NULL, ...){
 
   # Check on penalty
   penalty <- match.arg(penalty)
@@ -132,12 +133,30 @@ Lorenz.Reg <- function(formula, data, standardize=T, weights=NULL, parallel=F, p
 
   }else{
 
+    # Number of variables selected
+    n_selected <- apply(LR$theta,2,function(x)sum(abs(x) > 10^(-10)))
     # Path
-    Path <- rbind(LR$lambda, LR$LR2, LR$Gi.expl, LR$theta)
-    rownames(Path) <- c("lambda","Lorenz-R2","Explained Gini",colnames(YX_mat[,-1]))
+    Path <- rbind(LR$lambda, LR$LR2, LR$Gi.expl, n_selected)
+    rownames(Path) <- c("lambda","Lorenz-R2","Explained Gini", "Number of nonzeroes")
     # BIC and/or CV
-    if ("BIC" %in% lambda.choice) best.BIC <- PLR.BIC(YX_mat, LR$theta, weights = weights)$best
-    if ("CV" %in% lambda.choice) best.CV <- PLR.CV(formula, data, penalty = penalty, PLR.est = LR, standardize = standardize, weights = weights, eps = eps, nfolds = nfolds, parallel = parallel, seed.CV = seed.CV, ...)$best
+    if ("BIC" %in% lambda.choice){
+      Path_BIC <- PLR.BIC(YX_mat, LR$theta, weights = weights)
+      best.BIC <- Path_BIC$best
+      val.BIC <- Path_BIC$val
+      Path <- rbind(Path, val.BIC)
+      rownames(Path)[nrow(Path)] <- "BIC score"
+    }
+    if ("CV" %in% lambda.choice){
+      Path_CV <- PLR.CV(formula, data, penalty = penalty, PLR.est = LR, standardize = standardize, weights = weights, eps = eps, nfolds = nfolds, parallel = parallel, seed.CV = seed.CV, foldID = foldID, ...)
+      best.CV <- Path_CV$best
+      val.CV <- Path_CV$val
+      Path <- rbind(Path, val.CV)
+      rownames(Path)[nrow(Path)] <- "CV score"
+    }
+    lth <- nrow(Path)
+    Path <- rbind(Path, LR$theta)
+    rownames(Path)[(lth+1):nrow(Path)] <- colnames(YX_mat[,-1])
+
     # BIC only output
     if ( ("BIC" %in% lambda.choice) & !("CV" %in% lambda.choice) ){
       # Estimation of theta
@@ -148,6 +167,8 @@ Lorenz.Reg <- function(formula, data, standardize=T, weights=NULL, parallel=F, p
       summary["Explained Gini"] <- LR$Gi.expl[best.BIC]
       summary["Lorenz-R2"] <- LR$LR2[best.BIC]
       summary["lambda"] <- LR$lambda[best.BIC]
+      summary["Number of variables"] <- n_selected[best.BIC]
+      summary["BIC score"] <- val.BIC[best.BIC]
       # Matrix of MRS
       theta.MRS <- theta[theta!=0]
       MRS <- outer(theta.MRS,theta.MRS,"/")
@@ -172,6 +193,8 @@ Lorenz.Reg <- function(formula, data, standardize=T, weights=NULL, parallel=F, p
       summary["Explained Gini"] <- LR$Gi.expl[best.CV]
       summary["Lorenz-R2"] <- LR$LR2[best.CV]
       summary["lambda"] <- LR$lambda[best.CV]
+      summary["Number of variables"] <- n_selected[best.CV]
+      summary["CV score"] <- val.CV[best.CV]
       # Matrix of MRS
       theta.MRS <- theta[theta!=0]
       MRS <- outer(theta.MRS,theta.MRS,"/")
@@ -193,12 +216,15 @@ Lorenz.Reg <- function(formula, data, standardize=T, weights=NULL, parallel=F, p
       colnames(theta) <- colnames(YX_mat[,-1])
       rownames(theta) <- c("CV","BIC")
       # Summary
-      summary <- matrix(nrow=2,ncol=3)
+      summary <- matrix(nrow=2,ncol=6)
       summary[,1] <- LR$Gi.expl[c(best.CV, best.BIC)]
       summary[,2] <- LR$LR2[c(best.CV, best.BIC)]
       summary[,3] <- LR$lambda[c(best.CV, best.BIC)]
+      summary[,4] <- n_selected[c(best.CV, best.BIC)]
+      summary[,5] <- val.BIC[c(best.CV, best.BIC)]
+      summary[,6] <- val.CV[c(best.CV, best.BIC)]
       rownames(summary) <- c("CV","BIC")
-      colnames(summary) <- c("Explained Gini", "Lorenz-R2", "lambda")
+      colnames(summary) <- c("Explained Gini", "Lorenz-R2", "lambda", "Number of variables", "BIC score", "CV score")
       # Matrix of MRS
       MRS <- list()
       theta.MRS.CV <- theta["CV",][theta["CV",]!=0]
