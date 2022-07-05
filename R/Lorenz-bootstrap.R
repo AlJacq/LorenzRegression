@@ -129,7 +129,7 @@ Lorenz.boot<-function(formula,
     X <- YX_mat[,-1]
     X.center <- colMeans(X)
     X <- X - rep(X.center, rep.int(n,p))
-    X.scale <- sqrt(colSums(X^2)/(n-1))
+    X.scale <- sqrt(colSums(X^2)/n)
     X <- X / rep(X.scale, rep.int(n,p))
 
     YX_mat[,-1] <- X
