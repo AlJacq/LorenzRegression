@@ -55,7 +55,7 @@ PLR.CV<-function(formula,
     nfolds <- length(unique(foldID))
   }
 
-  # PRE-CV ---- GETTING YX_mat ----
+  # PRE-CV > GETTING YX_mat ----
 
   # Transform the formula into dataframe
   Data.temp.X <- as.data.frame(stats::model.matrix(formula,data=data)[,-1])

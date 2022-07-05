@@ -39,7 +39,7 @@
 #'    \item{\code{Fit}}{A data frame containing the response (first column) and the estimated index (second column) at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), the dataframe contains three columns: the first corresponding to the response, the second to the estimated index obtained using CV. Finally, the third corresponds to the estimated index using BIC.}
 #' }
 #'
-#' @seealso \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}
+#' @seealso \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{PLR.boot}}
 #'
 #' @section References:
 #' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
