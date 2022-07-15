@@ -6,6 +6,7 @@
 #' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param penalty penalty used in the Penalized Lorenz Regression. Possible values are "SCAD" (default) or "LASSO".
+#' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.
 #' @param eps Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #'
@@ -26,7 +27,7 @@
 #'
 #' @export
 
-PLR.wrap <- function(YX_mat, standardize=T, weights=NULL, penalty=c("SCAD","LASSO"), eps = 0.005, ...){
+PLR.wrap <- function(YX_mat, standardize=T, weights=NULL, penalty=c("SCAD","LASSO"), h, eps = 0.005, ...){
 
   penalty <- match.arg(penalty)
 
@@ -51,9 +52,9 @@ PLR.wrap <- function(YX_mat, standardize=T, weights=NULL, penalty=c("SCAD","LASS
   # PLR ----
 
   if(penalty == "SCAD"){
-    PLR <- LorenzRegression::Lorenz.SCADFABS(YX_mat, weights=weights, eps=eps, ...)
+    PLR <- LorenzRegression::Lorenz.SCADFABS(YX_mat, weights=weights, eps=eps, h=h, ...)
   }else if(penalty == "LASSO"){
-    PLR <- LorenzRegression::Lorenz.FABS(YX_mat, weights=weights, eps=eps, ...)
+    PLR <- LorenzRegression::Lorenz.FABS(YX_mat, weights=weights, eps=eps, h=h, ...)
   }
 
   # POST-PLR ----

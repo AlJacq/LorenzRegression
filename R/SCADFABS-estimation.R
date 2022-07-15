@@ -9,7 +9,7 @@
 #'
 #' @param YX_mat a matrix with the first column corresponding to the response vector, the remaining ones being the explanatory variables.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
-#' @param sigma value of the parameter of the sigmoid function, determining the smoothness of the approximation of the indicator function. Default value is 1/sqrt(n), where n is the number of observations.
+#' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.
 #' @param w.adaptive vector of size equal to the number of covariates where each entry indicates the weight in the adaptive Lasso. By default, each covariate is given the same weight (Lasso).
 #' @param eps step size in the FABS algorithm.
 #' @param a parameter of the SCAD penalty. Default value is 3.7.
@@ -28,7 +28,7 @@
 #'    \item{\code{iter}}{number of iterations attained by the algorithm.}
 #'    \item{\code{direction}}{vector providing the direction (-1 = backward step, 1 = forward step) for each iteration.}
 #'    \item{\code{lambda}}{value of the regularization parameter for each iteration.}
-#'    \item{\code{sigma}}{value of the smoothing parameter.}
+#'    \item{\code{h}}{value of the bandwidth.}
 #'    \item{\code{theta}}{matrix where column i provides the non-normalized estimated parameter vector for iteration i.}
 #'    \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} of the regression for iteration i.}
 #'    \item{\code{Gi.expl}}{vector where element i provides the estimated explained Gini coefficient for iteration i.}
@@ -49,7 +49,7 @@
 #'
 #' @export
 
-Lorenz.SCADFABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), eps, a = 3.7,
+Lorenz.SCADFABS <- function(YX_mat, weights=NULL, h, eps, a = 3.7,
                 iter=10^4, lambda="Shi", lambda.min = 1e-7, gamma = 0.05){
 
   X <- YX_mat[,-1]
@@ -77,7 +77,7 @@ Lorenz.SCADFABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), ep
   b[,1] <- b0
 
   # Computing k
-  Grad0 <- -PLR_derivative_cpp(as.vector(y),as.matrix(X),as.vector(pi),as.vector(b0),as.double(sigma),as.double(gamma))
+  Grad0 <- -PLR_derivative_cpp(as.vector(y),as.matrix(X),as.vector(pi),as.vector(b0),as.double(h),as.double(gamma))
   k0 <- which.max(abs(Grad0))
   A.set <- k0
   B.set <- 1:p
@@ -86,8 +86,8 @@ Lorenz.SCADFABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), ep
   b[k0,1] <- - sign(Grad0[k0])*eps
 
   # Computing lambda and the direction
-  loss0 = PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b0), as.double(sigma),as.double(gamma))
-  loss  = PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,1]), as.double(sigma),as.double(gamma))
+  loss0 = PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b0), as.double(h),as.double(gamma))
+  loss  = PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,1]), as.double(h),as.double(gamma))
   direction[1] <- 1
 
   if(length(lambda)==1){
@@ -116,7 +116,7 @@ Lorenz.SCADFABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), ep
   for (i in 1:(iter-1))
   {
     b[,i+1] <- b[,i]
-    Grad.loss.i <- -PLR_derivative_cpp(as.vector(y),as.matrix(X),as.vector(pi),as.vector(b[,i]),as.double(sigma),as.double(gamma))
+    Grad.loss.i <- -PLR_derivative_cpp(as.vector(y),as.matrix(X),as.vector(pi),as.vector(b[,i]),as.double(h),as.double(gamma))
     Grad.Pen.i <- SCAD_derivative_cpp(as.vector(abs(b[,i])), as.double(lambda.out[i]), as.double(a))
     # Backward direction
     Back.Obj <- -Grad.loss.i[A.set]*sign(b[A.set,i]) - Grad.Pen.i[A.set]
@@ -124,13 +124,13 @@ Lorenz.SCADFABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), ep
     Delta.k <- -sign(b[k,i])
     b[k,i+1] <- b[k,i] + Delta.k*eps
     Back.Obj.opt <- -Grad.loss.i[k]*sign(b[k,i]) - Grad.Pen.i[k]
-    loss.back <- PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,i+1]), as.double(sigma),as.double(gamma))
+    loss.back <- PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma))
     back <- loss.back - loss.i - Grad.Pen.i[k]*eps < -.Machine$double.eps^0.5
     if(back & (length(A.set)>1)){
       # Backward step
       lambda.out[i+1] <- lambda.out[i]
       direction[i+1] <- -1
-      loss.i <- PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,i+1]), as.double(sigma),as.double(gamma))
+      loss.i <- PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma))
       if(abs(b[k,i+1]) < .Machine$double.eps^0.5)  A.set <- setdiff(A.set,k)
     }else{
       if(gamma > 0) B.set <- 1:p # We reset it at each iteration (except when gamma = 0 because the algo tends to go crazy)
@@ -142,7 +142,7 @@ Lorenz.SCADFABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), ep
         k <- B.set[which.max(Fwd.Obj)]
         A.set <- union(A.set,k)
         b[k,i+1] <- b[k,i] - sign(Grad.loss.i[k])*eps
-        loss.forward <- PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,i+1]), as.double(sigma),as.double(gamma))
+        loss.forward <- PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma))
         L_eps <- (loss.i-loss.forward)/eps
         L_eps.check <- L_eps > 0
         if(L_eps.check){
@@ -199,7 +199,7 @@ Lorenz.SCADFABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), ep
     iter = i,
     direction = direction[1:i],
     lambda = lambda.out[1:i],
-    sigma = sigma,
+    h = h,
     theta = theta,
     LR2=LR2,
     Gi.expl=Gi.expl

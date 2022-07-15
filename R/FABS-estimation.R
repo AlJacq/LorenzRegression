@@ -9,7 +9,7 @@
 #'
 #' @param YX_mat a matrix with the first column corresponding to the response vector, the remaining ones being the explanatory variables.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
-#' @param sigma value of the parameter of the sigmoid function, determining the smoothness of the approximation of the indicator function. Default value is 1/sqrt(n), where n is the number of observations.
+#' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.
 #' @param w.adaptive vector of size equal to the number of covariates where each entry indicates the weight in the adaptive Lasso. By default, each covariate is given the same weight (Lasso).
 #' @param eps step size in the FABS algorithm.
 #' @param iter maximum number of iterations. Default value is 10^4.
@@ -27,7 +27,7 @@
 #'    \item{\code{iter}}{number of iterations attained by the algorithm.}
 #'    \item{\code{direction}}{vector providing the direction (-1 = backward step, 1 = forward step) for each iteration.}
 #'    \item{\code{lambda}}{value of the regularization parameter for each iteration.}
-#'    \item{\code{sigma}}{value of the smoothing parameter.}
+#'    \item{\code{h}}{value of the bandwidth.}
 #'    \item{\code{theta}}{matrix where column i provides the estimated parameter vector for iteration i.}
 #'    \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression.}
 #'    \item{\code{Gi.expl}}{the estimated explained Gini coefficient.}
@@ -49,7 +49,7 @@
 #' @export
 
 # Largely based on the code proposed by Xingjie Shi on github
-Lorenz.FABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), w.adaptive=NULL, eps,
+Lorenz.FABS <- function(YX_mat, weights=NULL, h, w.adaptive=NULL, eps,
                                  iter=10^4, lambda="Shi", lambda.min = 1e-7, gamma = 0.05){
 
   X <- YX_mat[,-1]
@@ -81,7 +81,7 @@ Lorenz.FABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), w.adap
   b[,1] <- b0
 
   # Computing k
-  Grad0 <- -PLR_derivative_cpp(as.vector(y),as.matrix(X),as.vector(pi),as.vector(b0),as.double(sigma),as.double(gamma))
+  Grad0 <- -PLR_derivative_cpp(as.vector(y),as.matrix(X),as.vector(pi),as.vector(b0),as.double(h),as.double(gamma))
   k0 <- which.max(abs(Grad0)/w)
   A.set <- k0
 
@@ -89,8 +89,8 @@ Lorenz.FABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), w.adap
   b[k0,1] <- - sign(Grad0[k0])/w[k0]*eps
 
   # Computing lambda and the direction
-  loss0 = PLR_loss_cpp(as.matrix(X), as.vector(y), as.vector(pi), as.vector(b0), as.double(sigma),as.double(gamma))
-  loss  = PLR_loss_cpp(as.matrix(X), as.vector(y), as.vector(pi), as.vector(b[,1]), as.double(sigma),as.double(gamma))
+  loss0 = PLR_loss_cpp(as.matrix(X), as.vector(y), as.vector(pi), as.vector(b0), as.double(h),as.double(gamma))
+  loss  = PLR_loss_cpp(as.matrix(X), as.vector(y), as.vector(pi), as.vector(b[,1]), as.double(h),as.double(gamma))
 
   if(length(lambda)==1){
     # Either lambda="grid" or lambda="Shi". in both cases, the starting lambda is the same
@@ -120,13 +120,13 @@ Lorenz.FABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), w.adap
   for (i in 1:(iter-1))
   {
     b[,i+1] <- b[,i]
-    Grad.i <- -PLR_derivative_cpp(as.vector(y),as.matrix(X),as.vector(pi),as.vector(b[,i]),as.double(sigma),as.double(gamma))
+    Grad.i <- -PLR_derivative_cpp(as.vector(y),as.matrix(X),as.vector(pi),as.vector(b[,i]),as.double(h),as.double(gamma))
 
     # Backward direction
     k <- A.set[which.min(-Grad.i[A.set]*sign(b[A.set,i])/w[A.set])]
     Delta.k <- -sign(b[k,i])/w[k]
     b[k,i+1] <- b[k,i] + Delta.k*eps
-    loss.back <- PLR_loss_cpp(as.matrix(X), as.vector(y), as.vector(pi), as.vector(b[,i+1]), as.double(sigma),as.double(gamma))
+    loss.back <- PLR_loss_cpp(as.matrix(X), as.vector(y), as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma))
     back <- loss.back - loss.i - lambda.out[i]*eps*w[k] < -.Machine$double.eps^0.5
     if(back & (length(A.set)>1)){
       # Backward step
@@ -140,7 +140,7 @@ Lorenz.FABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), w.adap
       k <- which.max(abs(Grad.i)/w)
       A.set <- union(A.set,k)
       b[k,i+1] <- b[k,i] - sign(Grad.i[k])/w[k]*eps
-      loss.forward <- PLR_loss_cpp(as.matrix(X), as.vector(y), as.vector(pi), as.vector(b[,i+1]), as.double(sigma),as.double(gamma))
+      loss.forward <- PLR_loss_cpp(as.matrix(X), as.vector(y), as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma))
       if (lambda.out[i] > (loss.i-loss.forward)/eps){
         # It means that with this lambda, I can no longer improve the score function. Hence, I have to update lambda
         if(!all(lambda=="Shi")){
@@ -183,7 +183,7 @@ Lorenz.FABS <- function(YX_mat, weights=NULL, sigma=1/sqrt(nrow(YX_mat)), w.adap
     iter = i,
     direction = direction[1:i],
     lambda = lambda.out[1:i],
-    sigma = sigma,
+    h = h,
     theta = theta,
     LR2=LR2,
     Gi.expl=Gi.expl

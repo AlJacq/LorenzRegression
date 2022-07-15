@@ -11,7 +11,7 @@
 #' If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA.cpp}}.
 #' If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
 #' IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.
-#' @param eps Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.
+#' @param h.grid Only used if penalty="SCAD" or penalty="LASSO". Grid of values for the bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is (0.1,0.2,1,2,5)*n^(-1/5.5), where n is sample size.
 #' @param lambda.choice Only used if penalty="SCAD" or penalty="LASSO". Determines what method is used to determine the optimal regularization parameter. Possibles values are any subvector of c("BIC","CV","Boot"). Default is "BIC". Notice that "Boot" is necessarily added if Boot.inference is set to TRUE.
 #' @param nfolds Only used if lambda.choice contains "CV". Number of folds in the cross-validation.
 #' @param seed.CV Only used if lambda.choice contains "CV". Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
@@ -42,17 +42,17 @@
 #' }
 #' For the Penalized Lorenz Regression, a list with the following elements.
 #' \describe{
-#'    \item{\code{path}}{a matrix where the first line displays the path of regularization parameters. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that path. The next lines display the evolution of the scores of the methods chosen in lambda.choice. The remaining lines display the evolution of the estimated parameter vector.}
+#'    \item{\code{path}}{a list where the different elements correspond to the values of h.grid. Each element is a matrix where the first line displays the path of regularization parameters. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that path. The next lines display the evolution of the scores of the methods chosen in lambda.choice. The remaining lines display the evolution of the estimated parameter vector.}
 #'    \item{\code{theta}}{a matrix where the different lines correspond to the methods chosen in lambda.choice. Each line provides the estimated vector of parameters at the optimal value of the regularization parameter.
-#'    \item{\code{summary}}{a matrix where the different lines correspond to the methods chosen in lambda.choice. Each line provides the estimated explained Gini coefficient, the Lorenz-\eqn{R^2} and the scores at the optimal value of the regularization parameter.}
+#'    \item{\code{summary}}{a matrix where the different lines correspond to the methods chosen in lambda.choice. Each line provides the estimated explained Gini coefficient, the Lorenz-\eqn{R^2}, the optimal lambda, the optimal bandwidth, the number of selected variables and the scores at the optimal value of the regularization parameter.}
 #'    \item{\code{Gi.expl}}{a vector providing the estimated explained Gini coefficient at the optimal value of the regularization parameter for each method in lambda.choice.}
 #'    \item{\code{LR2}}{a vector providing the Lorenz-\eqn{R^2} at the optimal value of the regularization parameter for each method in lambda.choice.}
 #'    \item{\code{MRS}}{a list where the different elements correspond to a method in lambda.choice. Each element is a matrix of estimated marginal rates of substitution for non-zero coefficients at the optimal value of the regularization parameter.}
 #'    \item{\code{Fit}}{A data frame containing the response (first column). The remaining columns give the estimated index at the optimal value of the regularization parameter, for each method chosen in lambda.choice.}
 #'    \item{\code{CI.Gi}}{Only returned if Boot.inference is TRUE. A list of matrices where the different elements correspond to the bootstrap method chosen with which.CI. For each matrix, the rows correspond to the method chosen for the selection of the regularization parameter and the columns provide the bounds of the confidence interval for the explained Gini coefficient.}
 #'    \item{\code{CI.LR2}}{Only returned if Boot.inference is TRUE. A list of matrices where the different elements correspond to the bootstrap method chosen with which.CI. For each matrix, the rows correspond to the method chosen for the selection of the regularization parameter and the columns provide the bounds of the confidence interval for the Lorenz-\eqn{R^2}.}
-#'    \item{\code{CI.Gi.path}}{Only returned if Boot.inference is TRUE. A list of matrices where the different elements of the lists correspond to a different lambda.value. For each matrix, the rows correspond to the bootstrap methods chosen in which.CI and the columns provide the bounds of the confidence interval for the explained Gini coefficient.}
-#'    \item{\code{CI.LR2.path}}{Only returned if Boot.inference is TRUE. A list of matrices where the different elements of the lists correspond to a different lambda.value. For each matrix, the rows correspond to the bootstrap methods chosen in which.CI and the columns provide the bounds of the confidence interval for the Lorenz-\eqn{R^2}.}
+#'    \item{\code{CI.Gi.path}}{Only returned if Boot.inference is TRUE. A list of lists of matrices. For each value of h.grid (first-level list) and each value of lambda (second-level list), it returns a matrix where the rows correspond to the bootstrap methods chosen in which.CI and the columns provide the bounds of the confidence interval for the explained Gini coefficient.}
+#'    \item{\code{CI.LR2.path}}{Only returned if Boot.inference is TRUE. A list of lists of matrices. For each value of h.grid (first-level list) and each value of lambda (second-level list), it returns a matrix where the rows correspond to the bootstrap methods chosen in which.CI and the columns provide the bounds of the confidence interval for the Lorenz-\eqn{R^2}.}
 #' }
 #'
 #' @seealso \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{PLR.boot}}
@@ -78,6 +78,7 @@ Lorenz.Reg <- function(formula,
                        weights=NULL,
                        parallel=F,
                        penalty=c("none","SCAD","LASSO"),
+                       h.grid=c(0.1,0.2,1,2,5)*nrow(data)^(-1/5.5),
                        eps=0.005,
                        lambda.choice=c("BIC","CV","Boot")[1],
                        nfolds=10,
@@ -140,10 +141,12 @@ Lorenz.Reg <- function(formula,
 
   # 1. (Penalized) Lorenz Regression ----
 
+  n.h <- length(h.grid)
+
   if(penalty == "none"){
     LR <- Lorenz.GA.cpp(YX_mat, standardize=standardize, weights=weights, parallel=parallel, ...)
   }else{
-    LR <- PLR.wrap(YX_mat, standardize=standardize, weights=weights, penalty=penalty, eps=eps, ...)
+    LR <- lapply(1:n.h,function(i)PLR.wrap(YX_mat, standardize=standardize, weights=weights, penalty=penalty, h = h.grid[i], eps=eps, ...))
   }
 
   # 2. Output of the PLR ----
@@ -176,44 +179,53 @@ Lorenz.Reg <- function(formula,
   }else{
 
     # Number of variables selected
-    n_selected <- apply(LR$theta,2,function(x)sum(abs(x) > 10^(-10)))
+    n_selected <- lapply(1:n.h,function(i)apply(LR[[i]]$theta,2,function(x)sum(abs(x) > 10^(-10))))
     # Path
-    Path <- rbind(LR$lambda, LR$LR2, LR$Gi.expl, n_selected)
-    rownames(Path) <- c("lambda","Lorenz-R2","Explained Gini", "Number of nonzeroes")
+    Path <- lapply(1:n.h,function(i)rbind(LR[[i]]$lambda, LR[[i]]$LR2, LR[[i]]$Gi.expl, n_selected[[i]]))
+    for(i in 1:n.h) rownames(Path[[i]]) <- c("lambda","Lorenz-R2","Explained Gini", "Number of nonzeroes")
     # BIC and/or CV
     if ("BIC" %in% lambda.choice){
-      Path_BIC <- PLR.BIC(YX_mat, LR$theta, weights = weights)
-      best.BIC <- Path_BIC$best
-      val.BIC <- Path_BIC$val
-      Path <- rbind(Path, val.BIC)
-      rownames(Path)[nrow(Path)] <- "BIC score"
+      Path_BIC <- lapply(1:n.h,function(i)PLR.BIC(YX_mat, LR[[i]]$theta, weights = weights))
+      best.BIC <- lapply(1:n.h,function(i)Path_BIC[[i]]$best)
+      val.BIC <- lapply(1:n.h,function(i)Path_BIC[[i]]$val)
+      for (i in 1:n.h){
+        Path[[i]] <- rbind(Path[[i]], val.BIC[[i]])
+        rownames(Path[[i]])[nrow(Path[[i]])] <- "BIC score"
+      }
+
     }
     if ("CV" %in% lambda.choice){
-      Path_CV <- PLR.CV(formula, data, penalty = penalty, PLR.est = LR, standardize = standardize, weights = weights, eps = eps, nfolds = nfolds, parallel = parallel, seed.CV = seed.CV, foldID = foldID, ...)
-      best.CV <- Path_CV$best
-      val.CV <- Path_CV$val
-      Path <- rbind(Path, val.CV)
-      rownames(Path)[nrow(Path)] <- "CV score"
+      Path_CV <- lapply(1:n.h,function(i)PLR.CV(formula, data, penalty = penalty, h = h.grid[i], PLR.est = LR[[i]], standardize = standardize, weights = weights, eps = eps, nfolds = nfolds, parallel = parallel, seed.CV = seed.CV, foldID = foldID, ...))
+      best.CV <- lapply(1:n.h,function(i)Path_CV[[i]]$best)
+      val.CV <- lapply(1:n.h,function(i)Path_CV[[i]]$val)
+      for (i in 1:n.h){
+        Path[[i]] <- rbind(Path[[i]], val.CV[[i]])
+        rownames(Path[[i]])[nrow(Path[[i]])] <- "CV score"
+      }
     }
     if ("Boot" %in% lambda.choice){
-      Path_Boot <- Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR, penalty = penalty, eps = eps, which.CI = which.CI, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...)
-      best.Boot <- Path_Boot$OOB.best
-      val.Boot <- Path_Boot$OOB.total
-      CI.Gi <- Path_Boot$CI.Gi
-      CI.LR2 <- Path_Boot$CI.LR2
-      Path <- rbind(Path, val.Boot)
-      rownames(Path)[nrow(Path)] <- "Boot score"
+      Path_Boot <- lapply(1:n.h,function(i)Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR[[i]], penalty = penalty, h = h.grid[i], eps = eps, which.CI = which.CI, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...))
+      best.Boot <- lapply(1:n.h,function(i)Path_Boot[[i]]$OOB.best)
+      val.Boot <- lapply(1:n.h,function(i)Path_Boot[[i]]$OOB.total)
+      CI.Gi.list <- lapply(1:n.h,function(i)Path_Boot[[i]]$CI.Gi)
+      CI.LR2.list <- lapply(1:n.h,function(i)Path_Boot[[i]]$CI.LR2)
+      for (i in 1:n.h){
+        Path[[i]] <- rbind(Path[[i]], val.Boot[[i]])
+        rownames(Path[[i]])[nrow(Path[[i]])] <- "Boot score"
+      }
     }
 
-    lth <- nrow(Path)
-    Path <- rbind(Path, LR$theta)
-    rownames(Path)[(lth+1):nrow(Path)] <- colnames(YX_mat[,-1])
+    for (i in 1:n.h){
+      lth <- nrow(Path[[i]])
+      Path[[i]] <- rbind(Path[[i]], LR[[i]]$theta)
+      rownames(Path[[i]])[(lth+1):nrow(Path[[i]])] <- colnames(YX_mat[,-1])
+    }
 
     # Output without bootstrap
     theta <- matrix(nrow = length(lambda.choice), ncol = ncol(YX_mat)-1)
     colnames(theta) <- colnames(YX_mat[,-1])
-    summary <- matrix(nrow = length(lambda.choice), ncol = 4 + length(lambda.choice))
-    colnames(summary) <- c("Explained Gini", "Lorenz-R2", "lambda", "Number of variables", paste0(lambda.choice," score"))
+    summary <- matrix(nrow = length(lambda.choice), ncol = 5 + length(lambda.choice))
+    colnames(summary) <- c("Explained Gini", "Lorenz-R2", "lambda", "h", "Number of variables", paste0(lambda.choice," score"))
     Gi.expl <- rep(NA,length(lambda.choice))
     LR2 <- rep(NA,length(lambda.choice))
     MRS <- lapply(1:length(lambda.choice),function(x)matrix(nrow = ncol(YX_mat)-1, ncol = ncol(YX_mat)-1))
@@ -223,16 +235,18 @@ Lorenz.Reg <- function(formula,
     if( "BIC" %in% lambda.choice ){
 
       i.BIC <- which(lambda.choice == "BIC")
+      which.h.BIC <- which.max(sapply(1:n.h,function(i)max(val.BIC[[i]])))
       # theta
-      theta[i.BIC,] <- LR$theta[,best.BIC]
+      theta[i.BIC,] <- LR[[which.h.BIC]]$theta[,best.BIC[[which.h.BIC]]]
       # summary
-      summary[i.BIC,1] <- LR$Gi.expl[best.BIC]
-      summary[i.BIC,2] <- LR$LR2[best.BIC]
-      summary[i.BIC,3] <- LR$lambda[best.BIC]
-      summary[i.BIC,4] <- n_selected[best.BIC]
-      summary[i.BIC,"BIC score"] <- val.BIC[best.BIC]
-      if ("Boot" %in% lambda.choice) summary[i.BIC,"Boot score"] <- val.Boot[best.BIC]
-      if ("CV" %in% lambda.choice) summary[i.BIC,"CV score"] <- val.CV[best.BIC]
+      summary[i.BIC,1] <- LR[[which.h.BIC]]$Gi.expl[best.BIC[[which.h.BIC]]]
+      summary[i.BIC,2] <- LR[[which.h.BIC]]$LR2[best.BIC[[which.h.BIC]]]
+      summary[i.BIC,3] <- LR[[which.h.BIC]]$lambda[best.BIC[[which.h.BIC]]]
+      summary[i.BIC,4] <- h.grid[which.h.BIC]
+      summary[i.BIC,5] <- n_selected[[which.h.BIC]][best.BIC[[which.h.BIC]]]
+      summary[i.BIC,"BIC score"] <- val.BIC[[which.h.BIC]][best.BIC[[which.h.BIC]]]
+      if ("Boot" %in% lambda.choice) summary[i.BIC,"Boot score"] <- val.Boot[[which.h.BIC]][best.BIC[[which.h.BIC]]]
+      if ("CV" %in% lambda.choice) summary[i.BIC,"CV score"] <- val.CV[[which.h.BIC]][best.BIC[[which.h.BIC]]]
       # Gi.expl and LR2
       Gi.expl[i.BIC] <- summary[i.BIC,1]
       LR2[i.BIC] <- summary[i.BIC,2]
@@ -247,16 +261,18 @@ Lorenz.Reg <- function(formula,
     if( "Boot" %in% lambda.choice ){
 
       i.Boot <- which(lambda.choice == "Boot")
+      which.h.Boot <- which.max(sapply(1:n.h,function(i)max(val.Boot[[i]])))
       # theta
-      theta[i.Boot,] <- LR$theta[,best.Boot]
+      theta[i.Boot,] <- LR[[which.h.Boot]]$theta[,best.Boot[[which.h.Boot]]]
       # summary
-      summary[i.Boot,1] <- LR$Gi.expl[best.Boot]
-      summary[i.Boot,2] <- LR$LR2[best.Boot]
-      summary[i.Boot,3] <- LR$lambda[best.Boot]
-      summary[i.Boot,4] <- n_selected[best.Boot]
-      summary[i.Boot,"Boot score"] <- val.Boot[best.Boot]
-      if ("BIC" %in% lambda.choice) summary[i.Boot,"BIC score"] <- val.BIC[best.Boot]
-      if ("CV" %in% lambda.choice) summary[i.Boot,"CV score"] <- val.CV[best.Boot]
+      summary[i.Boot,1] <- LR[[which.h.Boot]]$Gi.expl[best.Boot[[which.h.Boot]]]
+      summary[i.Boot,2] <- LR[[which.h.Boot]]$LR2[best.Boot[[which.h.Boot]]]
+      summary[i.Boot,3] <- LR[[which.h.Boot]]$lambda[best.Boot[[which.h.Boot]]]
+      summary[i.Boot,4] <- h.grid[which.h.Boot]
+      summary[i.Boot,5] <- n_selected[[which.h.Boot]][best.Boot[[which.h.Boot]]]
+      summary[i.Boot,"Boot score"] <- val.Boot[[which.h.Boot]][best.Boot[[which.h.Boot]]]
+      if ("BIC" %in% lambda.choice) summary[i.Boot,"BIC score"] <- val.BIC[[which.h.Boot]][best.Boot[[which.h.Boot]]]
+      if ("CV" %in% lambda.choice) summary[i.Boot,"CV score"] <- val.CV[[which.h.Boot]][best.Boot[[which.h.Boot]]]
       # Gi.expl and LR2
       Gi.expl[i.Boot] <- summary[i.Boot,1]
       LR2[i.Boot] <- summary[i.Boot,2]
@@ -271,16 +287,18 @@ Lorenz.Reg <- function(formula,
     if( "CV" %in% lambda.choice ){
 
       i.CV <- which(lambda.choice == "CV")
+      which.h.CV <- which.max(sapply(1:n.h,function(i)max(val.CV[[i]])))
       # theta
-      theta[i.CV,] <- LR$theta[,best.CV]
+      theta[i.CV,] <- LR[[which.h.CV]]$theta[,best.CV[[which.h.CV]]]
       # summary
-      summary[i.CV,1] <- LR$Gi.expl[best.CV]
-      summary[i.CV,2] <- LR$LR2[best.CV]
-      summary[i.CV,3] <- LR$lambda[best.CV]
-      summary[i.CV,4] <- n_selected[best.CV]
-      summary[i.CV,"CV score"] <- val.CV[best.CV]
-      if ("BIC" %in% lambda.choice) summary[i.CV,"BIC score"] <- val.BIC[best.CV]
-      if ("Boot" %in% lambda.choice) summary[i.CV,"Boot score"] <- val.Boot[best.CV]
+      summary[i.CV,1] <- LR[[which.h.CV]]$Gi.expl[best.CV[[which.h.CV]]]
+      summary[i.CV,2] <- LR[[which.h.CV]]$LR2[best.CV[[which.h.CV]]]
+      summary[i.CV,3] <- LR[[which.h.CV]]$lambda[best.CV[[which.h.CV]]]
+      summary[i.CV,4] <- h.grid[which.h.CV]
+      summary[i.CV,5] <- n_selected[[which.h.CV]][best.CV[[which.h.CV]]]
+      summary[i.CV,"CV score"] <- val.CV[[which.h.CV]][best.CV[[which.h.CV]]]
+      if ("BIC" %in% lambda.choice) summary[i.CV,"BIC score"] <- val.BIC[[which.h.CV]][best.CV[[which.h.CV]]]
+      if ("Boot" %in% lambda.choice) summary[i.CV,"Boot score"] <- val.Boot[[which.h.CV]][best.CV[[which.h.CV]]]
       # Gi.expl and LR2
       Gi.expl[i.CV] <- summary[i.CV,1]
       LR2[i.CV] <- summary[i.CV,2]
@@ -305,39 +323,39 @@ Lorenz.Reg <- function(formula,
 
     if (Boot.inference){
 
-      CI.Gi.list <- lapply(1:length(which.CI),function(x)matrix(nrow = length(lambda.choice), ncol = 2))
-      names(CI.Gi.list) <- which.CI
-      for (l in 1:length(CI.Gi.list)){
-        rownames(CI.Gi.list[[l]]) <- lambda.choice
-        colnames(CI.Gi.list[[l]]) <- c("Lower bound","Upper bound")
+      CI.Gi <- lapply(1:length(which.CI),function(x)matrix(nrow = length(lambda.choice), ncol = 2))
+      names(CI.Gi) <- which.CI
+      for (l in 1:length(CI.Gi)){
+        rownames(CI.Gi[[l]]) <- lambda.choice
+        colnames(CI.Gi[[l]]) <- c("Lower bound","Upper bound")
       }
-      CI.LR2.list <- CI.Gi.list
+      CI.LR2 <- CI.Gi
 
       if( "BIC" %in% lambda.choice ){
-        for (l in 1:length(CI.Gi.list)){
-          CI.Gi.list[[which.CI[l]]]["BIC",] <- CI.Gi[[best.BIC]][which.CI[l],]
-          CI.LR2.list[[which.CI[l]]]["BIC",] <- CI.LR2[[best.BIC]][which.CI[l],]
+        for (l in 1:length(CI.Gi)){
+          CI.Gi[[which.CI[l]]]["BIC",] <- CI.Gi.list[[which.h.BIC]][[best.BIC[[which.h.BIC]]]][which.CI[l],]
+          CI.LR2[[which.CI[l]]]["BIC",] <- CI.LR2.list[[which.h.BIC]][[best.BIC[[which.h.BIC]]]][which.CI[l],]
         }
       }
 
       if( "Boot" %in% lambda.choice ){
-        for (l in 1:length(CI.Gi.list)){
-          CI.Gi.list[[which.CI[l]]]["Boot",] <- CI.Gi[[best.Boot]][which.CI[l],]
-          CI.LR2.list[[which.CI[l]]]["Boot",] <- CI.LR2[[best.Boot]][which.CI[l],]
+        for (l in 1:length(CI.Gi)){
+          CI.Gi[[which.CI[l]]]["Boot",] <- CI.Gi.list[[which.h.Boot]][[best.Boot[[which.h.Boot]]]][which.CI[l],]
+          CI.LR2[[which.CI[l]]]["Boot",] <- CI.LR2.list[[which.h.Boot]][[best.Boot[[which.h.Boot]]]][which.CI[l],]
         }
       }
 
       if( "CV" %in% lambda.choice ){
-        for (l in 1:length(CI.Gi.list)){
-          CI.Gi.list[[which.CI[l]]]["CV",] <- CI.Gi[[best.CV]][which.CI[l],]
-          CI.LR2.list[[which.CI[l]]]["CV",] <- CI.LR2[[best.CV]][which.CI[l],]
+        for (l in 1:length(CI.Gi)){
+          CI.Gi[[which.CI[l]]]["CV",] <- CI.Gi.list[[which.h.CV]][[best.CV[[which.h.CV]]]][which.CI[l],]
+          CI.LR2[[which.CI[l]]]["CV",] <- CI.LR2.list[[which.h.CV]][[best.CV[[which.h.CV]]]][which.CI[l],]
         }
       }
 
-      return.list$CI.Gi <- CI.Gi.list
-      return.list$CI.LR2 <- CI.LR2.list
-      return.list$CI.Gi.path <- CI.Gi
-      return.list$CI.LR2.path <- CI.LR2
+      return.list$CI.Gi <- CI.Gi
+      return.list$CI.LR2 <- CI.LR2
+      return.list$CI.Gi.path <- CI.Gi.list
+      return.list$CI.LR2.path <- CI.LR2.list
 
     }
 

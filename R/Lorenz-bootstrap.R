@@ -11,6 +11,7 @@
 #' If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA.cpp}}.
 #' If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
 #' IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.
+#' @param h Only used if penalty="SCAD" or penalty="LASSO". Bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is NULL (unpenalized case) but has to be specified if penalty="LASSO" or penalty="SCAD".
 #' @param eps Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.
 #' @param which.CI Determines what method is used to construct the bootstrap confidence intervals. Sub-vector of c("Basic","Perc","Param"), the default being the whole vector.
 #' "Basic" corresponds to basic bootstrap, based on bootstrapping the whole distribution of the estimated explained Gini coefficient.
@@ -44,6 +45,7 @@ Lorenz.boot<-function(formula,
                       weights=NULL,
                       LR.est=NULL,
                       penalty=c("none","SCAD","LASSO"),
+                      h=NULL,
                       eps=0.005,
                       which.CI=c("Basic","Perc","Param"),
                       alpha=0.05,
@@ -62,6 +64,9 @@ Lorenz.boot<-function(formula,
 
   # Number of bootstrap resamples
   if( !is.null(bootID) ) B <- nrow(bootID)
+
+  # Check on h
+  if( is.null(h) & penalty %in% c("SCAD","LASSO") ) stop("h has to be specified in the penalized case")
 
   # PRE-BOOT ----
 
@@ -112,7 +117,7 @@ Lorenz.boot<-function(formula,
     if(penalty == "none"){
       LR.est <- LorenzRegression::Lorenz.GA.cpp(YX_mat, standardize = standardize, weights = weights, parallel = parallel, ...)
     }else{
-      LR.est <- LorenzRegression::PLR.wrap(YX_mat, standardize = standardize, weights = weights, penalty = penalty, eps = eps, ...)
+      LR.est <- LorenzRegression::PLR.wrap(YX_mat, standardize = standardize, weights = weights, h = h, penalty = penalty, eps = eps, ...)
     }
   }
   theta.hat <- LR.est$theta
@@ -145,7 +150,7 @@ Lorenz.boot<-function(formula,
     if(penalty == "none"){
       LR.est.star <- LorenzRegression::Lorenz.GA.cpp(YX_mat.test, standardize = standardize, weights = weights.test, parallel=parallel, ...)
     }else{
-      LR.est.star <- LorenzRegression::PLR.wrap(YX_mat.test, standardize = standardize, weights = weights.test, penalty = penalty, eps = eps, lambda = LR.est$lambda, ...)
+      LR.est.star <- LorenzRegression::PLR.wrap(YX_mat.test, standardize = standardize, weights = weights.test, penalty = penalty, h = h, eps = eps, lambda = LR.est$lambda, ...)
       lambda.star <- LR.est.star$lambda
     }
     theta.star <- LR.est.star$theta

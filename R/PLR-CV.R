@@ -5,6 +5,7 @@
 #' @param formula A formula object of the form \emph{response} ~ \emph{other_variables}.
 #' @param data A data frame containing the variables displayed in the formula.
 #' @param penalty penalty used in the Penalized Lorenz Regression. Possible values are "SCAD" (default) or "LASSO".
+#' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.
 #' @param PLR.est Output of a call to \code{\link{PLR.wrap}} corresponding to the estimation of the Penalized Lorenz Regression on the full sample. Default value is NULL in which case the estimation on the full sample is run internally.
 #' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
@@ -40,6 +41,7 @@
 PLR.CV<-function(formula,
                  data,
                  penalty="SCAD",
+                 h,
                  PLR.est=NULL,
                  standardize=T,
                  weights=NULL,
@@ -93,7 +95,7 @@ PLR.CV<-function(formula,
   # No need to do it since it will be dealt with in PLR.wrap
 
   # PRE-CV > INITIAL EST ----
-  if(is.null(PLR.est)) PLR.est <- PLR.wrap(YX_mat, standardize = standardize, weights = weights, penalty = penalty, eps = eps, ...)
+  if(is.null(PLR.est)) PLR.est <- PLR.wrap(YX_mat, standardize = standardize, weights = weights, h = h, penalty = penalty, eps = eps, ...)
 
   # CV > INNER ----
 
@@ -113,7 +115,7 @@ PLR.CV<-function(formula,
     YX_mat.valid <- YX_mat[fold.k,]
     weights.valid <- weights[fold.k]
     # Perform the estimation
-    PLR.est.k <- PLR.wrap(YX_mat.train, standardize = standardize, weights = weights.train, penalty = penalty, eps = eps, lambda = PLR.est$lambda, ...)
+    PLR.est.k <- PLR.wrap(YX_mat.train, standardize = standardize, weights = weights.train, h=h, penalty = penalty, eps = eps, lambda = PLR.est$lambda, ...)
     theta.k <- PLR.est.k$theta
     lambda.k <- PLR.est.k$lambda
     # Compute the CV-score

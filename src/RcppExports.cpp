@@ -27,8 +27,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // PLR_derivative_cpp
-arma::vec PLR_derivative_cpp(arma::vec y, arma::mat X, arma::vec pi, arma::vec theta, double sigma, double gamma);
-RcppExport SEXP _LorenzRegression_PLR_derivative_cpp(SEXP ySEXP, SEXP XSEXP, SEXP piSEXP, SEXP thetaSEXP, SEXP sigmaSEXP, SEXP gammaSEXP) {
+arma::vec PLR_derivative_cpp(arma::vec y, arma::mat X, arma::vec pi, arma::vec theta, double h, double gamma);
+RcppExport SEXP _LorenzRegression_PLR_derivative_cpp(SEXP ySEXP, SEXP XSEXP, SEXP piSEXP, SEXP thetaSEXP, SEXP hSEXP, SEXP gammaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -36,15 +36,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type pi(piSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
-    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< double >::type h(hSEXP);
     Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
-    rcpp_result_gen = Rcpp::wrap(PLR_derivative_cpp(y, X, pi, theta, sigma, gamma));
+    rcpp_result_gen = Rcpp::wrap(PLR_derivative_cpp(y, X, pi, theta, h, gamma));
     return rcpp_result_gen;
 END_RCPP
 }
 // PLR_loss_cpp
-double PLR_loss_cpp(arma::mat X, arma::vec y, arma::vec pi, arma::vec theta, double sigma, double gamma);
-RcppExport SEXP _LorenzRegression_PLR_loss_cpp(SEXP XSEXP, SEXP ySEXP, SEXP piSEXP, SEXP thetaSEXP, SEXP sigmaSEXP, SEXP gammaSEXP) {
+double PLR_loss_cpp(arma::mat X, arma::vec y, arma::vec pi, arma::vec theta, double h, double gamma);
+RcppExport SEXP _LorenzRegression_PLR_loss_cpp(SEXP XSEXP, SEXP ySEXP, SEXP piSEXP, SEXP thetaSEXP, SEXP hSEXP, SEXP gammaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -52,9 +52,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::vec >::type pi(piSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
-    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< double >::type h(hSEXP);
     Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
-    rcpp_result_gen = Rcpp::wrap(PLR_loss_cpp(X, y, pi, theta, sigma, gamma));
+    rcpp_result_gen = Rcpp::wrap(PLR_loss_cpp(X, y, pi, theta, h, gamma));
     return rcpp_result_gen;
 END_RCPP
 }
