@@ -6,7 +6,7 @@
 #' @param data A data frame containing the variables displayed in the formula.
 #' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
-#' @param parallel Whether parallel computing should be used. Default value is FALSE.
+#' @param parallel Whether parallel computing should be used to distribute the computations on different CPUs. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
 #' @param penalty should the regression include a penalty on the coefficients size.
 #' If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA.cpp}}.
 #' If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
@@ -25,6 +25,8 @@
 #' @param alpha Only used if Boot.inference is TRUE. significance level for the bootstrap confidence intervals. Default is 0.05.
 #' @param bootID Only used if Boot.inference is TRUE. matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.
 #' @param seed.boot Only used if Boot.inference is TRUE. Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
+#' @param LR Estimation on the original sample. Output of a call to \code{\link{Lorenz.GA.cpp}} or \code{\link{PLR.wrap}}.
+#' @param LR.boot Estimation on the bootstrap resamples. In the non-penalized case, it is the output of a call to \code{\link{Lorenz.boot}}. In the penalized case, it is a list of size length(h.grid), where each element is the output of a call to \code{\link{Lorenz.boot}} and uses a different value of the bandwidth.
 #' @param
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #'
@@ -90,6 +92,8 @@ Lorenz.Reg <- function(formula,
                        alpha=0.05,
                        bootID=NULL,
                        seed.boot=NULL,
+                       LR=NULL,
+                       LR.boot=NULL,
                        ...){
 
   # Check on penalty
@@ -143,10 +147,12 @@ Lorenz.Reg <- function(formula,
 
   n.h <- length(h.grid)
 
-  if(penalty == "none"){
-    LR <- Lorenz.GA.cpp(YX_mat, standardize=standardize, weights=weights, parallel=parallel, ...)
-  }else{
-    LR <- lapply(1:n.h,function(i)PLR.wrap(YX_mat, standardize=standardize, weights=weights, penalty=penalty, h = h.grid[i], eps=eps, ...))
+  if(is.null(LR)){
+    if(penalty == "none"){
+      LR <- Lorenz.GA.cpp(YX_mat, standardize=standardize, weights=weights, parallel=parallel, ...)
+    }else{
+      LR <- lapply(1:n.h,function(i)PLR.wrap(YX_mat, standardize=standardize, weights=weights, penalty=penalty, h = h.grid[i], eps=eps, ...))
+    }
   }
 
   # 2. Output of the PLR ----
@@ -165,7 +171,9 @@ Lorenz.Reg <- function(formula,
     # Estimated index
     Fit <- data.frame(Response = Data.temp[,1], Index = as.vector(theta%*%t(Data.temp[,-1])))
     # Bootstrap
-    LR_Boot <- Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR, penalty = penalty, which.CI = which.CI, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...)
+    if(is.null(LR.boot)){
+      LR.boot <- Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR, penalty = penalty, which.CI = which.CI, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...)
+    }
     # Return
     return.list$theta <- theta
     return.list$summary <- summary
@@ -173,8 +181,8 @@ Lorenz.Reg <- function(formula,
     return.list$LR2 <- LR$LR2
     return.list$MRS <- MRS
     return.list$Fit <- Fit
-    return.list$CI.Gi <- LR_Boot$CI.Gi
-    return.list$CI.LR2 <- LR_Boot$CI.LR2
+    return.list$CI.Gi <- LR.boot$CI.Gi
+    return.list$CI.LR2 <- LR.boot$CI.LR2
 
   }else{
 
@@ -204,9 +212,23 @@ Lorenz.Reg <- function(formula,
       }
     }
     if ("Boot" %in% lambda.choice){
-      Path_Boot <- lapply(1:n.h,function(i)Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR[[i]], penalty = penalty, h = h.grid[i], eps = eps, which.CI = which.CI, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...))
+      if (is.null(LR.boot)){
+        Path_Boot <- lapply(1:n.h,function(i)Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR[[i]], penalty = penalty, h = h.grid[i], eps = eps, which.CI = which.CI, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...))
+      }else{
+        Path_Boot <- LR.boot
+      }
       best.Boot <- lapply(1:n.h,function(i)Path_Boot[[i]]$OOB.best)
       val.Boot <- lapply(1:n.h,function(i)Path_Boot[[i]]$OOB.total)
+      # In the bootstrap resamples, the algorithm may stop before the end of the lambda path.
+      # We decide to give a score of 0 for lambda values where we have at least 5% of missing values.
+      # This is already done for the OOB score in function Lorenz.boot. We do it here for BIC
+      if ("BIC" %in% lambda.choice){
+        val.BIC <- lapply(1:n.h,function(i)ifelse( abs(Path_Boot[[i]]$OOB.total ) > 0, 1, -Inf*sign(val.BIC[[i]]))*val.BIC[[i]])
+        best.BIC <- lapply(1:n.h,function(i)which.max(val.BIC[[i]]))
+        for (i in 1:n.h){
+          Path[[i]]["BIC score",] <- val.BIC[[i]]
+        }
+      }
       CI.Gi.list <- lapply(1:n.h,function(i)Path_Boot[[i]]$CI.Gi)
       CI.LR2.list <- lapply(1:n.h,function(i)Path_Boot[[i]]$CI.LR2)
       for (i in 1:n.h){

@@ -21,7 +21,7 @@
 #' @param B Number of bootstrap resamples. Default is 400.
 #' @param bootID matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.
 #' @param seed.boot Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
-#' @param parallel Whether parallel computing should be used. Default value is FALSE.
+#' @param parallel Whether parallel computing should be used to distribute the \code{B} computations on different CPUs. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #' @return A list with several components:
 #' \describe{
@@ -184,8 +184,12 @@ Lorenz.boot<-function(formula,
 
   # BOOT > ITERATIONS ----
   if(parallel){
-    numCores <- detectCores()
-    registerDoParallel(numCores-1)
+    if(is.numeric(parallel)){
+      registerDoParallel(parallel)
+    }else{
+      numCores <- detectCores()
+      registerDoParallel(numCores-1)
+    }
     Boot.b <- foreach(b=1:B) %dopar% {
       Boot.inner(b)
     }
@@ -207,7 +211,7 @@ Lorenz.boot<-function(formula,
       if (i %in% iter.ok){
         OOB.total[i] <- mean(OOB.matrix[,i], na.rm=T)
       }else{
-        OOB.total[i] <- 0
+        OOB.total[i] <- -Inf
       }
     }
     OOB.best <- which.max(OOB.total)

@@ -14,7 +14,7 @@
 #' @param ties.method What method should be used to break the ties in the rank index. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.
 #' @param seed seed imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed is imposed.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
-#' @param parallel Whether parallel computing should be used in the genetic algorithm. Default value is FALSE.
+#' @param parallel Whether parallel computing should be used to distribute the computations in the genetic algorithm. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
 #'
 #' @return A list with several components:
 #' \describe{
@@ -149,7 +149,7 @@ Lorenz.GA.cpp<-function(YX_mat, standardize=T, popSize=50, maxiter=1500, run=150
   # POST-PLR ----
 
   if (standardize) theta.argmax <- theta.argmax/X.scale # Need to put back on the original scale
-  theta <- theta.argmax/sum(abs(theta.argmax))
+  theta <- theta.argmax/sqrt(sum(theta.argmax^2))
 
   Return.list <- list()
   Return.list$theta <- theta

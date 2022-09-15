@@ -13,7 +13,7 @@
 #' @param nfolds Number of folds. Default value is 10.
 #' @param foldID vector taking value from 1 to nfolds specifying the fold index of each observation. Default value is NULL in which case the folds are defined internally.
 #' @param seed.CV Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
-#' @param parallel Whether parallel computing should be used to distribute the \code{nfolds} computations on different CPUs. Default value is FALSE.
+#' @param parallel Whether parallel computing should be used to distribute the \code{nfolds} computations on different CPUs. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #'
 #' @return A list with two components
@@ -135,8 +135,12 @@ PLR.CV<-function(formula,
   # CV > ITERATIONS ----
 
   if(parallel){
-    numCores <- detectCores()
-    registerDoParallel(numCores-1)
+    if(is.numeric(parallel)){
+      registerDoParallel(parallel)
+    }else{
+      numCores <- detectCores()
+      registerDoParallel(numCores-1)
+    }
     CV.k <- foreach(k=1:nfolds) %dopar% {
       CV.inner(k)
     }
