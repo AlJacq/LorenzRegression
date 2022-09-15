@@ -11,10 +11,20 @@ Lorenz.Reg(
   weights = NULL,
   parallel = F,
   penalty = c("none", "SCAD", "LASSO"),
+  h.grid = c(0.1, 0.2, 1, 2, 5) * nrow(data)^(-1/5.5),
   eps = 0.005,
-  lambda.choice = c("BIC", "CV")[1],
+  lambda.choice = c("BIC", "CV", "Boot")[1],
   nfolds = 10,
   seed.CV = NULL,
+  foldID = NULL,
+  Boot.inference = FALSE,
+  B = 400,
+  which.CI = c("Basic", "Perc", "Param"),
+  alpha = 0.05,
+  bootID = NULL,
+  seed.boot = NULL,
+  LR = NULL,
+  LR.boot = NULL,
   ...
 )
 }
@@ -27,44 +37,46 @@ Lorenz.Reg(
 
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
-\item{parallel}{Whether parallel computing should be used. Default value is FALSE.}
+\item{parallel}{Whether parallel computing should be used to distribute the computations on different CPUs. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.}
 
 \item{penalty}{should the regression include a penalty on the coefficients size.
 If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA.cpp}}.
 If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
 IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.}
 
-\item{eps}{Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
+\item{h.grid}{Only used if penalty="SCAD" or penalty="LASSO". Grid of values for the bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is (0.1,0.2,1,2,5)*n^(-1/5.5), where n is sample size.}
 
-\item{lambda.choice}{Only used if penalty="SCAD" or penalty="LASSO". Determines what method is used to determine the optimal regularization parameter. Possibles values are "BIC" (Default), "CV" or c("BIC","CV"). In the last case, both methods are used.}
+\item{lambda.choice}{Only used if penalty="SCAD" or penalty="LASSO". Determines what method is used to determine the optimal regularization parameter. Possibles values are any subvector of c("BIC","CV","Boot"). Default is "BIC". Notice that "Boot" is necessarily added if Boot.inference is set to TRUE.}
 
 \item{nfolds}{Only used if lambda.choice contains "CV". Number of folds in the cross-validation.}
 
 \item{seed.CV}{Only used if lambda.choice contains "CV". Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.}
 
+\item{foldID}{vector taking value from 1 to nfolds specifying the fold index of each observation. Default value is NULL in which case the folds are defined internally.}
+
+\item{Boot.inference}{should bootstrap inference be produced ? Default is FALSE. It is automatically turned to TRUE if lambda.choice contains "Boot".}
+
+\item{B}{Only used if Boot.inference is TRUE. Number of bootstrap resamples. Default is 400.}
+
+\item{which.CI}{Only used if Boot.inference is TRUE. Determines what method is used to construct the bootstrap confidence intervals. Sub-vector of c("Basic","Perc","Param"), the default being the whole vector.
+"Basic" corresponds to basic bootstrap, based on bootstrapping the whole distribution of the estimated explained Gini coefficient.
+"Perc" corresponds to percentile bootstrap, where the quantiles of bootstrap distribution of the estimated explained Gini are directly plugged in the bounds.
+"Param" corresponds to parametric bootstrap, which exploits the asymptotic normality and only bootstraps the asymptotic variance.}
+
+\item{alpha}{Only used if Boot.inference is TRUE. significance level for the bootstrap confidence intervals. Default is 0.05.}
+
+\item{bootID}{Only used if Boot.inference is TRUE. matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.}
+
+\item{seed.boot}{Only used if Boot.inference is TRUE. Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.}
+
+\item{LR}{Estimation on the original sample. Output of a call to \code{\link{Lorenz.GA.cpp}} or \code{\link{PLR.wrap}}.}
+
+\item{LR.boot}{Estimation on the bootstrap resamples. In the non-penalized case, it is the output of a call to \code{\link{Lorenz.boot}}. In the penalized case, it is a list of size length(h.grid), where each element is the output of a call to \code{\link{Lorenz.boot}} and uses a different value of the bandwidth.}
+
 \item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.}
 }
 \value{
-For the Non-penalized Lorenz Regression, a list with the following elements :
-\describe{
-   \item{\code{theta}}{the estimated vector of parameters.}
-   \item{\code{summary}}{a vector including the estimated explained Gini coefficient and the Lorenz-\eqn{R^2}.}
-   \item{\code{Gi.expl}}{the estimated explained Gini coefficient}
-   \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression.}
-   \item{\code{MRS}}{the matrix of estimated marginal rates of substitution. More precisely, if we want the MRS of X1 (numerator) with respect to X2 (denominator),
-   we should look for row corresponding to X1 and column corresponding to X2.}
-   \item{\code{Fit}}{A data frame containing the response (first column) and the estimated index (second column).}
-}
-For the Penalized Lorenz Regression, a list with the following elements.
-\describe{
-   \item{\code{path}}{a matrix where the first line displays the path of regularization parameters. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that path. The remaining lines display the evolution of the estimated parameter vector.}
-   \item{\code{theta}}{the estimated vector of parameters at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), it becomes a matrix where the first line corresponds to cross-validation, the second to BIC.}
-   \item{\code{summary}}{a vector including the estimated explained Gini coefficient and the Lorenz-\eqn{R^2} at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), it becomes a matrix where the first line corresponds to cross-validation, the second to BIC.}
-   \item{\code{Gi.expl}}{the estimated explained Gini coefficient at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), it becomes a vector where the first element corresponds to cross-validation, the second to BIC.}
-   \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression. If lambda.choice=c("BIC","CV"), it becomes a vector where the first element corresponds to cross-validation, the second to BIC.}
-   \item{\code{MRS}}{the matrix of estimated marginal rates of substitution for non-zero coefficients at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), it becomes a list where the first element corresponds to cross-validation, the second to BIC.}
-   \item{\code{Fit}}{A data frame containing the response (first column) and the estimated index (second column) at the optimal value of the regularization parameter. If lambda.choice=c("BIC","CV"), the dataframe contains three columns: the first corresponding to the response, the second to the estimated index obtained using CV. Finally, the third corresponds to the estimated index using BIC.}
-}
+
 }
 \description{
 \code{Lorenz.Reg} performs the Lorenz regression of a response with respect to several covariates.
@@ -86,5 +98,5 @@ NPLR$summary;PLR$summary
 
 }
 \seealso{
-\code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}
+\code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{PLR.boot}}
 }

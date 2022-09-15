@@ -2,19 +2,22 @@
 % Please edit documentation in R/Lorenz-bootstrap.R
 \name{Lorenz.boot}
 \alias{Lorenz.boot}
-\title{Bootstrap tests or confidence intervals for Lorenz regression}
+\title{Produces bootstrap-based inference for (penalized) Lorenz regression}
 \usage{
 Lorenz.boot(
   formula,
   data,
-  Lorenz.est = NULL,
   standardize = T,
   weights = NULL,
-  testorCI = "both",
+  LR.est = NULL,
+  penalty = c("none", "SCAD", "LASSO"),
+  h = NULL,
+  eps = 0.005,
   which.CI = c("Basic", "Perc", "Param"),
-  which.vars.test,
   alpha = 0.05,
-  B,
+  B = 400,
+  bootID = NULL,
+  seed.boot = NULL,
   parallel = F,
   ...
 )
@@ -24,70 +27,55 @@ Lorenz.boot(
 
 \item{data}{A data frame containing the variables displayed in the formula.}
 
-\item{Lorenz.est}{Output of a Lorenz.Reg on the original dataset. Default value is NULL, in which case the vector of parameters is estimated internally.}
+\item{standardize}{Should the variables be standardized before the estimation process? Default value is TRUE.}
 
-\item{standardize}{should the variables be standardized before the estimation process? Default value is TRUE}
+\item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
-\item{weights}{vector of sample weights. By default, each observation is given the same weight. When bootstrap is used, two possibilities arise for incorporating sample weights. Either, one can adapt the sampling mechanism or we can correct the estimation procedures. Here, the second route is taken.}
+\item{LR.est}{Estimation on the original sample. Output of a call to \code{\link{Lorenz.GA.cpp}} or \code{\link{PLR.wrap}}.}
 
-\item{testorCI}{whether we should do a bootstrap test of joint significance or a CI or both. Possibles values are "test", "CI" or "both".}
+\item{penalty}{should the regression include a penalty on the coefficients size.
+If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA.cpp}}.
+If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
+IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.}
 
-\item{which.CI}{vector gathering the methods to construct the CI, among Basic Bootstrap ("Basic"), Percentile Bootstrap ("Perc") and Parametric Bootstrap
-("Param"). Default value is c("Basic","Perc","Param"), meaning that the three methods are used.}
+\item{h}{Only used if penalty="SCAD" or penalty="LASSO". Bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is NULL (unpenalized case) but has to be specified if penalty="LASSO" or penalty="SCAD".}
 
-\item{which.vars.test}{names of the variables to consider for the test of joint significance.}
+\item{eps}{Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
 
-\item{alpha}{level of the CI and/or tests.}
+\item{which.CI}{Determines what method is used to construct the bootstrap confidence intervals. Sub-vector of c("Basic","Perc","Param"), the default being the whole vector.
+"Basic" corresponds to basic bootstrap, based on bootstrapping the whole distribution of the estimated explained Gini coefficient.
+"Perc" corresponds to percentile bootstrap, where the quantiles of bootstrap distribution of the estimated explained Gini are directly plugged in the bounds.
+"Param" corresponds to parametric bootstrap, which exploits the asymptotic normality and only bootstraps the asymptotic variance.}
 
-\item{B}{the number of bootstrap iterations.}
+\item{alpha}{significance level for the bootstrap confidence intervals. Default is 0.05.}
 
-\item{parallel}{whether parallel computing should be used. Default value is FALSE. The number of used CPU is then detectCores()-1.}
+\item{B}{Number of bootstrap resamples. Default is 400.}
 
-\item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}.}
+\item{bootID}{matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.}
+
+\item{seed.boot}{Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.}
+
+\item{parallel}{Whether parallel computing should be used to distribute the \code{B} computations on different CPUs. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.}
+
+\item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.}
 }
 \value{
-A list containing at most the following elements
+A list with several components:
 \describe{
-    \item{\code{Basic.theta}}{matrix with p rows and 2 columns (lower and upper bounds) providing the basic bootstrap CI for theta.}
-    \item{\code{Param.theta}}{idem for the parametric bootstrap.}
-    \item{\code{Perc.theta}}{idem for the percentile bootstrap}
-    \item{\code{Basic.Gi}}{vector providing the lower and upper bounds of the basic bootstrap CI for the explained Gini}
-    \item{\code{Param.Gi}}{idem for the parametric bootstrap.}
-    \item{\code{Perc.Gi}}{idem for the percentile bootstrap.}
-    \item{\code{Param.pvalues}}{p-values indicating the significance of each coefficient, computed using parametric bootstrap.}
-    \item{\code{pvalue}}{p-value of the required test of joint significance}
-    \item{\code{U}}{observed value of the test statistic}
+   \item{\code{CI.Gi}}{In the unpenalized case, a matrix where the rows correspond to the bootstrap methods and the columns correspond to the bounds of the confidence interval. In the penalized case, a list of those matrices, where each element of the list corresponds to a different value of the regularization parameter.}
+   \item{\code{Gi.star}}{In the unpenalized case, a vector gathering the bootstrap estimators of the explained Gini coefficient. In the penalized case, it becomes a list of vectors.}
+   \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} of the regression related to value lambda[i] of the regularization parameter.}
 }
 }
 \description{
-\code{Lorenz.boot} produces inference on the vector of parameters of the Lorenz regression.
-More specifically, this function can be used to obtain individual confidence intervals for each element of the parameter vector.
-It can also be used to perform a test of joint significance of several covariates.
-We refer the user to Heuchenne and Jacquemain (2020) for a rigorous exposition of the procedures.
+\code{Lorenz.boot} constructs bootstrap confidence intervals for the explained Gini coefficient and, if applies, selects the regularization parameter.
 }
-\section{References}{
-
-Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
-}
-
 \examples{
-# # Both examples take several minutes to run
-# # In practice, we advise to set B at least 200
-# # Example A)
-# a <- Sys.time()
-# data(Data.Incomes)
-# Lorenz.boot(Income ~ ., data = Data.Incomes, B = 50, which.vars.test = c("Age","Seniority"))
-# b <- Sys.time() - a
-# b
-# # Example B)
-# # Computation time can be sped up using parallel computing
-# c <- Sys.time()
-# Lorenz.boot(Income ~ ., data = Data.Incomes, B = 50,
-#             which.vars.test = c("Age","Seniority"), parallel = T)
-# d <- Sys.time() - c
-# d
+data(Data.Incomes)
+Lorenz.boot(Income ~ ., data = Data.Incomes, penalty = "SCAD", eps = 0.01, B = 20, seed.boot = 123)
+
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}
+\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}
 }

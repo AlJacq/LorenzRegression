@@ -8,11 +8,13 @@ PLR.CV(
   formula,
   data,
   penalty = "SCAD",
+  h,
   PLR.est = NULL,
   standardize = T,
   weights = NULL,
   eps,
   nfolds = 10,
+  foldID = NULL,
   seed.CV = NULL,
   parallel = F,
   ...
@@ -25,6 +27,8 @@ PLR.CV(
 
 \item{penalty}{penalty used in the Penalized Lorenz Regression. Possible values are "SCAD" (default) or "LASSO".}
 
+\item{h}{bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.}
+
 \item{PLR.est}{Output of a call to \code{\link{PLR.wrap}} corresponding to the estimation of the Penalized Lorenz Regression on the full sample. Default value is NULL in which case the estimation on the full sample is run internally.}
 
 \item{standardize}{Should the variables be standardized before the estimation process? Default value is TRUE.}
@@ -35,9 +39,11 @@ PLR.CV(
 
 \item{nfolds}{Number of folds. Default value is 10.}
 
+\item{foldID}{vector taking value from 1 to nfolds specifying the fold index of each observation. Default value is NULL in which case the folds are defined internally.}
+
 \item{seed.CV}{Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.}
 
-\item{parallel}{Whether parallel computing should be used to distribute the \code{nfolds} computations on different CPUs. Default value is FALSE.}
+\item{parallel}{Whether parallel computing should be used to distribute the \code{nfolds} computations on different CPUs. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.}
 
 \item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.}
 }

@@ -9,6 +9,7 @@ PLR.wrap(
   standardize = T,
   weights = NULL,
   penalty = c("SCAD", "LASSO"),
+  h,
   eps = 0.005,
   ...
 )
@@ -21,6 +22,8 @@ PLR.wrap(
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
 \item{penalty}{penalty used in the Penalized Lorenz Regression. Possible values are "SCAD" (default) or "LASSO".}
+
+\item{h}{bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.}
 
 \item{eps}{Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
 

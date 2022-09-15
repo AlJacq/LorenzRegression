@@ -7,7 +7,7 @@
 Lorenz.SCADFABS(
   YX_mat,
   weights = NULL,
-  sigma = 1/sqrt(nrow(YX_mat)),
+  h,
   eps,
   a = 3.7,
   iter = 10^4,
@@ -21,7 +21,7 @@ Lorenz.SCADFABS(
 
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
-\item{sigma}{value of the parameter of the sigmoid function, determining the smoothness of the approximation of the indicator function. Default value is 1/sqrt(n), where n is the number of observations.}
+\item{h}{bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.}
 
 \item{eps}{step size in the FABS algorithm.}
 
@@ -48,7 +48,7 @@ A list with several components:
    \item{\code{iter}}{number of iterations attained by the algorithm.}
    \item{\code{direction}}{vector providing the direction (-1 = backward step, 1 = forward step) for each iteration.}
    \item{\code{lambda}}{value of the regularization parameter for each iteration.}
-   \item{\code{sigma}}{value of the smoothing parameter.}
+   \item{\code{h}}{value of the bandwidth.}
    \item{\code{theta}}{matrix where column i provides the non-normalized estimated parameter vector for iteration i.}
    \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} of the regression for iteration i.}
    \item{\code{Gi.expl}}{vector where element i provides the estimated explained Gini coefficient for iteration i.}

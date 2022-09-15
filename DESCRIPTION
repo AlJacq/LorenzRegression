@@ -19,7 +19,7 @@ Imports:
   locpol,
   Rearrangement,
   Rcpp (>= 0.11.0)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests:
     knitr,
     rmarkdown
