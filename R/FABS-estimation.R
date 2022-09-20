@@ -133,7 +133,10 @@ Lorenz.FABS <- function(YX_mat, weights=NULL, h, w.adaptive=NULL, eps,
       lambda.out[i+1] <- lambda.out[i]
       direction[i+1] <- -1
       loss.i <- loss.back
-      if(abs(b[k,i+1]) < .Machine$double.eps^0.5)  A.set <- setdiff(A.set,k)
+      if(abs(b[k,i+1]) < .Machine$double.eps^0.5){
+        b[k,i+1] <- 0
+        A.set <- setdiff(A.set,k)
+      }
     }else{
       # Forward step
       b[k,i+1] <- b[k,i] # We must take out what we did in the backward step

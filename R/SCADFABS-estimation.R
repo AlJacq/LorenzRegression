@@ -131,7 +131,10 @@ Lorenz.SCADFABS <- function(YX_mat, weights=NULL, h, eps, a = 3.7,
       lambda.out[i+1] <- lambda.out[i]
       direction[i+1] <- -1
       loss.i <- PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma))
-      if(abs(b[k,i+1]) < .Machine$double.eps^0.5)  A.set <- setdiff(A.set,k)
+      if(abs(b[k,i+1]) < .Machine$double.eps^0.5){
+        b[k,i+1] <- 0
+        A.set <- setdiff(A.set,k)
+      }
     }else{
       if(gamma > 0) B.set <- 1:p # We reset it at each iteration (except when gamma = 0 because the algo tends to go crazy)
       L_eps.check <- FALSE
