@@ -63,14 +63,14 @@ In order to ensure identifiability, theta is forced to have a L2-norm equal to o
 }
 \section{References}{
 
-Heuchenne, C., A. Jacquemain and E. Pircalabelu (xxxx). Penalized Lorenz Regression.
+Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2022). A penalised bootstrap estimation procedure for the explained Gini coefficient.
 Shi, X., Y. Huang, J. Huang, and S. Ma (2018). A Forward and Backward Stagewise Algorithm for Nonconvex Loss Function with Adaptive Lasso, \emph{Computational Staistics & Data Analysis 124}, 235-251.
 }
 
 \examples{
 data(Data.Incomes)
 YX_mat <- Data.Incomes
-Lorenz.FABS(YX_mat, eps = 0.005)
+Lorenz.FABS(YX_mat, h = nrow(YX_mat)^(-1/5.5), eps = 0.005)
 
 }
 \seealso{

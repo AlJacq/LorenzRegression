@@ -62,9 +62,13 @@ IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is comput
 \value{
 A list with several components:
 \describe{
-   \item{\code{CI.Gi}}{In the unpenalized case, a matrix where the rows correspond to the bootstrap methods and the columns correspond to the bounds of the confidence interval. In the penalized case, a list of those matrices, where each element of the list corresponds to a different value of the regularization parameter.}
+   \item{\code{LR.est}}{Estimation on the original sample.}
+   \item{\code{CI.Gi}}{In the unpenalized case, a matrix where the rows correspond to the bootstrap methods and the columns correspond to the bounds of the confidence interval for the explained Gini coefficient. In the penalized case, a list of those matrices, where each element of the list corresponds to a different value of the regularization parameter.}
+   \item{\code{CI.LR2}}{In the unpenalized case, a matrix where the rows correspond to the bootstrap methods and the columns correspond to the bounds of the confidence interval for the Lorenz-\eqn{R^2}. In the penalized case, a list of those matrices, where each element of the list corresponds to a different value of the regularization parameter.}
    \item{\code{Gi.star}}{In the unpenalized case, a vector gathering the bootstrap estimators of the explained Gini coefficient. In the penalized case, it becomes a list of vectors.}
-   \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} of the regression related to value lambda[i] of the regularization parameter.}
+   \item{\code{LR2.star}}{In the unpenalized case, a vector gathering the bootstrap estimators of the Lorenz-\eqn{R^2}. In the penalized case, it becomes a list of vectors.}
+   \item{\code{OOB.total}}{In the penalized case only. Vector gathering the OOB-score for each lambda value.}
+   \item{\code{OOB.best}}{In the penalized case only. index of the lambda value attaining the highest OOB-score.}
 }
 }
 \description{

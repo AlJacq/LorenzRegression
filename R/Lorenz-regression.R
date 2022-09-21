@@ -12,6 +12,7 @@
 #' If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
 #' IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.
 #' @param h.grid Only used if penalty="SCAD" or penalty="LASSO". Grid of values for the bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is (0.1,0.2,1,2,5)*n^(-1/5.5), where n is sample size.
+#' @param eps Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.
 #' @param lambda.choice Only used if penalty="SCAD" or penalty="LASSO". Determines what method is used to determine the optimal regularization parameter. Possibles values are any subvector of c("BIC","CV","Boot"). Default is "BIC". Notice that "Boot" is necessarily added if Boot.inference is set to TRUE.
 #' @param nfolds Only used if lambda.choice contains "CV". Number of folds in the cross-validation.
 #' @param seed.CV Only used if lambda.choice contains "CV". Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
@@ -51,6 +52,7 @@
 #'    \item{\code{LR2}}{a vector providing the Lorenz-\eqn{R^2} at the optimal value of the regularization parameter for each method in lambda.choice.}
 #'    \item{\code{MRS}}{a list where the different elements correspond to a method in lambda.choice. Each element is a matrix of estimated marginal rates of substitution for non-zero coefficients at the optimal value of the regularization parameter.}
 #'    \item{\code{Fit}}{A data frame containing the response (first column). The remaining columns give the estimated index at the optimal value of the regularization parameter, for each method chosen in lambda.choice.}
+#'    \item{\code{which.h}}{a vector providing the index of the optimal bandwidth for each method in lambda.choice.}
 #'    \item{\code{CI.Gi}}{Only returned if Boot.inference is TRUE. A list of matrices where the different elements correspond to the bootstrap method chosen with which.CI. For each matrix, the rows correspond to the method chosen for the selection of the regularization parameter and the columns provide the bounds of the confidence interval for the explained Gini coefficient.}
 #'    \item{\code{CI.LR2}}{Only returned if Boot.inference is TRUE. A list of matrices where the different elements correspond to the bootstrap method chosen with which.CI. For each matrix, the rows correspond to the method chosen for the selection of the regularization parameter and the columns provide the bounds of the confidence interval for the Lorenz-\eqn{R^2}.}
 #'    \item{\code{CI.Gi.path}}{Only returned if Boot.inference is TRUE. A list of lists of matrices. For each value of h.grid (first-level list) and each value of lambda (second-level list), it returns a matrix where the rows correspond to the bootstrap methods chosen in which.CI and the columns provide the bounds of the confidence interval for the explained Gini coefficient.}
@@ -61,6 +63,7 @@
 #'
 #' @section References:
 #' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
+#' Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2022). A penalised bootstrap estimation procedure for the explained Gini coefficient.
 #'
 #' @examples
 #' data(Data.Incomes)
@@ -69,7 +72,7 @@
 #' # 2. Penalized regression
 #' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", lambda.choice = c("BIC","CV"), eps = 0.01, nfolds = 5)
 #' # Comparison
-#' NPLR$theta/sqrt(sum(NPLR$theta**2));PLR$theta
+#' NPLR$theta;PLR$theta
 #' NPLR$summary;PLR$summary
 #'
 #' @export
@@ -112,34 +115,16 @@ Lorenz.Reg <- function(formula,
   # 0. Obtain YX_mat ----
 
   # Transform the formula into dataframe
-  Data.temp.X <- as.data.frame(stats::model.matrix(formula,data=data)[,-1])
-  Data.temp.Y <- stats::model.frame(formula,data=data)[,1]
-  Data.temp <- cbind(Data.temp.Y,Data.temp.X)
-  colnames(Data.temp)[1] <- colnames(stats::model.frame(formula,data=data))[1]
-
-  # Put the dataframe in the right format
-  n.param<-length(Data.temp[1,])-1
-
-  are.factor<-sapply(1:n.param,function(i)is.factor(Data.temp[,i+1])) #Before anything we need to treat the categorical variables
-
-  if(sum(are.factor)!=0){
-
-    length.factor<-sapply(which(are.factor),function(i)length(levels(Data.temp[,i+1])))
-
-    YX_mat<-Data.temp[,-(which(are.factor)+1)]
-
-    for (f in 1:sum(are.factor)){
-      for (l in 2:length.factor[f]){
-        tmp.var<-ifelse(Data.temp[,which(are.factor)[f]+1]==levels(Data.temp[,which(are.factor)[f]+1])[l],1,0)
-        name.tmp.var<-paste(colnames(Data.temp)[which(are.factor)[f]+1],".",levels(Data.temp[,which(are.factor)[f]+1])[l],sep="")
-        YX_mat<-cbind(YX_mat,tmp.var)
-        colnames(YX_mat)[length(YX_mat[1,])]<-name.tmp.var
-      }
-    }
+  if (penalty=="none"){
+    YX_mat <- as.data.frame(stats::model.matrix(formula,data=data)[,-1])
   }else{
-    YX_mat <- Data.temp
-  }
 
+    YX_mat <- as.data.frame(stats::model.matrix(formula,data=data,
+                                                     contrasts.arg=lapply(data[,sapply(data,is.factor),drop=FALSE],contrasts,contrasts=FALSE))[,-1])
+
+  }
+  YX_mat <- cbind(stats::model.frame(formula,data=data)[,1],YX_mat)
+  colnames(YX_mat)[1] <- colnames(stats::model.frame(formula,data=data))[1]
   n <- length(YX_mat[,1])
   p <- length(YX_mat[1,])-1
 
@@ -169,9 +154,9 @@ Lorenz.Reg <- function(formula,
     # Matrix of MRS
     MRS <- outer(theta,theta,"/")
     # Estimated index
-    Fit <- data.frame(Response = Data.temp[,1], Index = as.vector(theta%*%t(Data.temp[,-1])))
+    Fit <- data.frame(Response = YX_mat[,1], Index = as.vector(theta%*%t(YX_mat[,-1])))
     # Bootstrap
-    if(is.null(LR.boot)){
+    if(is.null(LR.boot) & Boot.inference){
       LR.boot <- Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR, penalty = penalty, which.CI = which.CI, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...)
     }
     # Return
@@ -181,9 +166,10 @@ Lorenz.Reg <- function(formula,
     return.list$LR2 <- LR$LR2
     return.list$MRS <- MRS
     return.list$Fit <- Fit
-    return.list$CI.Gi <- LR.boot$CI.Gi
-    return.list$CI.LR2 <- LR.boot$CI.LR2
-
+    if(Boot.inference){
+      return.list$CI.Gi <- LR.boot$CI.Gi
+      return.list$CI.LR2 <- LR.boot$CI.LR2
+    }
   }else{
 
     # Number of variables selected
@@ -251,13 +237,16 @@ Lorenz.Reg <- function(formula,
     Gi.expl <- rep(NA,length(lambda.choice))
     LR2 <- rep(NA,length(lambda.choice))
     MRS <- lapply(1:length(lambda.choice),function(x)matrix(nrow = ncol(YX_mat)-1, ncol = ncol(YX_mat)-1))
-    Fit <- data.frame(Response = Data.temp[,1])
+    Fit <- data.frame(Response = YX_mat[,1])
     names(MRS) <- rownames(theta) <- rownames(summary) <- names(Gi.expl) <- names(LR2) <- lambda.choice
+
+    which.h <- c()
 
     if( "BIC" %in% lambda.choice ){
 
       i.BIC <- which(lambda.choice == "BIC")
       which.h.BIC <- which.max(sapply(1:n.h,function(i)max(val.BIC[[i]])))
+      which.h["BIC"] <- which.h.BIC
       # theta
       theta[i.BIC,] <- LR[[which.h.BIC]]$theta[,best.BIC[[which.h.BIC]]]
       # summary
@@ -276,7 +265,7 @@ Lorenz.Reg <- function(formula,
       theta.MRS.BIC <- theta[i.BIC,][theta[i.BIC,]!=0]
       MRS$BIC <- outer(theta.MRS.BIC,theta.MRS.BIC,"/")
       # Fit
-      Fit$Index.BIC <- as.vector(theta[i.BIC,]%*%t(Data.temp[,-1]))
+      Fit$Index.BIC <- as.vector(theta[i.BIC,]%*%t(YX_mat[,-1]))
 
     }
 
@@ -284,6 +273,7 @@ Lorenz.Reg <- function(formula,
 
       i.Boot <- which(lambda.choice == "Boot")
       which.h.Boot <- which.max(sapply(1:n.h,function(i)max(val.Boot[[i]])))
+      which.h["Boot"] <- which.h.Boot
       # theta
       theta[i.Boot,] <- LR[[which.h.Boot]]$theta[,best.Boot[[which.h.Boot]]]
       # summary
@@ -302,7 +292,7 @@ Lorenz.Reg <- function(formula,
       theta.MRS.Boot <- theta[i.Boot,][theta[i.Boot,]!=0]
       MRS$Boot <- outer(theta.MRS.Boot,theta.MRS.Boot,"/")
       # Fit
-      Fit$Index.Boot <- as.vector(theta[i.Boot,]%*%t(Data.temp[,-1]))
+      Fit$Index.Boot <- as.vector(theta[i.Boot,]%*%t(YX_mat[,-1]))
 
     }
 
@@ -310,6 +300,7 @@ Lorenz.Reg <- function(formula,
 
       i.CV <- which(lambda.choice == "CV")
       which.h.CV <- which.max(sapply(1:n.h,function(i)max(val.CV[[i]])))
+      which.h["CV"] <- which.h.CV
       # theta
       theta[i.CV,] <- LR[[which.h.CV]]$theta[,best.CV[[which.h.CV]]]
       # summary
@@ -328,7 +319,7 @@ Lorenz.Reg <- function(formula,
       theta.MRS.CV <- theta[i.CV,][theta[i.CV,]!=0]
       MRS$CV <- outer(theta.MRS.CV,theta.MRS.CV,"/")
       # Fit
-      Fit$Index.CV <- as.vector(theta[i.CV,]%*%t(Data.temp[,-1]))
+      Fit$Index.CV <- as.vector(theta[i.CV,]%*%t(YX_mat[,-1]))
 
     }
 
@@ -340,6 +331,7 @@ Lorenz.Reg <- function(formula,
     return.list$LR2 <- LR2
     return.list$MRS <- MRS
     return.list$Fit <- Fit
+    return.list$which.h <- which.h
 
     # Output of the bootstrap
 
@@ -380,6 +372,8 @@ Lorenz.Reg <- function(formula,
       return.list$CI.LR2.path <- CI.LR2.list
 
     }
+
+    class(return.list) <- "PLR"
 
   }
 

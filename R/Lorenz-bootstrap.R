@@ -1,6 +1,6 @@
 #' Produces bootstrap-based inference for (penalized) Lorenz regression
 #'
-#' \code{Lorenz.boot} constructs bootstrap confidence intervals for the explained Gini coefficient and, if applies, selects the regularization parameter.
+#' \code{Lorenz.boot} constructs bootstrap confidence intervals for the explained Gini coefficient and Lorenz-\eqn{R^2} and, if applies, selects the regularization parameter.
 #'
 #' @param formula A formula object of the form \emph{response} ~ \emph{other_variables}.
 #' @param data A data frame containing the variables displayed in the formula.
@@ -25,16 +25,24 @@
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #' @return A list with several components:
 #' \describe{
-#'    \item{\code{CI.Gi}}{In the unpenalized case, a matrix where the rows correspond to the bootstrap methods and the columns correspond to the bounds of the confidence interval. In the penalized case, a list of those matrices, where each element of the list corresponds to a different value of the regularization parameter.}
+#'    \item{\code{LR.est}}{Estimation on the original sample.}
+#'    \item{\code{CI.Gi}}{In the unpenalized case, a matrix where the rows correspond to the bootstrap methods and the columns correspond to the bounds of the confidence interval for the explained Gini coefficient. In the penalized case, a list of those matrices, where each element of the list corresponds to a different value of the regularization parameter.}
+#'    \item{\code{CI.LR2}}{In the unpenalized case, a matrix where the rows correspond to the bootstrap methods and the columns correspond to the bounds of the confidence interval for the Lorenz-\eqn{R^2}. In the penalized case, a list of those matrices, where each element of the list corresponds to a different value of the regularization parameter.}
 #'    \item{\code{Gi.star}}{In the unpenalized case, a vector gathering the bootstrap estimators of the explained Gini coefficient. In the penalized case, it becomes a list of vectors.}
-#'    \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} of the regression related to value lambda[i] of the regularization parameter.}
+#'    \item{\code{LR2.star}}{In the unpenalized case, a vector gathering the bootstrap estimators of the Lorenz-\eqn{R^2}. In the penalized case, it becomes a list of vectors.}
+#'    \item{\code{OOB.total}}{In the penalized case only. Vector gathering the OOB-score for each lambda value.}
+#'    \item{\code{OOB.best}}{In the penalized case only. index of the lambda value attaining the highest OOB-score.}
 #' }
 #'
 #' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}
 #'
+#' @section References:
+#' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
+#' Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2022). A penalised bootstrap estimation procedure for the explained Gini coefficient.
+#'
 #' @examples
 #' data(Data.Incomes)
-#' Lorenz.boot(Income ~ ., data = Data.Incomes, penalty = "SCAD", eps = 0.01, B = 20, seed.boot = 123)
+#' Lorenz.boot(Income ~ ., data = Data.Incomes, penalty = "SCAD", h = nrow(Data.Incomes)^(-1/5.5), eps = 0.01, B = 20, seed.boot = 123)
 #'
 #'
 #' @export
@@ -311,6 +319,7 @@ Lorenz.boot<-function(formula,
   # RETURN LIST ----
 
   Return.list <- list()
+  Return.list$LR.est <- LR.est
   Return.list$CI.Gi <- CI.Gi
   Return.list$CI.LR2 <- CI.LR2
   Return.list$Gi.star <- Gi.star

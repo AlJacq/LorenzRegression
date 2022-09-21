@@ -46,6 +46,8 @@ IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is comput
 
 \item{h.grid}{Only used if penalty="SCAD" or penalty="LASSO". Grid of values for the bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is (0.1,0.2,1,2,5)*n^(-1/5.5), where n is sample size.}
 
+\item{eps}{Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
+
 \item{lambda.choice}{Only used if penalty="SCAD" or penalty="LASSO". Determines what method is used to determine the optimal regularization parameter. Possibles values are any subvector of c("BIC","CV","Boot"). Default is "BIC". Notice that "Boot" is necessarily added if Boot.inference is set to TRUE.}
 
 \item{nfolds}{Only used if lambda.choice contains "CV". Number of folds in the cross-validation.}
@@ -84,6 +86,7 @@ IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is comput
 \section{References}{
 
 Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
+Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2022). A penalised bootstrap estimation procedure for the explained Gini coefficient.
 }
 
 \examples{
@@ -93,7 +96,7 @@ NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
 # 2. Penalized regression
 PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", lambda.choice = c("BIC","CV"), eps = 0.01, nfolds = 5)
 # Comparison
-NPLR$theta/sqrt(sum(NPLR$theta**2));PLR$theta
+NPLR$theta;PLR$theta
 NPLR$summary;PLR$summary
 
 }

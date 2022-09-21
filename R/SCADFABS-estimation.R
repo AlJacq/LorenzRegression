@@ -3,8 +3,8 @@
 #' \code{Lorenz.SCADFABS} solves the penalized Lorenz regression with SCAD penalty on a grid of lambda values.
 #' For each value of lambda, the function returns estimates for the vector of parameters and for the estimated explained Gini coefficient, as well as the Lorenz-\eqn{R^2} of the regression.
 #'
-#' The regression is solved using the SCAD-FABS algorithm developed by Heuchenne et al (xxxx) and adapted to our case.
-#' For a comprehensive explanation of the Penalized Lorenz Regression, see Heuchenne et al (xxxx).
+#' The regression is solved using the SCAD-FABS algorithm developed by Jacquemain et al and adapted to our case.
+#' For a comprehensive explanation of the Penalized Lorenz Regression, see Heuchenne et al.
 #' In order to ensure identifiability, theta is forced to have a L2-norm equal to one.
 #'
 #' @param YX_mat a matrix with the first column corresponding to the response vector, the remaining ones being the explanatory variables.
@@ -37,13 +37,12 @@
 #' @seealso \code{\link{Lorenz.Reg}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.FABS}}
 #'
 #' @section References:
-#' Heuchenne, C. and A. Jacquemain (2022). Penalized Lorenz Regression.
-#' Shi, X., Y. Huang, J. Huang, and S. Ma (2018). A Forward and Backward Stagewise Algorithm for Nonconvex Loss Function with Adaptive Lasso, \emph{Computational Staistics & Data Analysis 124}, 235-251.
+#' Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2022). A penalised bootstrap estimation procedure for the explained Gini coefficient.
 #'
 #' @examples
 #' data(Data.Incomes)
 #' YX_mat <- Data.Incomes
-#' Lorenz.SCADFABS(YX_mat, eps = 0.005)
+#' Lorenz.SCADFABS(YX_mat, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
 #'
 #' @import MASS
 #'

@@ -17,12 +17,12 @@
 #' @seealso \code{\link{Lorenz.Reg}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.SCADFABS}}
 #'
 #' @section References:
-#' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
+#' Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2022). A penalised bootstrap estimation procedure for the explained Gini coefficient.
 #'
 #' @examples
 #' data(Data.Incomes)
 #' YX_mat <- Data.Incomes
-#' PLR <- PLR.wrap(YX_mat, eps = 0.005)
+#' PLR <- PLR.wrap(YX_mat, h = nrow(YX_mat)^(-1/5.5), eps = 0.005)
 #' PLR.BIC(YX_mat, PLR$theta)
 #'
 #' @export
