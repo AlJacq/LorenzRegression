@@ -1,6 +1,6 @@
 #' Estimates the parameter vector in Lorenz regression using a genetic algorithm
 #'
-#' \code{Lorenz.GA.cpp} estimates the vector of parameters in Lorenz regression using the unit-norm normalization
+#' \code{Lorenz.GA} estimates the vector of parameters in Lorenz regression using the unit-norm normalization
 #' It also returns the Lorenz-\eqn{R^2} of the regression as well as the estimated explained Gini coefficient.
 #'
 #' The genetic algorithm is solved using function \code{\link[GA]{ga}} from the \emph{GA} package. The fitness function is coded in Rcpp to speed up computation time.
@@ -33,14 +33,14 @@
 #' @examples
 #' data(Data.Incomes)
 #' YX_mat <- cbind(Data.Incomes$Income, Data.Incomes$Age, Data.Incomes$Work.Hours)
-#' Lorenz.GA.cpp(YX_mat, popSize = 40)
+#' Lorenz.GA(YX_mat, popSize = 40)
 #'
 #' @import GA
 #'
 #' @export
 
 # unit-norm normalization ----
-Lorenz.GA.cpp<-function(YX_mat, standardize=T, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), seed=NULL, weights=NULL, parallel = F){
+Lorenz.GA<-function(YX_mat, standardize=T, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), seed=NULL, weights=NULL, parallel = F){
 
   # PRE-GA ----
 

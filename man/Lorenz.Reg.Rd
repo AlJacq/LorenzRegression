@@ -40,7 +40,7 @@ Lorenz.Reg(
 \item{parallel}{Whether parallel computing should be used to distribute the computations on different CPUs. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.}
 
 \item{penalty}{should the regression include a penalty on the coefficients size.
-If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA.cpp}}.
+If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA}}.
 If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
 IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.}
 
@@ -71,11 +71,11 @@ IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is comput
 
 \item{seed.boot}{Only used if Boot.inference is TRUE. Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.}
 
-\item{LR}{Estimation on the original sample. Output of a call to \code{\link{Lorenz.GA.cpp}} or \code{\link{PLR.wrap}}.}
+\item{LR}{Estimation on the original sample. Output of a call to \code{\link{Lorenz.GA}} or \code{\link{PLR.wrap}}.}
 
 \item{LR.boot}{Estimation on the bootstrap resamples. In the non-penalized case, it is the output of a call to \code{\link{Lorenz.boot}}. In the penalized case, it is a list of size length(h.grid), where each element is the output of a call to \code{\link{Lorenz.boot}} and uses a different value of the bandwidth.}
 
-\item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.}
+\item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.}
 }
 \value{
 For the Non-penalized Lorenz Regression, a list with the following elements :
@@ -127,5 +127,5 @@ NPLR$summary;PLR$summary
 
 }
 \seealso{
-\code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{PLR.boot}}
+\code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{PLR.boot}}
 }

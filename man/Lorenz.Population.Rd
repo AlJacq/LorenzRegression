@@ -19,5 +19,5 @@ A matrix of dimension \code{object@popSize} times the number of explanatory vari
 Note that this population produces an initial solution ensuring a unit norm.
 }
 \seealso{
-\code{\link{Lorenz.GA.cpp}}
+\code{\link{Lorenz.GA}}
 }

@@ -8,7 +8,7 @@
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param parallel Whether parallel computing should be used to distribute the computations on different CPUs. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
 #' @param penalty should the regression include a penalty on the coefficients size.
-#' If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA.cpp}}.
+#' If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA}}.
 #' If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
 #' IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.
 #' @param h.grid Only used if penalty="SCAD" or penalty="LASSO". Grid of values for the bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is (0.1,0.2,1,2,5)*n^(-1/5.5), where n is sample size.
@@ -26,9 +26,9 @@
 #' @param alpha Only used if Boot.inference is TRUE. significance level for the bootstrap confidence intervals. Default is 0.05.
 #' @param bootID Only used if Boot.inference is TRUE. matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.
 #' @param seed.boot Only used if Boot.inference is TRUE. Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
-#' @param LR Estimation on the original sample. Output of a call to \code{\link{Lorenz.GA.cpp}} or \code{\link{PLR.wrap}}.
+#' @param LR Estimation on the original sample. Output of a call to \code{\link{Lorenz.GA}} or \code{\link{PLR.wrap}}.
 #' @param LR.boot Estimation on the bootstrap resamples. In the non-penalized case, it is the output of a call to \code{\link{Lorenz.boot}}. In the penalized case, it is a list of size length(h.grid), where each element is the output of a call to \code{\link{Lorenz.boot}} and uses a different value of the bandwidth.
-#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
+#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #'
 #' @return For the Non-penalized Lorenz Regression, a list with the following elements :
 #' \describe{
@@ -58,7 +58,7 @@
 #'    \item{\code{CI.LR2.path}}{Only returned if Boot.inference is TRUE. A list of lists of matrices. For each value of h.grid (first-level list) and each value of lambda (second-level list), it returns a matrix where the rows correspond to the bootstrap methods chosen in which.CI and the columns provide the bounds of the confidence interval for the Lorenz-\eqn{R^2}.}
 #' }
 #'
-#' @seealso \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{PLR.boot}}
+#' @seealso \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{PLR.boot}}
 #'
 #' @section References:
 #' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
@@ -133,7 +133,7 @@ Lorenz.Reg <- function(formula,
 
   if(is.null(LR)){
     if(penalty == "none"){
-      LR <- Lorenz.GA.cpp(YX_mat, standardize=standardize, weights=weights, parallel=parallel, ...)
+      LR <- Lorenz.GA(YX_mat, standardize=standardize, weights=weights, parallel=parallel, ...)
     }else{
       LR <- lapply(1:n.h,function(i)PLR.wrap(YX_mat, standardize=standardize, weights=weights, penalty=penalty, h = h.grid[i], eps=eps, ...))
     }

@@ -6,9 +6,9 @@
 #' @param data A data frame containing the variables displayed in the formula.
 #' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
-#' @param LR.est Estimation on the original sample. Output of a call to \code{\link{Lorenz.GA.cpp}} or \code{\link{PLR.wrap}}.
+#' @param LR.est Estimation on the original sample. Output of a call to \code{\link{Lorenz.GA}} or \code{\link{PLR.wrap}}.
 #' @param penalty should the regression include a penalty on the coefficients size.
-#' If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA.cpp}}.
+#' If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA}}.
 #' If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
 #' IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.
 #' @param h Only used if penalty="SCAD" or penalty="LASSO". Bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is NULL (unpenalized case) but has to be specified if penalty="LASSO" or penalty="SCAD".
@@ -22,7 +22,7 @@
 #' @param bootID matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.
 #' @param seed.boot Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
 #' @param parallel Whether parallel computing should be used to distribute the \code{B} computations on different CPUs. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
-#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
+#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #' @return A list with several components:
 #' \describe{
 #'    \item{\code{LR.est}}{Estimation on the original sample.}
@@ -34,7 +34,7 @@
 #'    \item{\code{OOB.best}}{In the penalized case only. index of the lambda value attaining the highest OOB-score.}
 #' }
 #'
-#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}
+#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}
 #'
 #' @section References:
 #' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
@@ -123,7 +123,7 @@ Lorenz.boot<-function(formula,
 
   if(is.null(LR.est)){
     if(penalty == "none"){
-      LR.est <- LorenzRegression::Lorenz.GA.cpp(YX_mat, standardize = standardize, weights = weights, parallel = parallel, ...)
+      LR.est <- LorenzRegression::Lorenz.GA(YX_mat, standardize = standardize, weights = weights, parallel = parallel, ...)
     }else{
       LR.est <- LorenzRegression::PLR.wrap(YX_mat, standardize = standardize, weights = weights, h = h, penalty = penalty, eps = eps, ...)
     }
@@ -156,7 +156,7 @@ Lorenz.boot<-function(formula,
 
     # Perform the estimation
     if(penalty == "none"){
-      LR.est.star <- LorenzRegression::Lorenz.GA.cpp(YX_mat.test, standardize = standardize, weights = weights.test, parallel=parallel, ...)
+      LR.est.star <- LorenzRegression::Lorenz.GA(YX_mat.test, standardize = standardize, weights = weights.test, parallel=parallel, ...)
     }else{
       LR.est.star <- LorenzRegression::PLR.wrap(YX_mat.test, standardize = standardize, weights = weights.test, penalty = penalty, h = h, eps = eps, lambda = LR.est$lambda, ...)
       lambda.star <- LR.est.star$lambda

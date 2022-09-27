@@ -6,7 +6,7 @@
 #'
 #' @param object An object of class "\code{ga}", resulting from a call to function \code{ga}.
 #'
-#' @seealso \code{\link{Lorenz.GA.cpp}}
+#' @seealso \code{\link{Lorenz.GA}}
 #'
 #' @return A matrix of dimension \code{object@popSize} times the number of explanatory variables minus one, gathering the initial population.
 
