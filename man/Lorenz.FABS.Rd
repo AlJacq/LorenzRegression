@@ -58,7 +58,7 @@ For each value of lambda, the function returns estimates for the vector of param
 }
 \details{
 The regression is solved using the FABS algorithm developed by Shi et al (2018) and adapted to our case.
-For a comprehensive explanation of the Penalized Lorenz Regression, see Heuchenne et al (2022).
+For a comprehensive explanation of the Penalized Lorenz Regression, see Jacquemain et al.
 In order to ensure identifiability, theta is forced to have a L2-norm equal to one.
 }
 \section{References}{
@@ -70,7 +70,7 @@ Shi, X., Y. Huang, J. Huang, and S. Ma (2018). A Forward and Backward Stagewise 
 \examples{
 data(Data.Incomes)
 YX_mat <- Data.Incomes
-Lorenz.FABS(YX_mat, h = nrow(YX_mat)^(-1/5.5), eps = 0.005)
+Lorenz.FABS(YX_mat, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
 
 }
 \seealso{

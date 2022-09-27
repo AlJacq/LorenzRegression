@@ -44,7 +44,7 @@ A list with several components:
 \examples{
 data(Data.Incomes)
 YX_mat <- Data.Incomes
-PLR.wrap(YX_mat, eps = 0.005)
+PLR.wrap(YX_mat, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
 
 }
 \seealso{

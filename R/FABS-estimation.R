@@ -178,7 +178,7 @@ Lorenz.FABS <- function(YX_mat, weights=NULL, h, w.adaptive=NULL, eps,
   # WARNING ----
 
   # If eps is too large, the path may be really rough
-  if (length(unique(lambda.out[1:i]))<15) warning("The algorithm generated less than 15 different values for lambda. We suggest you to consider decreasing eps to have a finer grid")
+  # if (length(unique(lambda.out[1:i]))<5) warning("The algorithm generated less than 5 different values for lambda. We suggest you to consider decreasing eps to have a finer grid")
 
   # OUTPUT ----
 

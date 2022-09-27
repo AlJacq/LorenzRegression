@@ -78,7 +78,33 @@ IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is comput
 \item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.}
 }
 \value{
-
+For the Non-penalized Lorenz Regression, a list with the following elements :
+\describe{
+   \item{\code{theta}}{the estimated vector of parameters.}
+   \item{\code{summary}}{a vector including the estimated explained Gini coefficient and the Lorenz-\eqn{R^2}.}
+   \item{\code{Gi.expl}}{the estimated explained Gini coefficient}
+   \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression.}
+   \item{\code{MRS}}{the matrix of estimated marginal rates of substitution. More precisely, if we want the MRS of X1 (numerator) with respect to X2 (denominator),
+   we should look for row corresponding to X1 and column corresponding to X2.}
+   \item{\code{Fit}}{A data frame containing the response (first column) and the estimated index (second column).}
+   \item{\code{CI.Gi}}{Only returned if Boot.inference is TRUE. A matrix where each line corresponds to a bootstrap method, as specified in which.CI, and the columns provide the bounds of the intervals for the explained Gini coefficient.}
+   \item{\code{CI.LR2}}{Only returned if Boot.inference is TRUE. A matrix where each line corresponds to a bootstrap method, as specified in which.CI, and the columns provide the bounds of the intervals for the Lorenz-\eqn{R^2}.}
+}
+For the Penalized Lorenz Regression, a list with the following elements.
+\describe{
+   \item{\code{path}}{a list where the different elements correspond to the values of h.grid. Each element is a matrix where the first line displays the path of regularization parameters. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that path. The next lines display the evolution of the scores of the methods chosen in lambda.choice. The remaining lines display the evolution of the estimated parameter vector.}
+   \item{\code{theta}}{a matrix where the different lines correspond to the methods chosen in lambda.choice. Each line provides the estimated vector of parameters at the optimal value of the regularization parameter.}
+   \item{\code{summary}}{a matrix where the different lines correspond to the methods chosen in lambda.choice. Each line provides the estimated explained Gini coefficient, the Lorenz-\eqn{R^2}, the optimal lambda, the optimal bandwidth, the number of selected variables and the scores at the optimal value of the regularization parameter.}
+   \item{\code{Gi.expl}}{a vector providing the estimated explained Gini coefficient at the optimal value of the regularization parameter for each method in lambda.choice.}
+   \item{\code{LR2}}{a vector providing the Lorenz-\eqn{R^2} at the optimal value of the regularization parameter for each method in lambda.choice.}
+   \item{\code{MRS}}{a list where the different elements correspond to a method in lambda.choice. Each element is a matrix of estimated marginal rates of substitution for non-zero coefficients at the optimal value of the regularization parameter.}
+   \item{\code{Fit}}{A data frame containing the response (first column). The remaining columns give the estimated index at the optimal value of the regularization parameter, for each method chosen in lambda.choice.}
+   \item{\code{which.h}}{a vector providing the index of the optimal bandwidth for each method in lambda.choice.}
+   \item{\code{CI.Gi}}{Only returned if Boot.inference is TRUE. A list of matrices where the different elements correspond to the bootstrap method chosen with which.CI. For each matrix, the rows correspond to the method chosen for the selection of the regularization parameter and the columns provide the bounds of the confidence interval for the explained Gini coefficient.}
+   \item{\code{CI.LR2}}{Only returned if Boot.inference is TRUE. A list of matrices where the different elements correspond to the bootstrap method chosen with which.CI. For each matrix, the rows correspond to the method chosen for the selection of the regularization parameter and the columns provide the bounds of the confidence interval for the Lorenz-\eqn{R^2}.}
+   \item{\code{CI.Gi.path}}{Only returned if Boot.inference is TRUE. A list of lists of matrices. For each value of h.grid (first-level list) and each value of lambda (second-level list), it returns a matrix where the rows correspond to the bootstrap methods chosen in which.CI and the columns provide the bounds of the confidence interval for the explained Gini coefficient.}
+   \item{\code{CI.LR2.path}}{Only returned if Boot.inference is TRUE. A list of lists of matrices. For each value of h.grid (first-level list) and each value of lambda (second-level list), it returns a matrix where the rows correspond to the bootstrap methods chosen in which.CI and the columns provide the bounds of the confidence interval for the Lorenz-\eqn{R^2}.}
+}
 }
 \description{
 \code{Lorenz.Reg} performs the Lorenz regression of a response with respect to several covariates.

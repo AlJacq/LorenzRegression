@@ -72,11 +72,17 @@ A list with several components:
 }
 }
 \description{
-\code{Lorenz.boot} constructs bootstrap confidence intervals for the explained Gini coefficient and, if applies, selects the regularization parameter.
+\code{Lorenz.boot} constructs bootstrap confidence intervals for the explained Gini coefficient and Lorenz-\eqn{R^2} and, if applies, selects the regularization parameter.
 }
+\section{References}{
+
+Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
+Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2022). A penalised bootstrap estimation procedure for the explained Gini coefficient.
+}
+
 \examples{
 data(Data.Incomes)
-Lorenz.boot(Income ~ ., data = Data.Incomes, penalty = "SCAD", eps = 0.01, B = 20, seed.boot = 123)
+Lorenz.boot(Income ~ ., data = Data.Incomes, penalty = "SCAD", h = nrow(Data.Incomes)^(-1/5.5), eps = 0.01, B = 20, seed.boot = 123)
 
 
 }

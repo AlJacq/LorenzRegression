@@ -28,7 +28,6 @@
 #' @param seed.boot Only used if Boot.inference is TRUE. Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
 #' @param LR Estimation on the original sample. Output of a call to \code{\link{Lorenz.GA.cpp}} or \code{\link{PLR.wrap}}.
 #' @param LR.boot Estimation on the bootstrap resamples. In the non-penalized case, it is the output of a call to \code{\link{Lorenz.boot}}. In the penalized case, it is a list of size length(h.grid), where each element is the output of a call to \code{\link{Lorenz.boot}} and uses a different value of the bandwidth.
-#' @param
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA.cpp}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #'
 #' @return For the Non-penalized Lorenz Regression, a list with the following elements :
@@ -46,7 +45,7 @@
 #' For the Penalized Lorenz Regression, a list with the following elements.
 #' \describe{
 #'    \item{\code{path}}{a list where the different elements correspond to the values of h.grid. Each element is a matrix where the first line displays the path of regularization parameters. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that path. The next lines display the evolution of the scores of the methods chosen in lambda.choice. The remaining lines display the evolution of the estimated parameter vector.}
-#'    \item{\code{theta}}{a matrix where the different lines correspond to the methods chosen in lambda.choice. Each line provides the estimated vector of parameters at the optimal value of the regularization parameter.
+#'    \item{\code{theta}}{a matrix where the different lines correspond to the methods chosen in lambda.choice. Each line provides the estimated vector of parameters at the optimal value of the regularization parameter.}
 #'    \item{\code{summary}}{a matrix where the different lines correspond to the methods chosen in lambda.choice. Each line provides the estimated explained Gini coefficient, the Lorenz-\eqn{R^2}, the optimal lambda, the optimal bandwidth, the number of selected variables and the scores at the optimal value of the regularization parameter.}
 #'    \item{\code{Gi.expl}}{a vector providing the estimated explained Gini coefficient at the optimal value of the regularization parameter for each method in lambda.choice.}
 #'    \item{\code{LR2}}{a vector providing the Lorenz-\eqn{R^2} at the optimal value of the regularization parameter for each method in lambda.choice.}
@@ -170,6 +169,9 @@ Lorenz.Reg <- function(formula,
       return.list$CI.Gi <- LR.boot$CI.Gi
       return.list$CI.LR2 <- LR.boot$CI.LR2
     }
+
+    class(return.list) <- "LR"
+
   }else{
 
     # Number of variables selected
