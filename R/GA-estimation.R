@@ -81,7 +81,7 @@ Lorenz.GA<-function(YX_mat, standardize=T, popSize=50, maxiter=1500, run=150, ti
 
     GA <- GA::ga(type = "real-valued",
                  population = Lorenz.Population,
-                 fitness =  function(u)Fitness_cpp(u,as.vector(YX_mat[,1]),as.matrix(YX_mat[,-1]),V,pi),
+                 fitness =  function(u).Fitness_cpp(u,as.vector(YX_mat[,1]),as.matrix(YX_mat[,-1]),V,pi),
                  lower = rep(-1,p-1), upper = rep(1,p-1),
                  popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
                  parallel = parallel)
@@ -110,7 +110,7 @@ Lorenz.GA<-function(YX_mat, standardize=T, popSize=50, maxiter=1500, run=150, ti
 
     GA <- GA::ga(type = "real-valued",
                  population = Lorenz.Population,
-                 fitness =  function(u)Fitness_meanrank(u,as.vector(YX_mat[,1]),as.matrix(YX_mat[,-1]),pi),
+                 fitness =  function(u).Fitness_meanrank(u,as.vector(YX_mat[,1]),as.matrix(YX_mat[,-1]),pi),
                  lower = rep(-1,p-1), upper = rep(1,p-1),
                  popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
                  parallel = parallel)

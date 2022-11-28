@@ -26,6 +26,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Fitness_meanrank
+double Fitness_meanrank(arma::vec x, arma::vec Y, arma::mat X, arma::vec pi);
+RcppExport SEXP _LorenzRegression_Fitness_meanrank(SEXP xSEXP, SEXP YSEXP, SEXP XSEXP, SEXP piSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type pi(piSEXP);
+    rcpp_result_gen = Rcpp::wrap(Fitness_meanrank(x, Y, X, pi));
+    return rcpp_result_gen;
+END_RCPP
+}
 // PLR_derivative_cpp
 arma::vec PLR_derivative_cpp(arma::vec y, arma::mat X, arma::vec pi, arma::vec theta, double h, double gamma);
 RcppExport SEXP _LorenzRegression_PLR_derivative_cpp(SEXP ySEXP, SEXP XSEXP, SEXP piSEXP, SEXP thetaSEXP, SEXP hSEXP, SEXP gammaSEXP) {
@@ -74,6 +88,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_LorenzRegression_Fitness_cpp", (DL_FUNC) &_LorenzRegression_Fitness_cpp, 5},
+    {"_LorenzRegression_Fitness_meanrank", (DL_FUNC) &_LorenzRegression_Fitness_meanrank, 4},
     {"_LorenzRegression_PLR_derivative_cpp", (DL_FUNC) &_LorenzRegression_PLR_derivative_cpp, 6},
     {"_LorenzRegression_PLR_loss_cpp", (DL_FUNC) &_LorenzRegression_PLR_loss_cpp, 6},
     {"_LorenzRegression_SCAD_derivative_cpp", (DL_FUNC) &_LorenzRegression_SCAD_derivative_cpp, 3},

@@ -3,7 +3,7 @@
 
 using namespace arma;
 
-// [[Rcpp::export]]
+// [[Rcpp::export(.SCAD_derivative_cpp)]]
 arma::vec SCAD_derivative_cpp(arma::vec x, double lambda, double a)
 {
   int k;

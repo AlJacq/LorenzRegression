@@ -3,7 +3,7 @@
 
 using namespace arma;
 
-// [[Rcpp::export]]
+// [[Rcpp::export(.PLR_loss_cpp)]]
 double PLR_loss_cpp(arma::mat X, arma::vec y, arma::vec pi, arma::vec theta, double h, double gamma)
 {
   int i, j;

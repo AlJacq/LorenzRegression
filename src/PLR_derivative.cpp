@@ -3,7 +3,7 @@
 
 using namespace arma;
 
-// [[Rcpp::export]]
+// [[Rcpp::export(.PLR_derivative_cpp)]]
 arma::vec PLR_derivative_cpp(arma::vec y, arma::mat X, arma::vec pi, arma::vec theta, double h, double gamma)
 {
   int i, j, k;

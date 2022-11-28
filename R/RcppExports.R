@@ -9,19 +9,23 @@
 #' @param Z vector of size n gathering iid repetitions of a U[0,1]
 #' @param pi vector of size n gathering the observation weights (notice that sum(pi)=1)
 #' @return Fitness of candidate x
-Fitness_cpp <- function(x, Y, X, Z, pi) {
+.Fitness_cpp <- function(x, Y, X, Z, pi) {
     .Call('_LorenzRegression_Fitness_cpp', PACKAGE = 'LorenzRegression', x, Y, X, Z, pi)
 }
 
-PLR_derivative_cpp <- function(y, X, pi, theta, h, gamma) {
+.Fitness_meanrank <- function(x, Y, X, pi) {
+    .Call('_LorenzRegression_Fitness_meanrank', PACKAGE = 'LorenzRegression', x, Y, X, pi)
+}
+
+.PLR_derivative_cpp <- function(y, X, pi, theta, h, gamma) {
     .Call('_LorenzRegression_PLR_derivative_cpp', PACKAGE = 'LorenzRegression', y, X, pi, theta, h, gamma)
 }
 
-PLR_loss_cpp <- function(X, y, pi, theta, h, gamma) {
+.PLR_loss_cpp <- function(X, y, pi, theta, h, gamma) {
     .Call('_LorenzRegression_PLR_loss_cpp', PACKAGE = 'LorenzRegression', X, y, pi, theta, h, gamma)
 }
 
-SCAD_derivative_cpp <- function(x, lambda, a) {
+.SCAD_derivative_cpp <- function(x, lambda, a) {
     .Call('_LorenzRegression_SCAD_derivative_cpp', PACKAGE = 'LorenzRegression', x, lambda, a)
 }
 
