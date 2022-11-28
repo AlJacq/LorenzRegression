@@ -4,10 +4,12 @@
 \alias{print.LR}
 \title{Printing method for the Lorenz Regression}
 \usage{
-\method{print}{LR}(LR)
+\method{print}{LR}(x, ...)
 }
 \arguments{
-\item{LR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty="none"}.}
+\item{x}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty="none"}.}
+
+\item{...}{Additional arguments.}
 }
 \description{
 \code{print.LR} prints the arguments and estimated coefficients of an object of class \code{LR}.
@@ -15,7 +17,7 @@
 \examples{
 data(Data.Incomes)
 NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-print.LR(NPLR)
+print(NPLR)
 
 }
 \seealso{

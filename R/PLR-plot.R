@@ -2,7 +2,8 @@
 #'
 #' \code{plot.PLR} provides plots for an object of class \code{PLR}.
 #'
-#' @param PLR Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.
+#' @param x Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.
+#' @param ... Additional arguments.
 #'
 #' @return Three types of plots
 #' The first is the Lorenz curve of the response and concentration curves of the response with respect to the estimated index (obtained with each selection method).
@@ -22,15 +23,16 @@
 #' @examples
 #' data(Data.Incomes)
 #' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", lambda.choice = c("BIC","CV"), eps = 0.005, seed.CV = 123, nfolds = 5)
-#' plot.PLR(PLR)
+#' plot(PLR)
 #'
 #' @import ggplot2
 #'
 #' @method plot PLR
 #' @export
 
-plot.PLR <- function(PLR){
+plot.PLR <- function(x, ...){
 
+  PLR <- x
   p0 <- Lorenz.graphs(Response ~ ., PLR$Fit, weights = PLR$weights)
   p0 <- p0 + ggtitle("Observed and explained inequality")
 

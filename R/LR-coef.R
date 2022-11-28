@@ -2,7 +2,8 @@
 #'
 #' \code{coef.LR} provides the estimated coefficients for an object of class \code{LR}.
 #'
-#' @param LR Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty="none"}.
+#' @param object Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty="none"}.
+#' @param ... Additional arguments.
 #'
 #' @return a vector gathering the estimated coefficients
 #'
@@ -11,13 +12,13 @@
 #' @examples
 #' data(Data.Incomes)
 #' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-#' coef.LR(NPLR)
+#' coef(NPLR)
 #'
 #' @method coef LR
 #' @export
 
-coef.LR <- function(LR){
+coef.LR <- function(object, ...){
 
-  LR$theta
+  object$theta
 
 }

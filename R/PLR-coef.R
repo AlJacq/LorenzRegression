@@ -2,8 +2,9 @@
 #'
 #' \code{coef.PLR} provides the estimated coefficients for an object of class \code{PLR}.
 #'
-#' @param PLR Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.
+#' @param object Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.
 #' @param renormalize whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE
+#' @param ... Additional arguments
 #'
 #' @return If the PLR was fitted with only one selection method, the output is a vector gathering the estimated coefficients.
 #' If several selection methods were selected, it outputs a list of vectors, where each element of the list corresponds to a different selection method.
@@ -13,13 +14,14 @@
 #' @examples
 #' data(Data.Incomes)
 #' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", lambda.choice = c("BIC","CV"), eps = 0.005, seed.CV = 123, nfolds = 5)
-#' coef.PLR(PLR)
+#' coef(PLR)
 #'
 #' @method coef PLR
 #' @export
 
-coef.PLR <- function(PLR, renormalize=TRUE){
+coef.PLR <- function(object, renormalize=TRUE, ...){
 
+  PLR <- object
   if(renormalize){
     m1 <- PLR.normalize(PLR)
   }else{

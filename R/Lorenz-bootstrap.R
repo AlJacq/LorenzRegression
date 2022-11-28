@@ -74,7 +74,7 @@ Lorenz.boot<-function(formula,
   }else{
 
     YX_mat <- as.data.frame(stats::model.matrix(formula,data=data,
-                                                contrasts.arg=lapply(data[,sapply(data,is.factor),drop=FALSE],contrasts,contrasts=FALSE))[,-1])
+                                                contrasts.arg=lapply(data[,sapply(data,is.factor),drop=FALSE],stats::contrasts,contrasts=FALSE))[,-1])
 
     which.factor <- which(sapply(1:ncol(data),function(i)class(data[,i])=="factor" & length(levels(data[,i]))==2))
     binary.exclude <- sapply(which.factor,function(i)paste0(colnames(data)[i],levels(data[,i])[1]))

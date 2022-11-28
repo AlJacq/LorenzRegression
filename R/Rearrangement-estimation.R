@@ -54,7 +54,7 @@ Rearrangement.estimation<-function(Y, Index, t=Index, weights=NULL, degree.pol=1
 
   H.LocPolyn <- locpol::locpol(Y ~ Index.std, Data.locpol, xeval = t.std, deg = degree.pol, weig = weights)$lpFit$Y # Watch out ... the response is spitted out as if it was computed on sort(t.std).
 
-  o <- rank(t.std,ties="first")
+  o <- rank(t.std,ties.method="first")
   H.LocPolyn <- H.LocPolyn[o]
 
   # Transformed estimator ----

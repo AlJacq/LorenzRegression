@@ -2,7 +2,8 @@
 #'
 #' \code{summary.LR} provides a summary for an object of class \code{LR}.
 #'
-#' @param LR Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty=="none"}.
+#' @param object Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty=="none"}.
+#' @param ... Additional arguments
 #'
 #' @return A summary displaying the explained Gini coefficient, Lorenz-\eqn{R^2} and a table gathering the estimated coefficients, including p-values if bootstrap was performed.
 #'
@@ -11,15 +12,16 @@
 #' @examples
 #' data(Data.Incomes)
 #' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-#' summary.LR(NPLR)
+#' summary(NPLR)
 #'
 #' @import knitr
 #'
 #' @method summary LR
 #' @export
 
-summary.LR <- function(LR){
+summary.LR <- function(object, ...){
 
+  LR <- object
   theta.mat <- as.matrix(LR$theta)
   if ("pval.theta" %in% names(LR)){
     theta.mat <- cbind(theta.mat, LR$pval.theta)

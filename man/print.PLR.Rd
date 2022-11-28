@@ -4,10 +4,12 @@
 \alias{print.PLR}
 \title{Printing method for the Penalized Lorenz Regression}
 \usage{
-\method{print}{PLR}(PLR)
+\method{print}{PLR}(x, ...)
 }
 \arguments{
-\item{PLR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.}
+\item{x}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.}
+
+\item{...}{Additional arguments.}
 }
 \description{
 \code{print.PLR} prints the arguments and estimated coefficients of an object of class \code{PLR}.
@@ -15,7 +17,7 @@
 \examples{
 data(Data.Incomes)
 PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", lambda.choice = c("BIC","CV"), eps = 0.005, seed.CV = 123, nfolds = 5)
-print.PLR(PLR)
+print(PLR)
 
 }
 \seealso{

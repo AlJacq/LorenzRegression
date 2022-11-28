@@ -2,8 +2,9 @@
 #'
 #' \code{summary.PLR} provides a summary for an object of class \code{PLR}.
 #'
-#' @param PLR Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.
+#' @param object Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.
 #' @param renormalize whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE
+#' @param ... Additional arguments.
 #'
 #' @return A summary displaying two tables: a summary of the model and the estimated coefficients.
 #'
@@ -12,15 +13,16 @@
 #' @examples
 #' data(Data.Incomes)
 #' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", lambda.choice = c("BIC","CV"), eps = 0.005, seed.CV = 123, nfolds = 5)
-#' summary.PLR(PLR)
+#' summary(PLR)
 #'
 #' @import knitr
 #'
 #' @method summary PLR
 #' @export
 
-summary.PLR <- function(PLR, renormalize=TRUE){
+summary.PLR <- function(object, renormalize=TRUE, ...){
 
+  PLR <- object
   sum.table <- knitr::kable(PLR$summary)
 
   if (renormalize){

@@ -4,10 +4,12 @@
 \alias{plot.PLR}
 \title{Plots for the Penalized Lorenz Regression}
 \usage{
-\method{plot}{PLR}(PLR)
+\method{plot}{PLR}(x, ...)
 }
 \arguments{
-\item{PLR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.}
+\item{x}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 Three types of plots
@@ -30,7 +32,7 @@ We dismiss lambda values for which this situation occurs more than 5\% of the ti
 \examples{
 data(Data.Incomes)
 PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", lambda.choice = c("BIC","CV"), eps = 0.005, seed.CV = 123, nfolds = 5)
-plot.PLR(PLR)
+plot(PLR)
 
 }
 \seealso{

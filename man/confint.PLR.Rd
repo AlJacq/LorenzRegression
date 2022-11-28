@@ -5,15 +5,16 @@
 \title{Confidence intervals for the Penalized Lorenz Regression}
 \usage{
 \method{confint}{PLR}(
-  PLR,
+  object,
   parm = c("Gini", "LR2"),
   level = 0.95,
   boot.method = c("Param", "Basic", "Perc"),
-  which.pars = NULL
+  which.pars = NULL,
+  ...
 )
 }
 \arguments{
-\item{PLR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"} and \code{Boot.inference=TRUE}.}
+\item{object}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"} and \code{Boot.inference=TRUE}.}
 
 \item{parm}{Determines whether the confidence interval is computed for the explained Gini coefficient or for the Lorenz-R2. Possible values are "Gini" (default, for the explained Gini) and "LR2" (for the Lorenz-R2).}
 
@@ -24,6 +25,8 @@ Other possible values are "Perc" (percentile bootstrap) and "Basic" (basic boots
 Basic bootstrap is based on bootstrapping the whole distribution of the estimator.}
 
 \item{which.pars}{Which values of the bandwidth h and the penalty parameter lambda should be used. Default is NULL, in which case the optimal values are used.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A matrix gathering the desired confidence intervals. Each row corresponds to a different selection method for the pair (h,lambda).
@@ -37,7 +40,7 @@ Use this function only if Boot.inference was set to TRUE in the call to \code{\l
 \examples{
 data(Data.Incomes)
 PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, h.grid = nrow(Data.Incomes)^(-1/5.5), penalty = "SCAD", eps = 0.01, seed.boot = 123, B = 50, Boot.inference = TRUE)
-confint.PLR(PLR)
+confint(PLR)
 
 }
 \seealso{

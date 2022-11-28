@@ -4,10 +4,12 @@
 \alias{summary.LR}
 \title{Summary for the Lorenz Regression}
 \usage{
-\method{summary}{LR}(LR)
+\method{summary}{LR}(object, ...)
 }
 \arguments{
-\item{LR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty=="none"}.}
+\item{object}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty=="none"}.}
+
+\item{...}{Additional arguments}
 }
 \value{
 A summary displaying the explained Gini coefficient, Lorenz-\eqn{R^2} and a table gathering the estimated coefficients, including p-values if bootstrap was performed.
@@ -18,7 +20,7 @@ A summary displaying the explained Gini coefficient, Lorenz-\eqn{R^2} and a tabl
 \examples{
 data(Data.Incomes)
 NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-summary.LR(NPLR)
+summary(NPLR)
 
 }
 \seealso{

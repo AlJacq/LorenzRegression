@@ -118,7 +118,7 @@ Lorenz.Reg <- function(formula,
   }else{
 
     YX_mat <- as.data.frame(stats::model.matrix(formula,data=data,
-                                                     contrasts.arg=lapply(data[,sapply(data,is.factor),drop=FALSE],contrasts,contrasts=FALSE))[,-1])
+                                                     contrasts.arg=lapply(data[,sapply(data,is.factor),drop=FALSE],stats::contrasts,contrasts=FALSE))[,-1])
 
     which.factor <- which(sapply(1:ncol(data),function(i)class(data[,i])=="factor" & length(levels(data[,i]))==2))
     binary.exclude <- sapply(which.factor,function(i)paste0(colnames(data)[i],levels(data[,i])[1]))
@@ -162,8 +162,8 @@ Lorenz.Reg <- function(formula,
     # Bootstrap
     if(is.null(LR.boot) & Boot.inference){
       LR.boot <- Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR, penalty = penalty, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...)
-      Sigma.hat.star <- n*var(LR.boot$theta.star)
-      pval.theta <- sapply(1:p,function(k)2*pnorm(sqrt(n)*abs(theta[k])/sqrt(Sigma.hat.star[k,k]),lower.tail=FALSE))
+      Sigma.hat.star <- n*stats::var(LR.boot$theta.star)
+      pval.theta <- sapply(1:p,function(k)2*stats::pnorm(sqrt(n)*abs(theta[k])/sqrt(Sigma.hat.star[k,k]),lower.tail=FALSE))
       names(pval.theta) <- names(theta)
     }
     # Return
@@ -211,7 +211,7 @@ Lorenz.Reg <- function(formula,
     }
     if ("Boot" %in% sel.choice){
       if (is.null(LR.boot)){
-        Path_Boot <- lapply(1:n.h,function(i)Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR[[i]], penalty = penalty, h = h.grid[i], eps = eps, which.CI = which.CI, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...))
+        Path_Boot <- lapply(1:n.h,function(i)Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR[[i]], penalty = penalty, h = h.grid[i], eps = eps, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...))
       }else{
         Path_Boot <- LR.boot
       }

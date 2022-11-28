@@ -39,8 +39,6 @@ Lorenz.SCADFABS(
 \item{lambda.min}{lower bound of the penalty parameter. Only used if lambda="Shi".}
 
 \item{gamma}{value of the Lagrange multiplier in the loss function}
-
-\item{w.adaptive}{vector of size equal to the number of covariates where each entry indicates the weight in the adaptive Lasso. By default, each covariate is given the same weight (Lasso).}
 }
 \value{
 A list with several components:

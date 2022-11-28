@@ -17,7 +17,7 @@ A matrix of re-normalized coefficients.
 }
 \examples{
 data(Data.Incomes)
-PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", lambda.choice = c("BIC","CV"), eps = 0.005, seed.CV = 123, nfolds = 5)
+PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", sel.choice = c("BIC","CV"), eps = 0.005, seed.CV = 123, nfolds = 5)
 PLR.normalize(PLR)
 
 }

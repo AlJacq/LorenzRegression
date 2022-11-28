@@ -4,10 +4,12 @@
 \alias{plot.LR}
 \title{Plots for the Unpenalized Lorenz Regression}
 \usage{
-\method{plot}{LR}(LR)
+\method{plot}{LR}(x, ...)
 }
 \arguments{
-\item{LR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty=="none"}.}
+\item{x}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty=="none"}.}
+
+\item{...}{Additional arguments}
 }
 \value{
 The Lorenz curve of the response and concentration curve of the response with respect to the estimated index
@@ -18,7 +20,7 @@ The Lorenz curve of the response and concentration curve of the response with re
 \examples{
 data(Data.Incomes)
 NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-plot.PLR(NPLR)
+plot(NPLR)
 
 }
 \seealso{

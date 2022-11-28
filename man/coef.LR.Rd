@@ -4,10 +4,12 @@
 \alias{coef.LR}
 \title{Estimated coefficients for the Lorenz Regression}
 \usage{
-\method{coef}{LR}(LR)
+\method{coef}{LR}(object, ...)
 }
 \arguments{
-\item{LR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty="none"}.}
+\item{object}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty="none"}.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 a vector gathering the estimated coefficients
@@ -18,7 +20,7 @@ a vector gathering the estimated coefficients
 \examples{
 data(Data.Incomes)
 NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-coef.LR(NPLR)
+coef(NPLR)
 
 }
 \seealso{

@@ -25,8 +25,8 @@ boot.confint <- function(x.hat, x.star, alpha, boot.method){
 
   }else{
 
-    Sigma.star <- var(x.star,na.rm=T)
-    CI <- x.hat+c(-1,1)*sqrt(Sigma.star)*qnorm(1-alpha/2)
+    Sigma.star <- stats::var(x.star,na.rm=T)
+    CI <- x.hat+c(-1,1)*sqrt(Sigma.star)*stats::qnorm(1-alpha/2)
 
   }
 

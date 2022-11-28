@@ -21,7 +21,7 @@ PLR.normalize <- function(PLR){
   formula <- PLR$formula
   theta <- PLR$theta
 
-  data <- model.frame(formula,data)[,-1]
+  data <- stats::model.frame(formula,data)[,-1]
   which.factor <- which(sapply(1:ncol(data),function(i)class(data[,i]))=="factor")
   which.other <- which(sapply(1:ncol(data),function(i)class(data[,i]))!="factor")
   all.cats <- lapply(which.factor,function(i)paste0(colnames(data)[i],levels(data[,i])))

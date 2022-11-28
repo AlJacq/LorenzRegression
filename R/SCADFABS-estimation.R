@@ -10,7 +10,6 @@
 #' @param YX_mat a matrix with the first column corresponding to the response vector, the remaining ones being the explanatory variables.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.
-#' @param w.adaptive vector of size equal to the number of covariates where each entry indicates the weight in the adaptive Lasso. By default, each covariate is given the same weight (Lasso).
 #' @param eps step size in the FABS algorithm.
 #' @param a parameter of the SCAD penalty. Default value is 3.7.
 #' @param iter maximum number of iterations. Default value is 10^4.
