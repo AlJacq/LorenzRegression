@@ -4,24 +4,32 @@
 \alias{confint.LR}
 \title{Confidence intervals for the Lorenz Regression}
 \usage{
-\method{confint}{LR}(LR)
+\method{confint}{LR}(
+  LR,
+  parm = c("Gini", "LR2", "theta"),
+  level = 0.95,
+  boot.method = c("Param", "Basic", "Perc")
+)
 }
 \arguments{
 \item{LR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty="none"} and \code{Boot.inference=TRUE}.}
+
+\item{parm}{Determines whether the confidence interval is computed for the explained Gini coefficient, for the Lorenz-R2 or for the vector of theta coefficients. Possible values are "Gini" (default, for the explained Gini),"LR2" (for the Lorenz-R2) and "theta" (for the vector theta).}
+
+\item{level}{level of the confidence interval}
+
+\item{boot.method}{What bootstrap method is used to construct the confidence interval. Default value is "Param", which exploits the asymptotic normality and only bootstraps the variance.
+Other possible values are "Perc" (percentile bootstrap) and "Basic" (basic bootstrap). Percentile bootstrap directly plugs the quantiles of the bootstrap distribution.
+Basic bootstrap is based on bootstrapping the whole distribution of the estimator.}
 }
 \value{
-A list with two elements
-\describe{
-   \item{\code{Gi}}{a matrix where each row is a confidence interval for the explained Gini coefficient. The different rows correspond to different bootstrap methods.}
-   \item{\code{LR2}}{a matrix where each row is a confidence interval for the Lorenz-\eqn{R^2}. The different rows correspond to different bootstrap methods.}
-}
+The desired confidence interval. If parm is set to either "Gini" or "LR2", the output is a vector. If parm is set to "theta", it is a matrix where each row corresponds to a different coefficient.
 }
 \description{
-\code{confint.LR} provides confidence intervals for the explained Gini coefficient and Lorenz-R2 for an object of class \code{LR}.
+\code{confint.LR} provides confidence intervals for the explained Gini coefficient, Lorenz-R2 and theta vector for an object of class \code{LR}.
 }
 \details{
-This function is only meant to display the confidence intervals obtained from an already computed LR.
-The level and bootstrap methods must be chosen via the arguments \code{alpha} and \code{which.CI} in the \code{Lorenz.Reg} function.
+Use this function only if Boot.inference was set to TRUE in the call to \code{\link{Lorenz.Reg}}. Otherwise, bootstrap was not computed and the confidence intervals cannot be determined.
 }
 \examples{
 data(Data.Incomes)

@@ -4,10 +4,12 @@
 \alias{summary.PLR}
 \title{Summary for the Penalized Lorenz Regression}
 \usage{
-\method{summary}{PLR}(PLR)
+\method{summary}{PLR}(PLR, renormalize = TRUE)
 }
 \arguments{
 \item{PLR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.}
+
+\item{renormalize}{whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE}
 }
 \value{
 A summary displaying two tables: a summary of the model and the estimated coefficients.

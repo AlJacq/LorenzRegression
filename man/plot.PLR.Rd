@@ -10,11 +10,12 @@
 \item{PLR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.}
 }
 \value{
-Two types of plots
-In each case, the horizontal axis is -log(lambda), lambda being the value of the regularization parameter.
-The first type of plot is a traceplot, where the vertical axis gives the size of the coefficient attached to each covariate.
-The second type of plot shows the evolution of the score(s) for each of the selection method chosen in the \code{PLR} object.
-For comparability reasons, the score are normalized such that  the larger the better and the optimum is attained in 1.
+Three types of plots
+The first is the Lorenz curve of the response and concentration curves of the response with respect to the estimated index (obtained with each selection method).
+In each of the remaining graphs, the horizontal axis is -log(lambda), lambda being the value of the regularization parameter.
+The second type of plot is a traceplot, where the vertical axis gives the size of the coefficient attached to each covariate.
+The third type of plot shows the evolution of the score(s) for each of the selection method chosen in the \code{PLR} object.
+For comparability reasons, the scores are normalized such that  the larger the better and the optimum is attained in 1.
 Since the whole path depends on the chosen bandwidth for the kernel, and the optimal bandwidth may depend on the selection method, the plots are produced for each selection method used in the PLR object
 }
 \description{

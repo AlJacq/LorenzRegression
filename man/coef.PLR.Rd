@@ -4,10 +4,12 @@
 \alias{coef.PLR}
 \title{Estimated coefficients for the Penalized Lorenz Regression}
 \usage{
-\method{coef}{PLR}(PLR)
+\method{coef}{PLR}(PLR, renormalize = TRUE)
 }
 \arguments{
 \item{PLR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.}
+
+\item{renormalize}{whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE}
 }
 \value{
 If the PLR was fitted with only one selection method, the output is a vector gathering the estimated coefficients.

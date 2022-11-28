@@ -3,6 +3,7 @@
 #' \code{summary.PLR} provides a summary for an object of class \code{PLR}.
 #'
 #' @param PLR Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.
+#' @param renormalize whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE
 #'
 #' @return A summary displaying two tables: a summary of the model and the estimated coefficients.
 #'
@@ -18,10 +19,16 @@
 #' @method summary PLR
 #' @export
 
-summary.PLR <- function(PLR){
+summary.PLR <- function(PLR, renormalize=TRUE){
 
   sum.table <- knitr::kable(PLR$summary)
-  theta.table <- knitr::kable(PLR$theta)
+
+  if (renormalize){
+    theta <- PLR.normalize(PLR)
+  }else{
+    theta <- PLR$theta
+  }
+  theta.table <- knitr::kable(t(theta))
 
   cat("Summary of the model fit",
       sum.table,

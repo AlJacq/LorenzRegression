@@ -4,24 +4,35 @@
 \alias{confint.PLR}
 \title{Confidence intervals for the Penalized Lorenz Regression}
 \usage{
-\method{confint}{PLR}(PLR)
+\method{confint}{PLR}(
+  PLR,
+  parm = c("Gini", "LR2"),
+  level = 0.95,
+  boot.method = c("Param", "Basic", "Perc"),
+  which.pars = NULL
+)
 }
 \arguments{
 \item{PLR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"} and \code{Boot.inference=TRUE}.}
+
+\item{parm}{Determines whether the confidence interval is computed for the explained Gini coefficient or for the Lorenz-R2. Possible values are "Gini" (default, for the explained Gini) and "LR2" (for the Lorenz-R2).}
+
+\item{level}{level of the confidence interval}
+
+\item{boot.method}{What bootstrap method is used to construct the confidence interval. Default value is "Param", which exploits the asymptotic normality and only bootstraps the variance.
+Other possible values are "Perc" (percentile bootstrap) and "Basic" (basic bootstrap). Percentile bootstrap directly plugs the quantiles of the bootstrap distribution.
+Basic bootstrap is based on bootstrapping the whole distribution of the estimator.}
+
+\item{which.pars}{Which values of the bandwidth h and the penalty parameter lambda should be used. Default is NULL, in which case the optimal values are used.}
 }
 \value{
-A list with two elements
-\describe{
-   \item{\code{Gi}}{a list of confidence intervals for the explained Gini coefficient. Each element of the list correspond to a bootstrap method.}
-   \item{\code{LR2}}{a list of confidence intervals for the Lorenz-\eqn{R^2}. Each element of the list correspond to a bootstrap method.}
-}
+A matrix gathering the desired confidence intervals. Each row corresponds to a different selection method for the pair (h,lambda).
 }
 \description{
-\code{confint.PLR} provides confidence intervals for the explained Gini coefficient and Lorenz-R2 for an object of class \code{PLR}.
+\code{confint.PLR} provides confidence intervals for the explained Gini coefficient and Lorenz-R2 for an parm of class \code{PLR}.
 }
 \details{
-This function is only meant to display the confidence intervals obtained from an already computed PLR.
-The level and bootstrap methods must be chosen via the arguments \code{alpha} and \code{which.CI} in the \code{Lorenz.Reg} function.
+Use this function only if Boot.inference was set to TRUE in the call to \code{\link{Lorenz.Reg}}. Otherwise, bootstrap was not computed and the confidence intervals cannot be determined.
 }
 \examples{
 data(Data.Incomes)

@@ -10,7 +10,7 @@
 \item{LR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty=="none"}.}
 }
 \value{
-A summary displaying the explained Gini coefficient, Lorenz-\eqn{R^2} and a table gathering the estimated coefficients.
+A summary displaying the explained Gini coefficient, Lorenz-\eqn{R^2} and a table gathering the estimated coefficients, including p-values if bootstrap was performed.
 }
 \description{
 \code{summary.LR} provides a summary for an object of class \code{LR}.
