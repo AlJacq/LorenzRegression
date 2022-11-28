@@ -11,8 +11,9 @@
 #' @param popSize Size of the population of candidates in the genetic algorithm. Default value is 50.
 #' @param maxiter Maximum number ot iterations in the genetic algorithm. Default value is 1500.
 #' @param run Number of iterations without improvement in the best fitness necessary for the algorithm to stop. Default value is 150.
-#' @param ties.method What method should be used to break the ties in the rank index. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.
-#' @param seed seed imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed is imposed.
+#' @param ties.method What method should be used to break the ties in optimization program. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.
+#' @param ties.Gini what method should be used to break the ties in the computation of the Gini coefficient at the end of the algorithm. Possible values and delfaut choice are the same as above.
+#' @param seed.random seed.random imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed.random is imposed.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param parallel Whether parallel computing should be used to distribute the computations in the genetic algorithm. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
 #'
@@ -40,11 +41,12 @@
 #' @export
 
 # unit-norm normalization ----
-Lorenz.GA<-function(YX_mat, standardize=T, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), seed=NULL, weights=NULL, parallel = F){
+Lorenz.GA<-function(YX_mat, standardize=T, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, weights=NULL, parallel = F){
 
   # PRE-GA ----
 
   ties.method <- match.arg(ties.method)
+  ties.Gini <- match.arg(ties.Gini)
 
   n <- length(YX_mat[,1])
   p <- length(YX_mat[1,])-1
@@ -74,7 +76,7 @@ Lorenz.GA<-function(YX_mat, standardize=T, popSize=50, maxiter=1500, run=150, ti
 
   if (ties.method == "random"){
 
-    if(!is.null(seed)) set.seed(seed)
+    if(!is.null(seed.random)) set.seed(seed.random)
     V<-stats::runif(n)
 
     GA <- GA::ga(type = "real-valued",
@@ -99,13 +101,8 @@ Lorenz.GA<-function(YX_mat, standardize=T, popSize=50, maxiter=1500, run=150, ti
     theta.argmax<-theta[which.max(c((Y_1*pi_1)%*%rank_1,(Y_2*pi_2)%*%rank_2)),]
 
     # We compute the Lorenz-Rsquared
-    Index.sol<-theta.argmax%*%t(YX_mat[,-1])
+    Index.sol<-as.matrix(YX_mat[,-1])%*%theta.argmax
     Y<-YX_mat[,1]
-
-    LR2.num<-Gini.coef(Y, x=Index.sol, na.rm=T, ties.method="random", seed=seed, weights=weights)
-    LR2.denom<-Gini.coef(Y, na.rm=T, ties.method="random", seed=seed, weights=weights)
-    LR2<-as.numeric(LR2.num/LR2.denom)
-    Gi.expl<-as.numeric(LR2.num)
 
   }
 
@@ -136,17 +133,28 @@ Lorenz.GA<-function(YX_mat, standardize=T, popSize=50, maxiter=1500, run=150, ti
     theta.argmax<-theta[which.max(c((pi*Y)%*%F1_i,(pi*Y)%*%F2_i)),]
 
     # We compute the Lorenz-Rsquared
-    Index.sol<-theta.argmax%*%t(YX_mat[,-1])
+    Index.sol<-as.matrix(YX_mat[,-1])%*%theta.argmax
     Y<-YX_mat[,1]
-
-    LR2.num<-Gini.coef(Y, x=Index.sol, na.rm=T, ties.method="mean", seed=seed, weights=weights)
-    LR2.denom<-Gini.coef(Y, na.rm=T, ties.method="mean", seed=seed, weights=weights)
-    LR2<-as.numeric(LR2.num/LR2.denom)
-    Gi.expl<-as.numeric(LR2.num)
 
   }
 
   # POST-PLR ----
+
+  if(ties.Gini == "random"){
+
+    LR2.num<-Gini.coef(Y, x=Index.sol, na.rm=T, ties.method="random", seed=seed.random, weights=weights)
+    LR2.denom<-Gini.coef(Y, na.rm=T, ties.method="random", seed=seed.random, weights=weights)
+    LR2<-as.numeric(LR2.num/LR2.denom)
+    Gi.expl<-as.numeric(LR2.num)
+
+  }else{
+
+    LR2.num<-Gini.coef(Y, x=Index.sol, na.rm=T, ties.method="mean", seed=seed.random, weights=weights)
+    LR2.denom<-Gini.coef(Y, na.rm=T, ties.method="mean", seed=seed.random, weights=weights)
+    LR2<-as.numeric(LR2.num/LR2.denom)
+    Gi.expl<-as.numeric(LR2.num)
+
+  }
 
   if (standardize) theta.argmax <- theta.argmax/X.scale # Need to put back on the original scale
   theta <- theta.argmax/sqrt(sum(theta.argmax^2))

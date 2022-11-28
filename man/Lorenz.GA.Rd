@@ -11,7 +11,8 @@ Lorenz.GA(
   maxiter = 1500,
   run = 150,
   ties.method = c("random", "mean"),
-  seed = NULL,
+  ties.Gini = c("random", "mean"),
+  seed.random = NULL,
   weights = NULL,
   parallel = F
 )
@@ -27,9 +28,11 @@ Lorenz.GA(
 
 \item{run}{Number of iterations without improvement in the best fitness necessary for the algorithm to stop. Default value is 150.}
 
-\item{ties.method}{What method should be used to break the ties in the rank index. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.}
+\item{ties.method}{What method should be used to break the ties in optimization program. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.}
 
-\item{seed}{seed imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed is imposed.}
+\item{ties.Gini}{what method should be used to break the ties in the computation of the Gini coefficient at the end of the algorithm. Possible values and delfaut choice are the same as above.}
+
+\item{seed.random}{seed.random imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed.random is imposed.}
 
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
