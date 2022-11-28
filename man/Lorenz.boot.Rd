@@ -13,8 +13,6 @@ Lorenz.boot(
   penalty = c("none", "SCAD", "LASSO"),
   h = NULL,
   eps = 0.005,
-  which.CI = c("Basic", "Perc", "Param"),
-  alpha = 0.05,
   B = 400,
   bootID = NULL,
   seed.boot = NULL,
@@ -42,13 +40,6 @@ IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is comput
 
 \item{eps}{Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
 
-\item{which.CI}{Determines what method is used to construct the bootstrap confidence intervals. Sub-vector of c("Basic","Perc","Param"), the default being the whole vector.
-"Basic" corresponds to basic bootstrap, based on bootstrapping the whole distribution of the estimated explained Gini coefficient.
-"Perc" corresponds to percentile bootstrap, where the quantiles of bootstrap distribution of the estimated explained Gini are directly plugged in the bounds.
-"Param" corresponds to parametric bootstrap, which exploits the asymptotic normality and only bootstraps the asymptotic variance.}
-
-\item{alpha}{significance level for the bootstrap confidence intervals. Default is 0.05.}
-
 \item{B}{Number of bootstrap resamples. Default is 400.}
 
 \item{bootID}{matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.}
@@ -63,16 +54,15 @@ IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is comput
 A list with several components:
 \describe{
    \item{\code{LR.est}}{Estimation on the original sample.}
-   \item{\code{CI.Gi}}{In the unpenalized case, a matrix where the rows correspond to the bootstrap methods and the columns correspond to the bounds of the confidence interval for the explained Gini coefficient. In the penalized case, a list of those matrices, where each element of the list corresponds to a different value of the regularization parameter.}
-   \item{\code{CI.LR2}}{In the unpenalized case, a matrix where the rows correspond to the bootstrap methods and the columns correspond to the bounds of the confidence interval for the Lorenz-\eqn{R^2}. In the penalized case, a list of those matrices, where each element of the list corresponds to a different value of the regularization parameter.}
-   \item{\code{Gi.star}}{In the unpenalized case, a vector gathering the bootstrap estimators of the explained Gini coefficient. In the penalized case, it becomes a list of vectors.}
+   \item{\code{Gi.star}}{In the unpenalized case, a vector gathering the bootstrap estimators of the explained Gini coefficient. In the penalized case, it becomes a list of vectors. Each element of the list corresponds to a different value of the penalization parameter}
    \item{\code{LR2.star}}{In the unpenalized case, a vector gathering the bootstrap estimators of the Lorenz-\eqn{R^2}. In the penalized case, it becomes a list of vectors.}
+   \item{\code{theta.star}}{In the unpenalized case, a matrix gathering the bootstrap estimators of theta (rows correspond to bootstrap iterations and columns refer to the different coefficients). In the penalized case, it becomes a list of matrices.}
    \item{\code{OOB.total}}{In the penalized case only. Vector gathering the OOB-score for each lambda value.}
    \item{\code{OOB.best}}{In the penalized case only. index of the lambda value attaining the highest OOB-score.}
 }
 }
 \description{
-\code{Lorenz.boot} constructs bootstrap confidence intervals for the explained Gini coefficient and Lorenz-\eqn{R^2} and, if applies, selects the regularization parameter.
+\code{Lorenz.boot} determines bootstrap estimators for the weight vector, explained Gini coefficient and Lorenz-\eqn{R^2} and, if applies, selects the regularization parameter.
 }
 \section{References}{
 

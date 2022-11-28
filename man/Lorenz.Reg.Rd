@@ -13,14 +13,12 @@ Lorenz.Reg(
   penalty = c("none", "SCAD", "LASSO"),
   h.grid = c(0.1, 0.2, 1, 2, 5) * nrow(data)^(-1/5.5),
   eps = 0.005,
-  lambda.choice = c("BIC", "CV", "Boot")[1],
+  sel.choice = c("BIC", "CV", "Boot")[1],
   nfolds = 10,
   seed.CV = NULL,
   foldID = NULL,
   Boot.inference = FALSE,
   B = 400,
-  which.CI = c("Basic", "Perc", "Param"),
-  alpha = 0.05,
   bootID = NULL,
   seed.boot = NULL,
   LR = NULL,
@@ -48,24 +46,17 @@ IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is comput
 
 \item{eps}{Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
 
-\item{lambda.choice}{Only used if penalty="SCAD" or penalty="LASSO". Determines what method is used to determine the optimal regularization parameter. Possibles values are any subvector of c("BIC","CV","Boot"). Default is "BIC". Notice that "Boot" is necessarily added if Boot.inference is set to TRUE.}
+\item{sel.choice}{Only used if penalty="SCAD" or penalty="LASSO". Determines what method is used to determine the optimal regularization parameter. Possibles values are any subvector of c("BIC","CV","Boot"). Default is "BIC". Notice that "Boot" is necessarily added if Boot.inference is set to TRUE.}
 
-\item{nfolds}{Only used if lambda.choice contains "CV". Number of folds in the cross-validation.}
+\item{nfolds}{Only used if sel.choice contains "CV". Number of folds in the cross-validation.}
 
-\item{seed.CV}{Only used if lambda.choice contains "CV". Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.}
+\item{seed.CV}{Only used if sel.choice contains "CV". Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.}
 
 \item{foldID}{vector taking value from 1 to nfolds specifying the fold index of each observation. Default value is NULL in which case the folds are defined internally.}
 
-\item{Boot.inference}{should bootstrap inference be produced ? Default is FALSE. It is automatically turned to TRUE if lambda.choice contains "Boot".}
+\item{Boot.inference}{should bootstrap inference be produced ? Default is FALSE. It is automatically turned to TRUE if sel.choice contains "Boot".}
 
 \item{B}{Only used if Boot.inference is TRUE. Number of bootstrap resamples. Default is 400.}
-
-\item{which.CI}{Only used if Boot.inference is TRUE. Determines what method is used to construct the bootstrap confidence intervals. Sub-vector of c("Basic","Perc","Param"), the default being the whole vector.
-"Basic" corresponds to basic bootstrap, based on bootstrapping the whole distribution of the estimated explained Gini coefficient.
-"Perc" corresponds to percentile bootstrap, where the quantiles of bootstrap distribution of the estimated explained Gini are directly plugged in the bounds.
-"Param" corresponds to parametric bootstrap, which exploits the asymptotic normality and only bootstraps the asymptotic variance.}
-
-\item{alpha}{Only used if Boot.inference is TRUE. significance level for the bootstrap confidence intervals. Default is 0.05.}
 
 \item{bootID}{Only used if Boot.inference is TRUE. matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.}
 
@@ -81,30 +72,33 @@ IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is comput
 For the Non-penalized Lorenz Regression, a list with the following elements :
 \describe{
    \item{\code{theta}}{the estimated vector of parameters.}
+   \item{\code{pval.theta}}{Only returned if Boot.inference is TRUE. the pvalues associated to each element of the parameter vector.}
    \item{\code{summary}}{a vector including the estimated explained Gini coefficient and the Lorenz-\eqn{R^2}.}
    \item{\code{Gi.expl}}{the estimated explained Gini coefficient}
    \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression.}
    \item{\code{MRS}}{the matrix of estimated marginal rates of substitution. More precisely, if we want the MRS of X1 (numerator) with respect to X2 (denominator),
    we should look for row corresponding to X1 and column corresponding to X2.}
    \item{\code{Fit}}{A data frame containing the response (first column) and the estimated index (second column).}
-   \item{\code{CI.Gi}}{Only returned if Boot.inference is TRUE. A matrix where each line corresponds to a bootstrap method, as specified in which.CI, and the columns provide the bounds of the intervals for the explained Gini coefficient.}
-   \item{\code{CI.LR2}}{Only returned if Boot.inference is TRUE. A matrix where each line corresponds to a bootstrap method, as specified in which.CI, and the columns provide the bounds of the intervals for the Lorenz-\eqn{R^2}.}
+   \item{\code{Gi.star}}{Only returned if Boot.inference is TRUE. A vector gathering the bootstrap estimators of the explained Gini coefficient.}
+   \item{\code{LR2.star}}{Only returned if Boot.inference is TRUE. A vector gathering the bootstrap estimators of the Lorenz-\eqn{R^2}.}
+   \item{\code{theta.star}}{Only returned if Boot.inference is TRUE. A matrix gathering the bootstrap estimators of theta (rows refer to bootstrap iterations and columns refer to the different coefficients)}.
 }
 For the Penalized Lorenz Regression, a list with the following elements.
 \describe{
-   \item{\code{path}}{a list where the different elements correspond to the values of h.grid. Each element is a matrix where the first line displays the path of regularization parameters. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that path. The next lines display the evolution of the scores of the methods chosen in lambda.choice. The remaining lines display the evolution of the estimated parameter vector.}
-   \item{\code{theta}}{a matrix where the different lines correspond to the methods chosen in lambda.choice. Each line provides the estimated vector of parameters at the optimal value of the regularization parameter.}
-   \item{\code{summary}}{a matrix where the different lines correspond to the methods chosen in lambda.choice. Each line provides the estimated explained Gini coefficient, the Lorenz-\eqn{R^2}, the optimal lambda, the optimal bandwidth, the number of selected variables and the scores at the optimal value of the regularization parameter.}
-   \item{\code{Gi.expl}}{a vector providing the estimated explained Gini coefficient at the optimal value of the regularization parameter for each method in lambda.choice.}
-   \item{\code{LR2}}{a vector providing the Lorenz-\eqn{R^2} at the optimal value of the regularization parameter for each method in lambda.choice.}
-   \item{\code{MRS}}{a list where the different elements correspond to a method in lambda.choice. Each element is a matrix of estimated marginal rates of substitution for non-zero coefficients at the optimal value of the regularization parameter.}
-   \item{\code{Fit}}{A data frame containing the response (first column). The remaining columns give the estimated index at the optimal value of the regularization parameter, for each method chosen in lambda.choice.}
-   \item{\code{which.h}}{a vector providing the index of the optimal bandwidth for each method in lambda.choice.}
-   \item{\code{CI.Gi}}{Only returned if Boot.inference is TRUE. A list of matrices where the different elements correspond to the bootstrap method chosen with which.CI. For each matrix, the rows correspond to the method chosen for the selection of the regularization parameter and the columns provide the bounds of the confidence interval for the explained Gini coefficient.}
-   \item{\code{CI.LR2}}{Only returned if Boot.inference is TRUE. A list of matrices where the different elements correspond to the bootstrap method chosen with which.CI. For each matrix, the rows correspond to the method chosen for the selection of the regularization parameter and the columns provide the bounds of the confidence interval for the Lorenz-\eqn{R^2}.}
-   \item{\code{CI.Gi.path}}{Only returned if Boot.inference is TRUE. A list of lists of matrices. For each value of h.grid (first-level list) and each value of lambda (second-level list), it returns a matrix where the rows correspond to the bootstrap methods chosen in which.CI and the columns provide the bounds of the confidence interval for the explained Gini coefficient.}
-   \item{\code{CI.LR2.path}}{Only returned if Boot.inference is TRUE. A list of lists of matrices. For each value of h.grid (first-level list) and each value of lambda (second-level list), it returns a matrix where the rows correspond to the bootstrap methods chosen in which.CI and the columns provide the bounds of the confidence interval for the Lorenz-\eqn{R^2}.}
+   \item{\code{path}}{a list where the different elements correspond to the values of h.grid. Each element is a matrix where the first line displays the path of regularization parameters. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that path. The next lines display the evolution of the scores of the methods chosen in sel.choice. The remaining lines display the evolution of the estimated parameter vector.}
+   \item{\code{theta}}{a matrix where the different lines correspond to the methods chosen in sel.choice. Each line provides the estimated vector of parameters at the optimal value of the regularization parameter.}
+   \item{\code{summary}}{a matrix where the different lines correspond to the methods chosen in sel.choice. Each line provides the estimated explained Gini coefficient, the Lorenz-\eqn{R^2}, the optimal lambda, the optimal bandwidth, the number of selected variables and the scores at the optimal value of the regularization parameter.}
+   \item{\code{Gi.expl}}{a vector providing the estimated explained Gini coefficient at the optimal value of the regularization parameter for each method in sel.choice.}
+   \item{\code{LR2}}{a vector providing the Lorenz-\eqn{R^2} at the optimal value of the regularization parameter for each method in sel.choice.}
+   \item{\code{MRS}}{a list where the different elements correspond to a method in sel.choice. Each element is a matrix of estimated marginal rates of substitution for non-zero coefficients at the optimal value of the regularization parameter.}
+   \item{\code{Fit}}{A data frame containing the response (first column). The remaining columns give the estimated index at the optimal value of the regularization parameter, for each method chosen in sel.choice.}
+   \item{\code{which.h}}{a vector providing the index of the optimal bandwidth for each method in sel.choice.}
+   \item{\code{which.lambda}}{a vector providing the index of the optimal lambda for each method in sel.choice.}
+   \item{\code{Gi.star}}{Only returned if Boot.inference is TRUE. A list (each element a different value of the bandwidth h) of lists (each element a different value of the penalty parameter) of vectors (each element a bootstrap iteration) gathering the bootstrap estimators of the explained Gini coefficient.}
+   \item{\code{LR2.star}}{Only returned if Boot.inference is TRUE. Similarly for the Lorenz-\eqn{R^2}}
+   \item{\code{theta.star}}{Only returned if Boot.inference is TRUE. A list (each element a different value of the bandwidth h) of lists (each element a different value of the penalty parameter) of matrices (rows are bootstrap iterations and columns refer to the coefficients) gathering the bootstrap estimators of theta.}
 }
+In both cases, the list also technical information, namely the formula, data, weights and call.
 }
 \description{
 \code{Lorenz.Reg} performs the Lorenz regression of a response with respect to several covariates.
@@ -120,12 +114,12 @@ data(Data.Incomes)
 # 1. Non-penalized regression
 NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
 # 2. Penalized regression
-PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", lambda.choice = c("BIC","CV"), eps = 0.01, nfolds = 5)
+PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", sel.choice = c("BIC","CV"), eps = 0.01, nfolds = 5)
 # Comparison
 NPLR$theta;PLR$theta
 NPLR$summary;PLR$summary
 
 }
 \seealso{
-\code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{PLR.boot}}
+\code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.boot}}
 }

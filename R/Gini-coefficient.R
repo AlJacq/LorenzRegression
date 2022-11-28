@@ -28,6 +28,9 @@
 
 Gini.coef <- function(y, x=y, na.rm=T, ties.method=c("mean","random"), seed=NULL, weights=NULL){
 
+  tol <- floor(sqrt(.Machine$double.digits))
+  x <- round(x,tol)
+
   ties.method <- match.arg(ties.method)
 
   n <- length(y)
@@ -36,6 +39,7 @@ Gini.coef <- function(y, x=y, na.rm=T, ties.method=c("mean","random"), seed=NULL
     if(na.rm){
      x.tmp <- x[!(is.na(x) | is.na(y))]
      y.tmp <- y[!(is.na(x) | is.na(y))]
+     if (!is.null(weights)) weights <- weights[!(is.na(x) | is.na(y))]
      x <- x.tmp ; y <- y.tmp
     }else{
       stop("There are missing values in either x or y and na.rm is FALSE")

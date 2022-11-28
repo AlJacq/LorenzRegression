@@ -39,6 +39,7 @@ Lorenz.curve <- function(y, x=y, graph=F, na.rm=T, ties.method=c("mean","random"
     if(na.rm){
       x.tmp <- x[!(is.na(x) | is.na(y))]
       y.tmp <- y[!(is.na(x) | is.na(y))]
+      if (!is.null(weights)) weights <- weights[!(is.na(x) | is.na(y))]
       x <- x.tmp ; y <- y.tmp
     }else{
       stop("There are missing values in either x or y and na.rm is FALSE")
@@ -78,7 +79,7 @@ Lorenz.curve <- function(y, x=y, graph=F, na.rm=T, ties.method=c("mean","random"
 
     y_mean <- as.numeric(pi%*%y)
 
-    Fun <- stats::approxfun(cumsum(pi_k),cumsum(y_k/y_mean) ,method = "linear", yleft = 0, yright = 1,ties = "ordered")
+    Fun <- stats::approxfun(c(0,cumsum(pi_k)),c(0,cumsum(y_k/y_mean)) ,method = "linear", yleft = 0, yright = 1,ties = "ordered")
 
 
   }
