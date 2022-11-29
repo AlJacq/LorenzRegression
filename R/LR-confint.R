@@ -17,9 +17,13 @@
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
 #' @examples
+#' \dontrun{
+#' # The following piece of code might take several minutes
 #' data(Data.Incomes)
-#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none", seed.boot = 123, B = 40, Boot.inference = TRUE)
+#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none",
+#'                    seed.boot = 123, B = 40, Boot.inference = TRUE)
 #' confint(NPLR)
+#' }
 #'
 #' @method confint LR
 #' @export

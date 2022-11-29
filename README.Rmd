@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # LorenzRegression
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/AlJacq/LorenzRegression/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/AlJacq/LorenzRegression/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The LorenzRegression package proposes a toolbox to estimate, produce inference on and interpret Lorenz regressions. These regressions are used to determine the explanatory power of a set of covariates on the inequality of a response variable.

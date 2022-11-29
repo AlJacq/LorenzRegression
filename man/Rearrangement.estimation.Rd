@@ -38,9 +38,10 @@ Chernozhukov, V., I. Fernández-Val, and A. Galichon (2009). Improving Point and
 
 \examples{
 data(Data.Incomes)
-LR <- Lorenz.Reg(Income ~ Age + Work.Hours, data = Data.Incomes)
-Y <- LR$Fit[,1]
-Index <- LR$Fit[,2]
+PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
+                  h.grid = nrow(Data.Incomes)^(-1/5.5), eps = 0.01)
+Y <- PLR$Fit[,1]
+Index <- PLR$Fit[,2]
 Rearrangement.estimation(Y = Y, Index = Index)
 
 }

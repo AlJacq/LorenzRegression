@@ -65,9 +65,12 @@
 #' @examples
 #' data(Data.Incomes)
 #' # 1. Non-penalized regression
-#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
+#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none",
+#'                    popSize = 30)
 #' # 2. Penalized regression
-#' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", sel.choice = c("BIC","CV"), eps = 0.01, nfolds = 5)
+#' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
+#'                   h.grid = nrow(Data.Incomes)^(-1/5.5),
+#'                   sel.choice = c("BIC","CV"), eps = 0.01, nfolds = 5)
 #' # Comparison
 #' NPLR$theta;PLR$theta
 #' NPLR$summary;PLR$summary

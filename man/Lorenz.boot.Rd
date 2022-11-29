@@ -72,7 +72,9 @@ Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2022). A penalised bootstrap e
 
 \examples{
 data(Data.Incomes)
-Lorenz.boot(Income ~ ., data = Data.Incomes, penalty = "SCAD", h = nrow(Data.Incomes)^(-1/5.5), eps = 0.01, B = 20, seed.boot = 123)
+Lorenz.boot(Income ~ ., data = Data.Incomes,
+            penalty = "SCAD", h = nrow(Data.Incomes)^(-1/5.5),
+            eps = 0.02, B = 20, seed.boot = 123)
 
 
 }

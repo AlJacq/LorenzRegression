@@ -33,7 +33,7 @@ Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2022). A penalised bootstrap e
 
 \examples{
 data(Data.Incomes)
-YX_mat <- Data.Incomes
+YX_mat <- Data.Incomes[,-2]
 PLR <- PLR.wrap(YX_mat, h = nrow(YX_mat)^(-1/5.5), eps = 0.005)
 PLR.BIC(YX_mat, PLR$theta)
 

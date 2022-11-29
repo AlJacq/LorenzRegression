@@ -22,7 +22,9 @@ If several selection methods were selected, it outputs a list of vectors, where 
 }
 \examples{
 data(Data.Incomes)
-PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", lambda.choice = c("BIC","CV"), eps = 0.005, seed.CV = 123, nfolds = 5)
+PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
+                  h.grid = nrow(Data.Incomes)^(-1/5.5), sel.choice = c("BIC","CV"),
+                  eps = 0.01, seed.CV = 123, nfolds = 5)
 coef(PLR)
 
 }

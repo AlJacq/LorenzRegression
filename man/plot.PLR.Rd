@@ -31,7 +31,9 @@ We dismiss lambda values for which this situation occurs more than 5\% of the ti
 }
 \examples{
 data(Data.Incomes)
-PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD", lambda.choice = c("BIC","CV"), eps = 0.005, seed.CV = 123, nfolds = 5)
+PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
+                  sel.choice = c("BIC","CV"), h.grid = nrow(Data.Incomes)^(-1/5.5),
+                  eps = 0.01, seed.CV = 123, nfolds = 5)
 plot(PLR)
 
 }

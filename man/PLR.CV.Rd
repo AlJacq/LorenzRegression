@@ -63,9 +63,10 @@ Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2022). A penalised bootstrap e
 }
 
 \examples{
-YX_mat <- Data.Incomes
+YX_mat <- Data.Incomes[,-2]
 PLR <- PLR.wrap(YX_mat, h = nrow(YX_mat)^(-1/5.5), eps=0.01)
-PLR.CV(Income ~ ., Data.Incomes, PLR.est = PLR, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.01, nfolds = 5)
+PLR.CV(Income ~ ., Data.Incomes, PLR.est = PLR,
+       h = nrow(Data.Incomes)^(-1/5.5), eps = 0.01, nfolds = 5)
 
 }
 \seealso{

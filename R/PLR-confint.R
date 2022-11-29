@@ -19,7 +19,8 @@
 #'
 #' @examples
 #' data(Data.Incomes)
-#' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, h.grid = nrow(Data.Incomes)^(-1/5.5), penalty = "SCAD", eps = 0.01, seed.boot = 123, B = 50, Boot.inference = TRUE)
+#' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, h.grid = nrow(Data.Incomes)^(-1/5.5),
+#'                   penalty = "SCAD", eps = 0.02, seed.boot = 123, B = 30, Boot.inference = TRUE)
 #' confint(PLR)
 #'
 #' @method confint PLR

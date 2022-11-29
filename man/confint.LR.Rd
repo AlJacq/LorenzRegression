@@ -35,9 +35,13 @@ The desired confidence interval. If parm is set to either "Gini" or "LR2", the o
 Use this function only if Boot.inference was set to TRUE in the call to \code{\link{Lorenz.Reg}}. Otherwise, bootstrap was not computed and the confidence intervals cannot be determined.
 }
 \examples{
+\dontrun{
+# The following piece of code might take several minutes
 data(Data.Incomes)
-NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none", seed.boot = 123, B = 40, Boot.inference = TRUE)
+NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none",
+                   seed.boot = 123, B = 40, Boot.inference = TRUE)
 confint(NPLR)
+}
 
 }
 \seealso{

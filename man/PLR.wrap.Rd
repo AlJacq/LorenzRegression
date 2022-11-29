@@ -43,7 +43,7 @@ A list with several components:
 }
 \examples{
 data(Data.Incomes)
-YX_mat <- Data.Incomes
+YX_mat <- Data.Incomes[,-2]
 PLR.wrap(YX_mat, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
 
 }
