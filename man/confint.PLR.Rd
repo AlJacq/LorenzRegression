@@ -39,8 +39,10 @@ Use this function only if Boot.inference was set to TRUE in the call to \code{\l
 }
 \examples{
 data(Data.Incomes)
-PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, h.grid = nrow(Data.Incomes)^(-1/5.5),
-                  penalty = "SCAD", eps = 0.02, seed.boot = 123, B = 30, Boot.inference = TRUE)
+set.seed(123)
+Data <- Data.Incomes[sample(1:nrow(Data.Incomes),50),]
+PLR <- Lorenz.Reg(Income ~ ., data = Data, h.grid = nrow(Data)^(-1/5.5),
+                  penalty = "SCAD", eps = 0.02, seed.boot = 123, B = 40, Boot.inference = TRUE)
 confint(PLR)
 
 }

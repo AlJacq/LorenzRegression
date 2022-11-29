@@ -15,9 +15,9 @@ Lorenz.graphs(formula, data, ...)
 }
 \value{
 A plot comprising
-\describe{
-   \item{}{The Lorenz curve of \emph{response}}
-   \item{}{The concentration curves of \emph{response} with respect to each element of \emph{other_variables}}
+\itemize{
+   \item The Lorenz curve of \emph{response}
+   \item The concentration curves of \emph{response} with respect to each element of \emph{other_variables}
 }
 }
 \description{

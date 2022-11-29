@@ -64,11 +64,13 @@
 #'
 #' @examples
 #' data(Data.Incomes)
+#' set.seed(123)
+#' Data <- Data.Incomes[sample(1:nrow(Data.Incomes),50),]
 #' # 1. Non-penalized regression
-#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none",
+#' NPLR <- Lorenz.Reg(Income ~ ., data = Data, penalty = "none",
 #'                    popSize = 30)
 #' # 2. Penalized regression
-#' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
+#' PLR <- Lorenz.Reg(Income ~ ., data = Data, penalty = "SCAD",
 #'                   h.grid = nrow(Data.Incomes)^(-1/5.5),
 #'                   sel.choice = c("BIC","CV"), eps = 0.01, nfolds = 5)
 #' # Comparison

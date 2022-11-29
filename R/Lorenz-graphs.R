@@ -7,9 +7,9 @@
 #' @param ... other arguments (see Section 'Arguments' in \code{\link{Lorenz.curve}}).
 #'
 #' @return A plot comprising
-#' \describe{
-#'    \item{}{The Lorenz curve of \emph{response}}
-#'    \item{}{The concentration curves of \emph{response} with respect to each element of \emph{other_variables}}
+#' \itemize{
+#'    \item The Lorenz curve of \emph{response}
+#'    \item The concentration curves of \emph{response} with respect to each element of \emph{other_variables}
 #' }
 #'
 #' @seealso \code{\link{Lorenz.curve}}, \code{\link{Gini.coef}}

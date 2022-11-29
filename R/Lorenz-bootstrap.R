@@ -37,9 +37,11 @@
 #'
 #' @examples
 #' data(Data.Incomes)
-#' Lorenz.boot(Income ~ ., data = Data.Incomes,
-#'             penalty = "SCAD", h = nrow(Data.Incomes)^(-1/5.5),
-#'             eps = 0.02, B = 20, seed.boot = 123)
+#' set.seed(123)
+#' Data <- Data.Incomes[sample(1:nrow(Data.Incomes),50),]
+#' Lorenz.boot(Income ~ ., data = Data,
+#'             penalty = "SCAD", h = nrow(Data)^(-1/5.5),
+#'             eps = 0.02, B = 40, seed.boot = 123)
 #'
 #'
 #' @export
