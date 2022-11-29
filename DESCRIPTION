@@ -1,11 +1,11 @@
 Package: LorenzRegression
 Type: Package
-Title: Lorenz Regression
+Title: LorenzRegression: tools to perform the Lorenz and penalized Lorenz regressions
 Version: 1.0.0
-Authors@R: c(person("Alexandre","Jacquemain",email="alexandre.jacquemain@uclouvain.be",role=c("aut","cre")),
+Authors@R: c(person("Alexandre","Jacquemain",email="aljacquemain@gmail.com",role=c("aut","cre")),
              person("Xingjie","Shi",email="xingjieshi@njue.edu.cn",role="ctb",
              comment="Author of an R implementation of the FABS algorithm available at https://github.com/shuanggema/Fabs, of which function Lorenz.FABS is derived"))
-Description: A package undertaking Lorenz regressions.
+Description: Inference for the Lorenz and penalized Lorenz regressions. More broadly, the package proposes functions to assess inequality and graphicaly represent it.
 License: GPL-3 
 Encoding: UTF-8
 Depends: R (>= 3.3.1)

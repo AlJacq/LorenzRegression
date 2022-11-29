@@ -27,9 +27,3 @@ You can install the development version of this package from
 # install.packages("devtools")
 devtools::install_github("AlJacq/LorenzRegression")
 ```
-
-## Vignette
-
-We direct the user to the Learning Lorenz regressions with examples
-vignette, which introduces the motivation underlying Lorenz regressions,
-as well as the basic functions of the package.
