@@ -18,7 +18,7 @@
 #' @param seed.CV Only used if sel.choice contains "CV". Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
 #' @param foldID vector taking value from 1 to nfolds specifying the fold index of each observation. Default value is NULL in which case the folds are defined internally.
 #' @param Boot.inference should bootstrap inference be produced ? Default is FALSE. It is automatically turned to TRUE if sel.choice contains "Boot".
-#' @param B Only used if Boot.inference is TRUE. Number of bootstrap resamples. Default is 400.
+#' @param B Only used if Boot.inference is TRUE. Number of bootstrap resamples. Default is 500.
 #' @param bootID Only used if Boot.inference is TRUE. matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.
 #' @param seed.boot Only used if Boot.inference is TRUE. Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
 #' @param LR Estimation on the original sample. Output of a call to \code{\link{Lorenz.GA}} or \code{\link{PLR.wrap}}.
@@ -92,7 +92,7 @@ Lorenz.Reg <- function(formula,
                        seed.CV=NULL,
                        foldID=NULL,
                        Boot.inference=FALSE,
-                       B=400,
+                       B=500,
                        bootID=NULL,
                        seed.boot=NULL,
                        LR=NULL,

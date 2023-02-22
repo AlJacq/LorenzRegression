@@ -13,7 +13,7 @@
 #' IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.
 #' @param h Only used if penalty="SCAD" or penalty="LASSO". Bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is NULL (unpenalized case) but has to be specified if penalty="LASSO" or penalty="SCAD".
 #' @param eps Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.
-#' @param B Number of bootstrap resamples. Default is 400.
+#' @param B Number of bootstrap resamples. Default is 500.
 #' @param bootID matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.
 #' @param seed.boot Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
 #' @param parallel Whether parallel computing should be used to distribute the \code{B} computations on different CPUs. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
@@ -54,7 +54,7 @@ Lorenz.boot<-function(formula,
                       penalty=c("none","SCAD","LASSO"),
                       h=NULL,
                       eps=0.005,
-                      B = 400,
+                      B = 500,
                       bootID = NULL,
                       seed.boot = NULL,
                       parallel=F,
