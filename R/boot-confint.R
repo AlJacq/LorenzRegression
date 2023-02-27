@@ -1,6 +1,6 @@
 #' Bootstrap confidence intervals
 #'
-#' \code{boot.confint} computes boostrap confidence intervals given an estimation on the original sample and on the boostrap samples
+#' \code{boot.confint} computes bootstrap confidence intervals given an estimation on the original sample and on the bootstrap samples
 #'
 #' @param x.hat estimator on the original sample.
 #' @param x.star vector gathering the estimation on the bootstrapped sample.

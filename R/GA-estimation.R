@@ -12,7 +12,7 @@
 #' @param maxiter Maximum number ot iterations in the genetic algorithm. Default value is 1500.
 #' @param run Number of iterations without improvement in the best fitness necessary for the algorithm to stop. Default value is 150.
 #' @param ties.method What method should be used to break the ties in optimization program. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.
-#' @param ties.Gini what method should be used to break the ties in the computation of the Gini coefficient at the end of the algorithm. Possible values and delfaut choice are the same as above.
+#' @param ties.Gini what method should be used to break the ties in the computation of the Gini coefficient at the end of the algorithm. Possible values and default choice are the same as above.
 #' @param seed.random seed.random imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed.random is imposed.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param parallel Whether parallel computing should be used to distribute the computations in the genetic algorithm. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.

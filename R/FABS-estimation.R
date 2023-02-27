@@ -37,7 +37,7 @@
 #'
 #' @section References:
 #' Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2022). A penalised bootstrap estimation procedure for the explained Gini coefficient.
-#' Shi, X., Y. Huang, J. Huang, and S. Ma (2018). A Forward and Backward Stagewise Algorithm for Nonconvex Loss Function with Adaptive Lasso, \emph{Computational Staistics & Data Analysis 124}, 235-251.
+#' Shi, X., Y. Huang, J. Huang, and S. Ma (2018). A Forward and Backward Stagewise Algorithm for Nonconvex Loss Function with Adaptive Lasso, \emph{Computational Statistics & Data Analysis 124}, 235-251.
 #'
 #' @examples
 #' data(Data.Incomes)
