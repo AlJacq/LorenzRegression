@@ -22,7 +22,7 @@ Gini.coef(
 
 \item{ties.method}{What method should be used to break the ties in the rank index. Possible values are "mean" (default value) or "random". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.}
 
-\item{seed}{seed imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed is imposed.}
+\item{seed}{fixes what seed is imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed is imposed.}
 
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 }

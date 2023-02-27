@@ -23,12 +23,6 @@ Since the whole path depends on the chosen bandwidth for the kernel, and the opt
 \description{
 \code{plot.PLR} provides plots for an object of class \code{PLR}.
 }
-\details{
-For cross-validation and bootstrap, the scores may not cover the whole path.
-We run the FABS or SCAD-FABS algorithm on the bootstrap resamples (bootstrap) or folds (cross-validaiton) imposing the lambda grid obtained in the original sample.
-However, the algorithm may stop before the end of the grid. In fact, it stops as soon as the next iteration would increase the unpenalized loss.
-We dismiss lambda values for which this situation occurs more than 5\% of the time.
-}
 \examples{
 data(Data.Incomes)
 PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",

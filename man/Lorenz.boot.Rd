@@ -13,7 +13,7 @@ Lorenz.boot(
   penalty = c("none", "SCAD", "LASSO"),
   h = NULL,
   eps = 0.005,
-  B = 400,
+  B = 500,
   bootID = NULL,
   seed.boot = NULL,
   parallel = F,
@@ -40,7 +40,7 @@ IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is comput
 
 \item{eps}{Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
 
-\item{B}{Number of bootstrap resamples. Default is 400.}
+\item{B}{Number of bootstrap resamples. Default is 500.}
 
 \item{bootID}{matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.}
 

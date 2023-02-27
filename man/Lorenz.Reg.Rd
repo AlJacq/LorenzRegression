@@ -18,7 +18,7 @@ Lorenz.Reg(
   seed.CV = NULL,
   foldID = NULL,
   Boot.inference = FALSE,
-  B = 400,
+  B = 500,
   bootID = NULL,
   seed.boot = NULL,
   LR = NULL,
@@ -56,7 +56,7 @@ IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is comput
 
 \item{Boot.inference}{should bootstrap inference be produced ? Default is FALSE. It is automatically turned to TRUE if sel.choice contains "Boot".}
 
-\item{B}{Only used if Boot.inference is TRUE. Number of bootstrap resamples. Default is 400.}
+\item{B}{Only used if Boot.inference is TRUE. Number of bootstrap resamples. Default is 500.}
 
 \item{bootID}{Only used if Boot.inference is TRUE. matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.}
 
