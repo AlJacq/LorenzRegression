@@ -13,11 +13,6 @@
 #' For comparability reasons, the scores are normalized such that  the larger the better and the optimum is attained in 1.
 #' Since the whole path depends on the chosen bandwidth for the kernel, and the optimal bandwidth may depend on the selection method, the plots are produced for each selection method used in the PLR object
 #'
-#' @details For cross-validation and bootstrap, the scores may not cover the whole path.
-#' We run the FABS or SCAD-FABS algorithm on the bootstrap resamples (bootstrap) or folds (cross-validaiton) imposing the lambda grid obtained in the original sample.
-#' However, the algorithm may stop before the end of the grid. In fact, it stops as soon as the next iteration would increase the unpenalized loss.
-#' We dismiss lambda values for which this situation occurs more than 5\% of the time.
-#'
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
 #' @examples
@@ -71,8 +66,6 @@ plot.PLR <- function(x, ...){
     Path.score <- Path[grep("score",rownames(Path)),,drop=FALSE]
     Path.score <- apply(Path.score,1,function(x)x/max(x))
     if ("BIC score" %in% colnames(Path.score)) Path.score[,"BIC score"] <- 1/Path.score[,"BIC score"]
-    Path.score[Path.score == -Inf] <- 0
-    Path.score[Path.score == 0] <- NA
 
     Score.data <- data.frame(
       "Score" = rep(colnames(Path.score),n.iter),
@@ -122,8 +115,6 @@ plot.PLR <- function(x, ...){
     Path.score <- Path[grep("score",rownames(Path)),,drop=FALSE]
     Path.score <- apply(Path.score,1,function(x)x/max(x))
     if ("BIC score" %in% colnames(Path.score)) Path.score[,"BIC score"] <- 1/Path.score[,"BIC score"]
-    Path.score[Path.score == -Inf] <- 0
-    Path.score[Path.score == 0] <- NA
 
     Score.data <- data.frame(
       "Score" = rep(colnames(Path.score),n.iter),
@@ -173,8 +164,6 @@ plot.PLR <- function(x, ...){
     Path.score <- Path[grep("score",rownames(Path)),,drop=FALSE]
     Path.score <- apply(Path.score,1,function(x)x/max(x))
     if ("BIC score" %in% colnames(Path.score)) Path.score[,"BIC score"] <- 1/Path.score[,"BIC score"]
-    Path.score[Path.score == -Inf] <- 0
-    Path.score[Path.score == 0] <- NA
 
     Score.data <- data.frame(
       "Score" = rep(colnames(Path.score),n.iter),

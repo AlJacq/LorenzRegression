@@ -138,20 +138,23 @@ Lorenz.boot<-function(formula,
     Gi.star <- LR.est.star$Gi.expl
     LR2.star <- LR.est.star$LR2
 
+    # With SCAD, the algorithm may stop sooner than in original sample. Hence, the lambda vectors might be different (the bootstrapped might be shorter)
+    if(penalty != "none"){
+      diff.lengths <- length(LR.est$lambda)-length(lambda.star)
+      if(diff.lengths > 0){
+        l.path <- length(Gi.star)
+        theta.star <- cbind(theta.star, matrix(replicate(diff.lengths,theta.star[,l.path]),nrow=nrow(theta.star)))
+        Gi.star <- c(Gi.star,rep(Gi.star[l.path],diff.lengths))
+        LR2.star <- c(LR2.star,rep(LR2.star[l.path],diff.lengths))
+      }
+    }
+
     # Compute the OOB-score (if penalized LR)
     if(penalty != "none"){
       y.valid <- YX_mat.valid[,1]
       X.valid <- as.matrix(YX_mat.valid[,-1])
       n.valid <- length(y.valid)
       OOB.score <- apply(theta.star,2,function(x)Gini.coef(y = y.valid, x = X.valid%*%x, na.rm=T, ties.method = "mean", weights = weights.valid))
-      # With SCAD, the algorithm may stop sooner than in original sample. Hence, the lambda vectors might be different (the bootstrapped might be shorter)
-      if( length(lambda.star) != length(LR.est$lambda) ){
-        diff.lengths <- length(LR.est$lambda)-length(lambda.star)
-        theta.star <- cbind(theta.star, matrix(NA,p,diff.lengths))
-        Gi.star <- c(Gi.star,rep(NA,diff.lengths))
-        LR2.star <- c(LR2.star,rep(NA,diff.lengths))
-        OOB.score <- c(OOB.score,rep(NA,diff.lengths))
-      }
       Return.list$OOB.score <- OOB.score
     }
 
@@ -186,15 +189,7 @@ Lorenz.boot<-function(formula,
 
     OOB.matrix <- t(sapply(1:B,function(b)Boot.b[[b]]$OOB.score))
     L <- ncol(OOB.matrix)
-    iter.ok <- which(apply(OOB.matrix,2,function(x)mean(is.na(x)))< 0.05)
-    OOB.total <- c()
-    for (i in 1:L){
-      if (i %in% iter.ok){
-        OOB.total[i] <- mean(OOB.matrix[,i], na.rm=T)
-      }else{
-        OOB.total[i] <- -Inf
-      }
-    }
+    OOB.total <- colMeans(OOB.matrix)
     OOB.best <- which.max(OOB.total)
     lambda.OOB <- LR.est$lambda[OOB.best]
     Gi.star <- lapply(1:L,function(i)sapply(1:B,function(b)Boot.b[[b]]$Gi.star[i]))

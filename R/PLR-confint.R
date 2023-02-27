@@ -55,14 +55,6 @@ confint.PLR <- function(object, parm=c("Gini","LR2"), level = 0.95, boot.method=
       which.h.k <- which.h[k]
       which.lambda.k <- which.lambda[k]
 
-      if(PLR$path[[which.h.k]]["Boot score",which.lambda.k] == -Inf) stop("Bootstrap confidence intervals cannot be computed for this choice of bandwidth and lambda values. The path ended before this value of lambda in more than 5 percent of the bootstrap iterations")
-
-      B <- length(sort(PLR$Gi.star[[which.h.k]][[which.lambda.k]])) # NA's may occur. This line takes it into account
-
-      # In boot.confint, NA's are taken care of ...
-      # In Param by adding na.rm=T in the estimation of the variance
-      # In basic and perc, sorting Gi.star automatically deletes the missing values
-
       if(parm == "Gini") CI.k <- boot.confint(PLR$path[[which.h.k]]["Explained Gini",which.lambda.k],
                                               PLR$Gi.star[[which.h.k]][[which.lambda.k]],
                                               alpha, boot.method)

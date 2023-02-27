@@ -126,7 +126,7 @@ PLR.CV<-function(formula,
     # With SCAD, the algorithm may stop sooner than in original sample. Hence, the lambda vectors might be different
     if( length(lambda.k) != length(PLR.est$lambda) ){
       diff.lengths <- length(PLR.est$lambda)-length(lambda.k)
-      CV.score <- c(CV.score,rep(NA,diff.lengths))
+      if(diff.lengths > 0) CV.score <- c(CV.score,rep(CV.score[length(CV.score)],diff.lengths))
     }
 
     return(CV.score)
@@ -155,17 +155,7 @@ PLR.CV<-function(formula,
   # CV > POST-ITER > SCORE ----
 
   CV.matrix <- t(sapply(1:nfolds,function(k)CV.k[[k]]))
-  iter.ok <- which(apply(CV.matrix,2,function(x)mean(is.na(x)))< 0.05)
-  CV.total <- c()
-
-  for (i in 1:ncol(CV.matrix)){
-    if (i %in% iter.ok){
-      CV.total[i] <- mean(CV.matrix[,i], na.rm=T)
-    }else{
-      CV.total[i] <- 0
-    }
-  }
-
+  CV.total <- colMeans(CV.matrix)
   CV.best <- which.max(CV.total)
 
   # CV > POST-ITER > RETURN ----

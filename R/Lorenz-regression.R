@@ -149,7 +149,7 @@ Lorenz.Reg <- function(formula,
     }
   }
 
-  # 2. Output of the PLR ----
+  # 2. Output of the (P)LR ----
 
   if(penalty == "none"){
 
@@ -222,16 +222,6 @@ Lorenz.Reg <- function(formula,
       }
       best.Boot <- lapply(1:n.h,function(i)Path_Boot[[i]]$OOB.best)
       val.Boot <- lapply(1:n.h,function(i)Path_Boot[[i]]$OOB.total)
-      # In the bootstrap resamples, the algorithm may stop before the end of the lambda path.
-      # We decide to give a score of 0 for lambda values where we have at least 5% of missing values.
-      # This is already done for the OOB score in function Lorenz.boot. We do it here for BIC
-      if ("BIC" %in% sel.choice){
-        val.BIC <- lapply(1:n.h,function(i)ifelse( abs(Path_Boot[[i]]$OOB.total ) > 0, 1, -Inf*sign(val.BIC[[i]]))*val.BIC[[i]])
-        best.BIC <- lapply(1:n.h,function(i)which.max(val.BIC[[i]]))
-        for (i in 1:n.h){
-          Path[[i]]["BIC score",] <- val.BIC[[i]]
-        }
-      }
       for (i in 1:n.h){
         Path[[i]] <- rbind(Path[[i]], val.Boot[[i]])
         rownames(Path[[i]])[nrow(Path[[i]])] <- "Boot score"
