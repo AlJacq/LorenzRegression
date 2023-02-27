@@ -6,18 +6,18 @@ There were no ERRORs, WARNINGs or NOTEs
 
 ## Output of devtools::check_win_devel()
 
-checking CRAN incoming feasibility ... [12s] NOTE
-Maintainer: 'Alexandre Jacquemain <alexandre.jacquemain@uclouvain.be>'
+checking CRAN incoming feasibility ... [14s] NOTE
+Maintainer: 'Alexandre Jacquemain <aljacquemain@gmail.com>'
 
 New submission
 
 ## Output of usethis::use_github_action_check_standard()
 
 R-CMD-check / macos-latest (release)
-Succeeded in 9 minutes and 22 seconds 
+Succeeded in 5 minutes and 44 seconds 
 
 R-CMD-check / windows-latest (release)
-Succeeded in 6 minutes and 8 seconds 
+Succeeded in 7 minutes and 45 seconds 
 
 R-CMD-check / ubuntu-latest (release)
-Succeeded in 5 minutes and 3 seconds 
+Succeeded in 4 minutes and 56 seconds 
