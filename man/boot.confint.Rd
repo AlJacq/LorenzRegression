@@ -19,5 +19,5 @@ boot.confint(x.hat, x.star, alpha, boot.method)
 A vector of dimension two with the desired confidence interval
 }
 \description{
-\code{boot.confint} computes boostrap confidence intervals given an estimation on the original sample and on the boostrap samples
+\code{boot.confint} computes bootstrap confidence intervals given an estimation on the original sample and on the bootstrap samples
 }
