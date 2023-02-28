@@ -7,7 +7,15 @@ There were no ERRORs, WARNINGs or NOTEs
 ## Output of devtools::check_win_devel()
 
 Status: 1 NOTE
-R Under development (unstable) (2023-02-27 r83911 ucrt)
+Maintainer: 'Alexandre Jacquemain <aljacquemain@gmail.com>'
+
+New submission
+
+Possibly misspelled words in DESCRIPTION:
+  Heuchenne (8:218)
+  Jacquemain (8:232)
+  
+The names above are author names in the description field and are therefore not misspelled
 
 ## Output of usethis::use_github_action_check_standard()
 

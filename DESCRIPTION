@@ -5,7 +5,7 @@ Version: 1.0.0
 Authors@R: c(person("Alexandre","Jacquemain",email="aljacquemain@gmail.com",role=c("aut","cre"),comment = c(ORCID = "0000-0001-9349-780X")),
              person("Xingjie","Shi",email="xingjieshi@njue.edu.cn",role="ctb",
              comment="Author of an R implementation of the FABS algorithm available at https://github.com/shuanggema/Fabs, of which function Lorenz.FABS is derived"))
-Description: Inference for the Lorenz and penalized Lorenz regressions. More broadly, the package proposes functions to assess inequality and graphically represent it. The Lorenz Regression procedure is introduced in Heuchenne and Jacquemain (2022) <https://doi.org/10.1016/j.csda.2021.107347>.
+Description: Inference for the Lorenz and penalized Lorenz regressions. More broadly, the package proposes functions to assess inequality and graphically represent it. The Lorenz Regression procedure is introduced in Heuchenne and Jacquemain (2022) <doi:10.1016/j.csda.2021.107347>.
 License: GPL-3 
 Encoding: UTF-8
 Depends: R (>= 3.3.1)
