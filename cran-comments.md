@@ -6,21 +6,16 @@ There were no ERRORs, WARNINGs or NOTEs
 
 ## Output of devtools::check_win_devel()
 
-checking CRAN incoming feasibility ... [14s] NOTE
-Maintainer: 'Alexandre Jacquemain <aljacquemain@gmail.com>'
-
-New submission
+Status: 1 NOTE
+R Under development (unstable) (2023-02-27 r83911 ucrt)
 
 ## Output of usethis::use_github_action_check_standard()
 
+Success of
+
 R-CMD-check / macos-latest (release)
-Succeeded in 5 minutes and 44 seconds 
-
 R-CMD-check / windows-latest (release)
-Succeeded in 7 minutes and 45 seconds 
-
 R-CMD-check / ubuntu-latest (release)
-Succeeded in 4 minutes and 56 seconds 
 
 ## Output of devtools::check_rhub()
 
