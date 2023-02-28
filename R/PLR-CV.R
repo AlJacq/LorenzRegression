@@ -44,13 +44,13 @@ PLR.CV<-function(formula,
                  penalty="SCAD",
                  h,
                  PLR.est=NULL,
-                 standardize=T,
+                 standardize=TRUE,
                  weights=NULL,
                  eps,
                  nfolds=10,
                  foldID=NULL,
                  seed.CV=NULL,
-                 parallel=F,
+                 parallel=FALSE,
                  ...
 ){
 
@@ -122,7 +122,7 @@ PLR.CV<-function(formula,
     # Compute the CV-score
     y.valid <- YX_mat.valid[,1]
     X.valid <- as.matrix(YX_mat.valid[,-1])
-    CV.score <- apply(theta.k,2,function(x)Gini.coef(y.valid, X.valid%*%x, na.rm=T, ties.method="mean", weights=weights.valid))
+    CV.score <- apply(theta.k,2,function(x)Gini.coef(y.valid, X.valid%*%x, na.rm=TRUE, ties.method="mean", weights=weights.valid))
     # With SCAD, the algorithm may stop sooner than in original sample. Hence, the lambda vectors might be different
     if( length(lambda.k) != length(PLR.est$lambda) ){
       diff.lengths <- length(PLR.est$lambda)-length(lambda.k)

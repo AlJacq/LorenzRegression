@@ -28,7 +28,7 @@
 #'
 #' @export
 
-Lorenz.curve <- function(y, x=y, graph=F, na.rm=T, ties.method=c("mean","random"), seed=NULL, weights=NULL){
+Lorenz.curve <- function(y, x=y, graph=FALSE, na.rm=TRUE, ties.method=c("mean","random"), seed=NULL, weights=NULL){
 
   # 0. Preliminaries ----
 
@@ -87,7 +87,7 @@ Lorenz.curve <- function(y, x=y, graph=F, na.rm=T, ties.method=c("mean","random"
   # 2. Graph ----
 
     if(graph){
-    if(all.equal(sort(x),sort(y))==T){
+    if(all.equal(sort(x),sort(y))==TRUE){
       txt.title <- "Lorenz curve of y"
     }else{
       txt.title <- "Concentration curve of y wrt x"

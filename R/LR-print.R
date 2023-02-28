@@ -5,6 +5,8 @@
 #' @param x Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty="none"}.
 #' @param ... Additional arguments.
 #'
+#' @return No return value, called for printing an object of class \code{LR} to the console
+#'
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
 #' @examples

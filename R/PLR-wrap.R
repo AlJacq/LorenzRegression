@@ -27,7 +27,7 @@
 #'
 #' @export
 
-PLR.wrap <- function(YX_mat, standardize=T, weights=NULL, penalty=c("SCAD","LASSO"), h, eps = 0.005, ...){
+PLR.wrap <- function(YX_mat, standardize=TRUE, weights=NULL, penalty=c("SCAD","LASSO"), h, eps = 0.005, ...){
 
   penalty <- match.arg(penalty)
 

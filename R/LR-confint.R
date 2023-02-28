@@ -17,7 +17,7 @@
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # The following piece of code might take several minutes
 #' data(Data.Incomes)
 #' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none",
