@@ -7,9 +7,9 @@
 Lorenz.Reg(
   formula,
   data,
-  standardize = T,
+  standardize = TRUE,
   weights = NULL,
-  parallel = F,
+  parallel = FALSE,
   penalty = c("none", "SCAD", "LASSO"),
   h.grid = c(0.1, 0.2, 1, 2, 5) * nrow(data)^(-1/5.5),
   eps = 0.005,

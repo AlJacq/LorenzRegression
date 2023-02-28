@@ -48,7 +48,7 @@
 
 Lorenz.boot<-function(formula,
                       data,
-                      standardize=T,
+                      standardize=TRUE,
                       weights=NULL,
                       LR.est=NULL,
                       penalty=c("none","SCAD","LASSO"),
@@ -57,7 +57,7 @@ Lorenz.boot<-function(formula,
                       B = 500,
                       bootID = NULL,
                       seed.boot = NULL,
-                      parallel=F,
+                      parallel=FALSE,
                       ...
 ){
 
@@ -154,7 +154,7 @@ Lorenz.boot<-function(formula,
       y.valid <- YX_mat.valid[,1]
       X.valid <- as.matrix(YX_mat.valid[,-1])
       n.valid <- length(y.valid)
-      OOB.score <- apply(theta.star,2,function(x)Gini.coef(y = y.valid, x = X.valid%*%x, na.rm=T, ties.method = "mean", weights = weights.valid))
+      OOB.score <- apply(theta.star,2,function(x)Gini.coef(y = y.valid, x = X.valid%*%x, na.rm=TRUE, ties.method = "mean", weights = weights.valid))
       Return.list$OOB.score <- OOB.score
     }
 

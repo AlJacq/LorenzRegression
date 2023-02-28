@@ -11,6 +11,9 @@
 
 \item{...}{Additional arguments.}
 }
+\value{
+No return value, called for printing an object of class \code{PLR} to the console
+}
 \description{
 \code{print.PLR} prints the arguments and estimated coefficients of an object of class \code{PLR}.
 }

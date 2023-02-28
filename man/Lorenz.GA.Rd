@@ -6,7 +6,7 @@
 \usage{
 Lorenz.GA(
   YX_mat,
-  standardize = T,
+  standardize = TRUE,
   popSize = 50,
   maxiter = 1500,
   run = 150,
@@ -14,7 +14,7 @@ Lorenz.GA(
   ties.Gini = c("random", "mean"),
   seed.random = NULL,
   weights = NULL,
-  parallel = F
+  parallel = FALSE
 )
 }
 \arguments{

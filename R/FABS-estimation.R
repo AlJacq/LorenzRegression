@@ -170,8 +170,8 @@ Lorenz.FABS <- function(YX_mat, weights=NULL, h, w.adaptive=NULL, eps,
   theta <- b[,1:i]
   Index.sol <- as.matrix(X)%*%theta
 
-  LR2.num <- apply(Index.sol, 2, function(t) Gini.coef(y, x=t, na.rm=T, ties.method="mean", weights=weights))
-  LR2.denom <- Gini.coef(y, na.rm=T, ties.method="mean", weights=weights)
+  LR2.num <- apply(Index.sol, 2, function(t) Gini.coef(y, x=t, na.rm=TRUE, ties.method="mean", weights=weights))
+  LR2.denom <- Gini.coef(y, na.rm=TRUE, ties.method="mean", weights=weights)
   LR2<-as.numeric(LR2.num/LR2.denom)
   Gi.expl<-as.numeric(LR2.num)
 

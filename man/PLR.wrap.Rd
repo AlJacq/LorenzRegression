@@ -6,7 +6,7 @@
 \usage{
 PLR.wrap(
   YX_mat,
-  standardize = T,
+  standardize = TRUE,
   weights = NULL,
   penalty = c("SCAD", "LASSO"),
   h,

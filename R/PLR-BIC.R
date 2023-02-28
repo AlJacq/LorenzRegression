@@ -36,7 +36,7 @@ PLR.BIC <- function(YX_mat, theta, weights=NULL, IC=c("BIC","AIC")){
   X <- YX_mat[,-1]
   Index <- as.matrix(X)%*%theta
 
-  score <- log(apply(Index, 2, function(t) Gini.coef(y, x=t, na.rm=T, ties.method="mean", weights=weights)))
+  score <- log(apply(Index, 2, function(t) Gini.coef(y, x=t, na.rm=TRUE, ties.method="mean", weights=weights)))
 
   if (IC=="BIC") pen <- apply(theta,2,function(x)sum(x!=0))*log(n)/(2*n)
   if (IC=="AIC") pen <- apply(theta,2,function(x)sum(x!=0))/n

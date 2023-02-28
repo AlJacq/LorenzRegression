@@ -7,8 +7,8 @@
 Lorenz.curve(
   y,
   x = y,
-  graph = F,
-  na.rm = T,
+  graph = FALSE,
+  na.rm = TRUE,
   ties.method = c("mean", "random"),
   seed = NULL,
   weights = NULL

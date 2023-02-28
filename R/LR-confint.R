@@ -17,10 +17,12 @@
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # The following piece of code might take several minutes
 #' data(Data.Incomes)
-#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none",
+#' set.seed(123)
+#' Data <- Data.Incomes[sample(1:nrow(Data.Incomes),50),]
+#' NPLR <- Lorenz.Reg(Income ~ ., data = Data, penalty = "none",
 #'                    seed.boot = 123, B = 40, Boot.inference = TRUE)
 #' confint(NPLR)
 #' }

@@ -10,13 +10,13 @@ PLR.CV(
   penalty = "SCAD",
   h,
   PLR.est = NULL,
-  standardize = T,
+  standardize = TRUE,
   weights = NULL,
   eps,
   nfolds = 10,
   foldID = NULL,
   seed.CV = NULL,
-  parallel = F,
+  parallel = FALSE,
   ...
 )
 }

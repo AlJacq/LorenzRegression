@@ -7,7 +7,7 @@
 Lorenz.boot(
   formula,
   data,
-  standardize = T,
+  standardize = TRUE,
   weights = NULL,
   LR.est = NULL,
   penalty = c("none", "SCAD", "LASSO"),
@@ -16,7 +16,7 @@ Lorenz.boot(
   B = 500,
   bootID = NULL,
   seed.boot = NULL,
-  parallel = F,
+  parallel = FALSE,
   ...
 )
 }

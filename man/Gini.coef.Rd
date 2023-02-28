@@ -7,7 +7,7 @@
 Gini.coef(
   y,
   x = y,
-  na.rm = T,
+  na.rm = TRUE,
   ties.method = c("mean", "random"),
   seed = NULL,
   weights = NULL

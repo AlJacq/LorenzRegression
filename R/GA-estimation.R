@@ -41,7 +41,7 @@
 #' @export
 
 # unit-norm normalization ----
-Lorenz.GA<-function(YX_mat, standardize=T, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, weights=NULL, parallel = F){
+Lorenz.GA<-function(YX_mat, standardize=TRUE, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, weights=NULL, parallel = FALSE){
 
   # PRE-GA ----
 
@@ -142,15 +142,15 @@ Lorenz.GA<-function(YX_mat, standardize=T, popSize=50, maxiter=1500, run=150, ti
 
   if(ties.Gini == "random"){
 
-    LR2.num<-Gini.coef(Y, x=Index.sol, na.rm=T, ties.method="random", seed=seed.random, weights=weights)
-    LR2.denom<-Gini.coef(Y, na.rm=T, ties.method="random", seed=seed.random, weights=weights)
+    LR2.num<-Gini.coef(Y, x=Index.sol, na.rm=TRUE, ties.method="random", seed=seed.random, weights=weights)
+    LR2.denom<-Gini.coef(Y, na.rm=TRUE, ties.method="random", seed=seed.random, weights=weights)
     LR2<-as.numeric(LR2.num/LR2.denom)
     Gi.expl<-as.numeric(LR2.num)
 
   }else{
 
-    LR2.num<-Gini.coef(Y, x=Index.sol, na.rm=T, ties.method="mean", seed=seed.random, weights=weights)
-    LR2.denom<-Gini.coef(Y, na.rm=T, ties.method="mean", seed=seed.random, weights=weights)
+    LR2.num<-Gini.coef(Y, x=Index.sol, na.rm=TRUE, ties.method="mean", seed=seed.random, weights=weights)
+    LR2.denom<-Gini.coef(Y, na.rm=TRUE, ties.method="mean", seed=seed.random, weights=weights)
     LR2<-as.numeric(LR2.num/LR2.denom)
     Gi.expl<-as.numeric(LR2.num)
 

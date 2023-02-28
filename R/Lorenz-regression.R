@@ -81,9 +81,9 @@
 
 Lorenz.Reg <- function(formula,
                        data,
-                       standardize=T,
+                       standardize=TRUE,
                        weights=NULL,
-                       parallel=F,
+                       parallel=FALSE,
                        penalty=c("none","SCAD","LASSO"),
                        h.grid=c(0.1,0.2,1,2,5)*nrow(data)^(-1/5.5),
                        eps=0.005,
@@ -111,7 +111,7 @@ Lorenz.Reg <- function(formula,
   # Check on bootstrap
   # The idea is that if bootstrap is required, we provide all the results that are available anyway
   if( Boot.inference ) sel.choice <- union(sel.choice,"Boot")
-  if ("Boot"%in%sel.choice) Boot.inference <- T
+  if ("Boot"%in%sel.choice) Boot.inference <- TRUE
 
   return.list <- list()
 

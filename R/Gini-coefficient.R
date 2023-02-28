@@ -26,7 +26,7 @@
 #'
 #' @export
 
-Gini.coef <- function(y, x=y, na.rm=T, ties.method=c("mean","random"), seed=NULL, weights=NULL){
+Gini.coef <- function(y, x=y, na.rm=TRUE, ties.method=c("mean","random"), seed=NULL, weights=NULL){
 
   tol <- floor(sqrt(.Machine$double.digits))
   x <- round(x,tol)
