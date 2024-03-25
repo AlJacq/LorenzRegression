@@ -37,9 +37,9 @@ plot.PLR <- function(x, ...){
 
   # 1. BIC ----
 
-  if ("BIC" %in% names(PLR$which.h)){
+  if ("BIC" %in% names(PLR$which.on.grid)){
 
-    Path <- PLR$path[[PLR$which.h["BIC"]]]
+    Path <- PLR$path[[PLR$which.on.grid["BIC"]]]
 
     # Traceplots
 
@@ -86,9 +86,9 @@ plot.PLR <- function(x, ...){
 
   # 2. Boot ----
 
-  if ("Boot" %in% names(PLR$which.h)){
+  if ("Boot" %in% names(PLR$which.on.grid)){
 
-    Path <- PLR$path[[PLR$which.h["Boot"]]]
+    Path <- PLR$path[[PLR$which.on.grid["Boot"]]]
 
     # Traceplots
 
@@ -135,9 +135,9 @@ plot.PLR <- function(x, ...){
 
   # 3. CV ----
 
-  if ("CV" %in% names(PLR$which.h)){
+  if ("CV" %in% names(PLR$which.on.grid)){
 
-    Path <- PLR$path[[PLR$which.h["CV"]]]
+    Path <- PLR$path[[PLR$which.on.grid["CV"]]]
 
     # Traceplots
 
@@ -186,9 +186,9 @@ plot.PLR <- function(x, ...){
 
   p <- list()
   p[[1]] <- p0
-  if ("BIC" %in% names(PLR$which.h)) p <- append(p,list(p1,p2))
-  if ("Boot" %in% names(PLR$which.h)) p <- append(p,list(p3,p4))
-  if ("CV" %in% names(PLR$which.h)) p <- append(p,list(p5,p6))
+  if ("BIC" %in% names(PLR$which.on.grid)) p <- append(p,list(p1,p2))
+  if ("Boot" %in% names(PLR$which.on.grid)) p <- append(p,list(p3,p4))
+  if ("CV" %in% names(PLR$which.on.grid)) p <- append(p,list(p5,p6))
 
   p
 

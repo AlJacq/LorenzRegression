@@ -38,28 +38,28 @@ confint.PLR <- function(object, parm=c("Gini","LR2"), level = 0.95, boot.method=
   if(length(grep(".star",names(PLR))) > 0){
 
     if(is.null(which.pars)){
-      which.h <- PLR$which.h
+      which.on.grid <- PLR$which.on.grid
       which.lambda <- PLR$which.lambda
     }else{
-      if(length(which.pars)!=2) stop("which.pars must either be NULL or a vector of size 2 where the first element is the index of the bandwidth and the second the index of lambda in the path.")
-      which.h <- which.pars[1]
+      if(length(which.pars)!=2) stop("which.pars must either be NULL or a vector of size 2 where the first element is the index of the bandwidth (or of the proportionality constant) and the second the index of lambda in the path.")
+      which.on.grid <- which.pars[1]
       which.lambda <- which.pars[2]
     }
 
-    CI <- matrix(nrow = length(which.h), ncol = 2)
+    CI <- matrix(nrow = length(which.on.grid), ncol = 2)
     colnames(CI) <- c("Lower bound", "Upper bound")
-    if(is.null(which.pars)) rownames(CI) <- names(PLR$which.h)
+    if(is.null(which.pars)) rownames(CI) <- names(PLR$which.on.grid)
 
-    for (k in 1:length(which.h)){
+    for (k in 1:length(which.on.grid)){
 
-      which.h.k <- which.h[k]
+      which.on.grid.k <- which.on.grid[k]
       which.lambda.k <- which.lambda[k]
 
-      if(parm == "Gini") CI.k <- boot.confint(PLR$path[[which.h.k]]["Explained Gini",which.lambda.k],
-                                              PLR$Gi.star[[which.h.k]][[which.lambda.k]],
+      if(parm == "Gini") CI.k <- boot.confint(PLR$path[[which.on.grid.k]]["Explained Gini",which.lambda.k],
+                                              PLR$Gi.star[[which.on.grid.k]][[which.lambda.k]],
                                               alpha, boot.method)
-      if(parm == "LR2") CI.k <- boot.confint(PLR$path[[which.h.k]]["Lorenz-R2",which.lambda.k],
-                                             PLR$LR2.star[[which.h.k]][[which.lambda.k]],
+      if(parm == "LR2") CI.k <- boot.confint(PLR$path[[which.on.grid.k]]["Lorenz-R2",which.lambda.k],
+                                             PLR$LR2.star[[which.on.grid.k]][[which.lambda.k]],
                                              alpha, boot.method)
       CI[k,] <- CI.k
 
