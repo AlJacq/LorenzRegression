@@ -12,6 +12,7 @@ Lorenz.boot(
   LR.est = NULL,
   penalty = c("none", "SCAD", "LASSO"),
   h = NULL,
+  SCAD.nfwd = NULL,
   eps = 0.005,
   B = 500,
   bootID = NULL,
@@ -37,6 +38,8 @@ If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed
 IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.}
 
 \item{h}{Only used if penalty="SCAD" or penalty="LASSO". Bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is NULL (unpenalized case) but has to be specified if penalty="LASSO" or penalty="SCAD".}
+
+\item{SCAD.nfwd}{optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.}
 
 \item{eps}{Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
 

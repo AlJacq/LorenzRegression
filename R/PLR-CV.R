@@ -6,6 +6,7 @@
 #' @param data A data frame containing the variables displayed in the formula.
 #' @param penalty penalty used in the Penalized Lorenz Regression. Possible values are "SCAD" (default) or "LASSO".
 #' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.
+#' @param SCAD.nfwd optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.
 #' @param PLR.est Output of a call to \code{\link{PLR.wrap}} corresponding to the estimation of the Penalized Lorenz Regression on the full sample. Default value is NULL in which case the estimation on the full sample is run internally.
 #' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
@@ -43,6 +44,7 @@ PLR.CV<-function(formula,
                  data,
                  penalty="SCAD",
                  h,
+                 SCAD.nfwd=NULL,
                  PLR.est=NULL,
                  standardize=TRUE,
                  weights=NULL,
@@ -96,7 +98,7 @@ PLR.CV<-function(formula,
   # No need to do it since it will be dealt with in PLR.wrap
 
   # PRE-CV > INITIAL EST ----
-  if(is.null(PLR.est)) PLR.est <- PLR.wrap(YX_mat, standardize = standardize, weights = weights, h = h, penalty = penalty, eps = eps, ...)
+  if(is.null(PLR.est)) PLR.est <- PLR.wrap(YX_mat, standardize = standardize, weights = weights, h = h, SCAD.nfwd = SCAD.nfwd, penalty = penalty, eps = eps, ...)
 
   # CV > INNER ----
 
@@ -107,7 +109,13 @@ PLR.CV<-function(formula,
     folds <- foldID
   }
 
-  CV.inner <- function(k, ...){
+  args.ellipsis <- list(...)
+  args.wrap <- c(formalArgs(LorenzRegression::PLR.wrap),
+                 formalArgs(LorenzRegression::Lorenz.SCADFABS),
+                 formalArgs(LorenzRegression::Lorenz.FABS))
+  args.list.wrap <- args.ellipsis[names(args.ellipsis)%in%args.wrap]
+
+  CV.inner <- function(k){
 
     # Construct Test and Validation bootstrap samples
     fold.k <- folds==k
@@ -116,7 +124,7 @@ PLR.CV<-function(formula,
     YX_mat.valid <- YX_mat[fold.k,]
     weights.valid <- weights[fold.k]
     # Perform the estimation
-    PLR.est.k <- PLR.wrap(YX_mat.train, standardize = standardize, weights = weights.train, h=h, penalty = penalty, eps = eps, lambda = PLR.est$lambda, ...)
+    PLR.est.k <- do.call(PLR.wrap,c(list(YX_mat = YX_mat.train, standardize = standardize, weights = weights.train, h=h, SCAD.nfwd=SCAD.nfwd, penalty = penalty, eps = eps, lambda = PLR.est$lambda), args.list.wrap))
     theta.k <- PLR.est.k$theta
     lambda.k <- PLR.est.k$lambda
     # Compute the CV-score

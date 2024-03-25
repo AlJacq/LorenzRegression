@@ -9,6 +9,7 @@ PLR.CV(
   data,
   penalty = "SCAD",
   h,
+  SCAD.nfwd = NULL,
   PLR.est = NULL,
   standardize = TRUE,
   weights = NULL,
@@ -28,6 +29,8 @@ PLR.CV(
 \item{penalty}{penalty used in the Penalized Lorenz Regression. Possible values are "SCAD" (default) or "LASSO".}
 
 \item{h}{bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.}
+
+\item{SCAD.nfwd}{optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.}
 
 \item{PLR.est}{Output of a call to \code{\link{PLR.wrap}} corresponding to the estimation of the Penalized Lorenz Regression on the full sample. Default value is NULL in which case the estimation on the full sample is run internally.}
 

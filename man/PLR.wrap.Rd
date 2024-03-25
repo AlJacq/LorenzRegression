@@ -10,7 +10,10 @@ PLR.wrap(
   weights = NULL,
   penalty = c("SCAD", "LASSO"),
   h,
+  SCAD.nfwd = NULL,
   eps = 0.005,
+  gamma = 0.05,
+  kernel = c("Epan", "Biweight"),
   ...
 )
 }
@@ -25,7 +28,11 @@ PLR.wrap(
 
 \item{h}{bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.}
 
-\item{eps}{Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
+\item{SCAD.nfwd}{optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.}
+
+\item{eps}{step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
+
+\item{gamma}{value of the Lagrange multiplier in the loss function}
 
 \item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.}
 }

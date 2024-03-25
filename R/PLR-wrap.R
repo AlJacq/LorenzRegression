@@ -7,7 +7,9 @@
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param penalty penalty used in the Penalized Lorenz Regression. Possible values are "SCAD" (default) or "LASSO".
 #' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.
-#' @param eps Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.
+#' @param SCAD.nfwd optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.
+#' @param eps step size in the FABS or SCADFABS algorithm. Default value is 0.005.
+#' @param gamma value of the Lagrange multiplier in the loss function
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #'
 #' @return A list with several components:
@@ -27,9 +29,11 @@
 #'
 #' @export
 
-PLR.wrap <- function(YX_mat, standardize=TRUE, weights=NULL, penalty=c("SCAD","LASSO"), h, eps = 0.005, ...){
+PLR.wrap <- function(YX_mat, standardize=TRUE, weights=NULL, penalty=c("SCAD","LASSO"), h, SCAD.nfwd = NULL, eps = 0.005, gamma = 0.05, kernel = c("Epan","Biweight"), ...){
 
   penalty <- match.arg(penalty)
+  kernel <- match.arg(kernel)
+  kernel <- switch(kernel, "Epan" = 1, "Biweight" = 2)
 
   n <- length(YX_mat[,1])
   p <- length(YX_mat[1,])-1
@@ -52,9 +56,44 @@ PLR.wrap <- function(YX_mat, standardize=TRUE, weights=NULL, penalty=c("SCAD","L
   # PLR ----
 
   if(penalty == "SCAD"){
-    PLR <- LorenzRegression::Lorenz.SCADFABS(YX_mat, weights=weights, eps=eps, h=h, ...)
+    if(is.null(SCAD.nfwd)){
+      PLR <- LorenzRegression::Lorenz.SCADFABS(YX_mat, weights=weights, eps=eps, h=h, gamma = gamma, kernel = kernel, ...)
+    }else{
+      if(is.null(weights)){
+        weights <- rep(1,n)
+      }
+      b1 <- b0 <- rep(0,ncol(YX_mat)-1)
+      Grad0 <- -.PLR_derivative_cpp(as.vector(YX_mat[,1]),
+                                    as.matrix(YX_mat[,-1]),
+                                    as.vector(weights/sum(weights)),
+                                    as.vector(b0),
+                                    as.double(h),
+                                    as.double(gamma),
+                                    as.integer(kernel))
+      k0 <- which.max(abs(Grad0))
+      b1[k0] <- - sign(Grad0[k0])*eps
+      loss0 = .PLR_loss_cpp(as.matrix(YX_mat[,-1]),
+                            as.vector(YX_mat[,1]),
+                            as.vector(weights/sum(weights)),
+                            as.vector(b0),
+                            as.double(h),
+                            as.double(gamma),
+                            as.integer(kernel))
+      loss1  = .PLR_loss_cpp(as.matrix(YX_mat[,-1]),
+                             as.vector(YX_mat[,1]),
+                             as.vector(weights/sum(weights)),
+                             as.vector(b1),
+                             as.double(h),
+                             as.double(gamma),
+                             as.integer(kernel))
+      diff.loss.sqrt <- sqrt(loss0-loss1)
+      eps.old <- eps
+      eps <- diff.loss.sqrt/sqrt(SCAD.nfwd) + sqrt(.Machine$double.eps)
+      h <- h*eps/eps.old
+      PLR <- LorenzRegression::Lorenz.SCADFABS(YX_mat, weights=weights, eps=eps, h=h, gamma = gamma, kernel = kernel, ...)
+    }
   }else if(penalty == "LASSO"){
-    PLR <- LorenzRegression::Lorenz.FABS(YX_mat, weights=weights, eps=eps, h=h, ...)
+    PLR <- LorenzRegression::Lorenz.FABS(YX_mat, weights=weights, eps=eps, h=h, gamma = gamma, kernel = kernel, ...)
   }
 
   # POST-PLR ----
@@ -66,6 +105,7 @@ PLR.wrap <- function(YX_mat, standardize=TRUE, weights=NULL, penalty=c("SCAD","L
   theta <- PLR$theta[,iter.unique] # Only one value for each value of lambda
   if (standardize) theta <- theta/X.scale # Need to put back on the original scale
   theta <- apply(theta,2,function(x)x/sqrt(sum(x^2))) # Need to normalize
+  # theta[abs(theta) < 10^(-10) ] <- 0
 
   lambda <- PLR$lambda[iter.unique]
   LR2 <- PLR$LR2[iter.unique]

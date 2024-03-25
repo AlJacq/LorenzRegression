@@ -12,6 +12,7 @@
 #' If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
 #' IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.
 #' @param h Only used if penalty="SCAD" or penalty="LASSO". Bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is NULL (unpenalized case) but has to be specified if penalty="LASSO" or penalty="SCAD".
+#' @param SCAD.nfwd optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.
 #' @param eps Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.
 #' @param B Number of bootstrap resamples. Default is 500.
 #' @param bootID matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.
@@ -53,6 +54,7 @@ Lorenz.boot<-function(formula,
                       LR.est=NULL,
                       penalty=c("none","SCAD","LASSO"),
                       h=NULL,
+                      SCAD.nfwd=NULL,
                       eps=0.005,
                       B = 500,
                       bootID = NULL,
@@ -98,7 +100,7 @@ Lorenz.boot<-function(formula,
     if(penalty == "none"){
       LR.est <- LorenzRegression::Lorenz.GA(YX_mat, standardize = standardize, weights = weights, parallel = parallel, ...)
     }else{
-      LR.est <- LorenzRegression::PLR.wrap(YX_mat, standardize = standardize, weights = weights, h = h, penalty = penalty, eps = eps, ...)
+      LR.est <- LorenzRegression::PLR.wrap(YX_mat, standardize = standardize, weights = weights, h = h, SCAD.nfwd = SCAD.nfwd, penalty = penalty, eps = eps, ...)
     }
   }
   theta.hat <- LR.est$theta
@@ -114,7 +116,15 @@ Lorenz.boot<-function(formula,
 
   # BOOT > INNER ----
 
-  Boot.inner <- function(b, ...){
+  args.ellipsis <- list(...)
+  args.GA <- formalArgs(LorenzRegression::Lorenz.GA)
+  args.wrap <- c(formalArgs(LorenzRegression::PLR.wrap),
+                 formalArgs(LorenzRegression::Lorenz.SCADFABS),
+                 formalArgs(LorenzRegression::Lorenz.FABS))
+  args.list.GA <- args.ellipsis[names(args.ellipsis)%in%args.GA]
+  args.list.wrap <- args.ellipsis[names(args.ellipsis)%in%args.wrap]
+
+  Boot.inner <- function(b){
 
     Return.list <- list()
 
@@ -129,9 +139,9 @@ Lorenz.boot<-function(formula,
 
     # Perform the estimation
     if(penalty == "none"){
-      LR.est.star <- LorenzRegression::Lorenz.GA(YX_mat.test, standardize = standardize, weights = weights.test, parallel=FALSE, ...) # parallel turned to FALSE because we already use parallel computing to distribute the boot iterations
+      LR.est.star <- do.call(LorenzRegression::Lorenz.GA, c(list(YX_mat = YX_mat.test, standardize = standardize, weights = weights.test, parallel=FALSE), args.list.GA)) # parallel turned to FALSE because we already use parallel computing to distribute the boot iterations
     }else{
-      LR.est.star <- LorenzRegression::PLR.wrap(YX_mat.test, standardize = standardize, weights = weights.test, penalty = penalty, h = h, eps = eps, lambda = LR.est$lambda, ...)
+      LR.est.star <- do.call(LorenzRegression::PLR.wrap, c(list(YX_mat = YX_mat.test, standardize = standardize, weights = weights.test, penalty = penalty, h = h, SCAD.nfwd = SCAD.nfwd, eps = eps, lambda = LR.est$lambda), args.list.wrap))
       lambda.star <- LR.est.star$lambda
     }
     theta.star <- LR.est.star$theta

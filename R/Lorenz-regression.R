@@ -12,6 +12,7 @@
 #' If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
 #' IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.
 #' @param h.grid Only used if penalty="SCAD" or penalty="LASSO". Grid of values for the bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is (0.1,0.2,1,2,5)*n^(-1/5.5), where n is sample size.
+#' @param SCAD.nfwd.grid Only used if penalty="SCAD". Grid of values for the SCAD.nfwd argument used in the PLR.wrap function. Default value is NULL.
 #' @param eps Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.
 #' @param sel.choice Only used if penalty="SCAD" or penalty="LASSO". Determines what method is used to determine the optimal regularization parameter. Possibles values are any subvector of c("BIC","CV","Boot"). Default is "BIC". Notice that "Boot" is necessarily added if Boot.inference is set to TRUE.
 #' @param nfolds Only used if sel.choice contains "CV". Number of folds in the cross-validation.
@@ -86,6 +87,7 @@ Lorenz.Reg <- function(formula,
                        parallel=FALSE,
                        penalty=c("none","SCAD","LASSO"),
                        h.grid=c(0.1,0.2,1,2,5)*nrow(data)^(-1/5.5),
+                       SCAD.nfwd.grid = NULL,
                        eps=0.005,
                        sel.choice=c("BIC","CV","Boot")[1],
                        nfolds=10,
@@ -113,6 +115,13 @@ Lorenz.Reg <- function(formula,
   if( Boot.inference ) sel.choice <- union(sel.choice,"Boot")
   if ("Boot"%in%sel.choice) Boot.inference <- TRUE
 
+  # Check on SCAD.fwd.grid and h.grid
+  # The idea is that you choose either a grid for the bandwidth (via h.grid) or a grid for n_fwd (via SCAD.nfwd.grid), but not both.
+  if(length(h.grid)>1 & length(SCAD.nfwd.grid)>1){
+    warning("To avoid enormous computation time, the code does not accept a grid for h and nfwd at the same time. As such, only the first value for h.grid is used, while the whole vector is used for SCAD.nfwd.grid")
+    h.grid <- h.grid[1]
+  }
+
   return.list <- list()
 
   # 0. Obtain YX_mat ----
@@ -139,13 +148,17 @@ Lorenz.Reg <- function(formula,
 
   # 1. (Penalized) Lorenz Regression ----
 
-  n.h <- length(h.grid)
-
   if(is.null(LR)){
     if(penalty == "none"){
       LR <- Lorenz.GA(YX_mat, standardize=standardize, weights=weights, parallel=parallel, ...)
     }else{
-      LR <- lapply(1:n.h,function(i)PLR.wrap(YX_mat, standardize=standardize, weights=weights, penalty=penalty, h = h.grid[i], eps=eps, ...))
+      if(is.null(SCAD.nfwd.grid)|penalty != "SCAD"){
+        n.h <- length(h.grid)
+        LR <- lapply(1:n.h,function(i)PLR.wrap(YX_mat, standardize=standardize, weights=weights, penalty=penalty, h = h.grid[i], SCAD.nfwd = NULL, eps=eps, ...))
+      }else{
+        n.c <- length(SCAD.nfwd.grid)
+        LR <- lapply(1:n.c,function(i)PLR.wrap(YX_mat, standardize=standardize, weights=weights, penalty=penalty, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], eps=eps, ...))
+      }
     }
   }
 
@@ -189,46 +202,56 @@ Lorenz.Reg <- function(formula,
 
   }else{
 
+    lth.path <- ifelse(!is.null(SCAD.nfwd.grid) & penalty=="SCAD",n.c,n.h)
     # Number of variables selected
-    n_selected <- lapply(1:n.h,function(i)apply(LR[[i]]$theta,2,function(x)sum(abs(x) > 10^(-10))))
+    n_selected <- lapply(1:lth.path,function(i)apply(LR[[i]]$theta,2,function(x)sum(abs(x) > 10^(-10))))
     # Path
-    Path <- lapply(1:n.h,function(i)rbind(LR[[i]]$lambda, LR[[i]]$LR2, LR[[i]]$Gi.expl, n_selected[[i]]))
-    for(i in 1:n.h) rownames(Path[[i]]) <- c("lambda","Lorenz-R2","Explained Gini", "Number of nonzeroes")
+    Path <- lapply(1:lth.path,function(i)rbind(LR[[i]]$lambda, LR[[i]]$LR2, LR[[i]]$Gi.expl, n_selected[[i]]))
+    for(i in 1:lth.path) rownames(Path[[i]]) <- c("lambda","Lorenz-R2","Explained Gini", "Number of nonzeroes")
     # BIC and/or CV
     if ("BIC" %in% sel.choice){
-      Path_BIC <- lapply(1:n.h,function(i)PLR.BIC(YX_mat, LR[[i]]$theta, weights = weights))
-      best.BIC <- lapply(1:n.h,function(i)Path_BIC[[i]]$best)
-      val.BIC <- lapply(1:n.h,function(i)Path_BIC[[i]]$val)
-      for (i in 1:n.h){
+      Path_BIC <- lapply(1:lth.path,function(i)PLR.BIC(YX_mat, LR[[i]]$theta, weights = weights))
+      best.BIC <- lapply(1:lth.path,function(i)Path_BIC[[i]]$best)
+      val.BIC <- lapply(1:lth.path,function(i)Path_BIC[[i]]$val)
+      for (i in 1:lth.path){
         Path[[i]] <- rbind(Path[[i]], val.BIC[[i]])
         rownames(Path[[i]])[nrow(Path[[i]])] <- "BIC score"
       }
 
     }
     if ("CV" %in% sel.choice){
-      Path_CV <- lapply(1:n.h,function(i)PLR.CV(formula, data, penalty = penalty, h = h.grid[i], PLR.est = LR[[i]], standardize = standardize, weights = weights, eps = eps, nfolds = nfolds, parallel = parallel, seed.CV = seed.CV, foldID = foldID, ...))
-      best.CV <- lapply(1:n.h,function(i)Path_CV[[i]]$best)
-      val.CV <- lapply(1:n.h,function(i)Path_CV[[i]]$val)
-      for (i in 1:n.h){
+
+      if(penalty == "SCAD" & !is.null(SCAD.nfwd.grid)){
+        Path_CV <- lapply(1:n.c,function(i)PLR.CV(formula, data, penalty = penalty, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], PLR.est = LR[[i]], standardize = standardize, weights = weights, eps = eps, nfolds = nfolds, parallel = parallel, seed.CV = seed.CV, foldID = foldID, ...))
+      }else{
+        Path_CV <- lapply(1:n.h,function(i)PLR.CV(formula, data, penalty = penalty, h = h.grid[i], SCAD.nfwd = NULL, PLR.est = LR[[i]], standardize = standardize, weights = weights, eps = eps, nfolds = nfolds, parallel = parallel, seed.CV = seed.CV, foldID = foldID, ...))
+      }
+      best.CV <- lapply(1:lth.path,function(i)Path_CV[[i]]$best)
+      val.CV <- lapply(1:lth.path,function(i)Path_CV[[i]]$val)
+      for (i in 1:lth.path){
         Path[[i]] <- rbind(Path[[i]], val.CV[[i]])
         rownames(Path[[i]])[nrow(Path[[i]])] <- "CV score"
       }
     }
     if ("Boot" %in% sel.choice){
       if (is.null(LR.boot)){
-        Path_Boot <- lapply(1:n.h,function(i)Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR[[i]], penalty = penalty, h = h.grid[i], eps = eps, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...))
+        if(!is.null(SCAD.nfwd.grid) & penalty=="SCAD"){
+          Path_Boot <- lapply(1:n.c,function(i)Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR[[i]], penalty = penalty, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], eps = eps, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...))
+        }else{
+          Path_Boot <- lapply(1:n.h,function(i)Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR[[i]], penalty = penalty, h = h.grid[i], SCAD.nfwd = NULL, eps = eps, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...))
+        }
       }else{
         Path_Boot <- LR.boot
       }
-      best.Boot <- lapply(1:n.h,function(i)Path_Boot[[i]]$OOB.best)
-      val.Boot <- lapply(1:n.h,function(i)Path_Boot[[i]]$OOB.total)
-      for (i in 1:n.h){
+      best.Boot <- lapply(1:lth.path,function(i)Path_Boot[[i]]$OOB.best)
+      val.Boot <- lapply(1:lth.path,function(i)Path_Boot[[i]]$OOB.total)
+      for (i in 1:lth.path){
         Path[[i]] <- rbind(Path[[i]], val.Boot[[i]])
         rownames(Path[[i]])[nrow(Path[[i]])] <- "Boot score"
       }
     }
 
-    for (i in 1:n.h){
+    for (i in 1:lth.path){
       lth <- nrow(Path[[i]])
       Path[[i]] <- rbind(Path[[i]], LR[[i]]$theta)
       rownames(Path[[i]])[(lth+1):nrow(Path[[i]])] <- colnames(YX_mat[,-1])
@@ -238,33 +261,50 @@ Lorenz.Reg <- function(formula,
     theta <- matrix(nrow = length(sel.choice), ncol = ncol(YX_mat)-1)
     colnames(theta) <- colnames(YX_mat[,-1])
     summary <- matrix(nrow = length(sel.choice), ncol = 5 + length(sel.choice))
-    colnames(summary) <- c("Explained Gini", "Lorenz-R2", "lambda", "h", "Number of variables", paste0(sel.choice," score"))
+    if(penalty == "SCAD" & !is.null(SCAD.nfwd.grid)){
+      colnames(summary) <- c("Explained Gini", "Lorenz-R2", "lambda", "SCAD constant", "Number of variables", paste0(sel.choice," score"))
+    }else{
+      colnames(summary) <- c("Explained Gini", "Lorenz-R2", "lambda", "h", "Number of variables", paste0(sel.choice," score"))
+    }
     Gi.expl <- rep(NA,length(sel.choice))
     LR2 <- rep(NA,length(sel.choice))
     MRS <- lapply(1:length(sel.choice),function(x)matrix(nrow = ncol(YX_mat)-1, ncol = ncol(YX_mat)-1))
     Fit <- data.frame(Response = YX_mat[,1])
     names(MRS) <- rownames(theta) <- rownames(summary) <- names(Gi.expl) <- names(LR2) <- sel.choice
 
-    which.h <- c()
     which.lambda <- c()
+    if (!is.null(SCAD.nfwd.grid) & penalty=="SCAD"){
+      which.SCAD.nfwd <- c()
+    }else{
+      which.h <- c()
+    }
 
     if( "BIC" %in% sel.choice ){
 
       i.BIC <- which(sel.choice == "BIC")
-      which.h.BIC <- which.max(sapply(1:n.h,function(i)max(val.BIC[[i]])))
-      which.h["BIC"] <- which.h.BIC
-      which.lambda["BIC"] <- best.BIC[[which.h.BIC]]
+      # k refers either to h or to SCAD.nfwd
+      which.k.BIC <- which.max(sapply(1:lth.path,function(i)max(val.BIC[[i]])))
+      if (!is.null(SCAD.nfwd.grid) & penalty=="SCAD"){
+        which.SCAD.nfwd["BIC"] <- which.k.BIC
+      }else{
+        which.h["BIC"] <- which.k.BIC
+      }
+      which.lambda["BIC"] <- best.BIC[[which.k.BIC]]
       # theta
-      theta[i.BIC,] <- LR[[which.h.BIC]]$theta[,best.BIC[[which.h.BIC]]]
+      theta[i.BIC,] <- LR[[which.k.BIC]]$theta[,best.BIC[[which.k.BIC]]]
       # summary
-      summary[i.BIC,1] <- LR[[which.h.BIC]]$Gi.expl[best.BIC[[which.h.BIC]]]
-      summary[i.BIC,2] <- LR[[which.h.BIC]]$LR2[best.BIC[[which.h.BIC]]]
-      summary[i.BIC,3] <- LR[[which.h.BIC]]$lambda[best.BIC[[which.h.BIC]]]
-      summary[i.BIC,4] <- h.grid[which.h.BIC]
-      summary[i.BIC,5] <- n_selected[[which.h.BIC]][best.BIC[[which.h.BIC]]]
-      summary[i.BIC,"BIC score"] <- val.BIC[[which.h.BIC]][best.BIC[[which.h.BIC]]]
-      if ("Boot" %in% sel.choice) summary[i.BIC,"Boot score"] <- val.Boot[[which.h.BIC]][best.BIC[[which.h.BIC]]]
-      if ("CV" %in% sel.choice) summary[i.BIC,"CV score"] <- val.CV[[which.h.BIC]][best.BIC[[which.h.BIC]]]
+      summary[i.BIC,1] <- LR[[which.k.BIC]]$Gi.expl[best.BIC[[which.k.BIC]]]
+      summary[i.BIC,2] <- LR[[which.k.BIC]]$LR2[best.BIC[[which.k.BIC]]]
+      summary[i.BIC,3] <- LR[[which.k.BIC]]$lambda[best.BIC[[which.k.BIC]]]
+      if (!is.null(SCAD.nfwd.grid) & penalty=="SCAD"){
+        summary[i.BIC,4] <- SCAD.nfwd.grid[which.k.BIC]
+      }else{
+        summary[i.BIC,4] <- h.grid[which.k.BIC]
+      }
+      summary[i.BIC,5] <- n_selected[[which.k.BIC]][best.BIC[[which.k.BIC]]]
+      summary[i.BIC,"BIC score"] <- val.BIC[[which.k.BIC]][best.BIC[[which.k.BIC]]]
+      if ("Boot" %in% sel.choice) summary[i.BIC,"Boot score"] <- val.Boot[[which.k.BIC]][best.BIC[[which.k.BIC]]]
+      if ("CV" %in% sel.choice) summary[i.BIC,"CV score"] <- val.CV[[which.k.BIC]][best.BIC[[which.k.BIC]]]
       # Gi.expl and LR2
       Gi.expl[i.BIC] <- summary[i.BIC,1]
       LR2[i.BIC] <- summary[i.BIC,2]
@@ -279,20 +319,28 @@ Lorenz.Reg <- function(formula,
     if( "Boot" %in% sel.choice ){
 
       i.Boot <- which(sel.choice == "Boot")
-      which.h.Boot <- which.max(sapply(1:n.h,function(i)max(val.Boot[[i]])))
-      which.h["Boot"] <- which.h.Boot
-      which.lambda["Boot"] <- best.Boot[[which.h.Boot]]
+      which.k.Boot <- which.max(sapply(1:lth.path,function(i)max(val.Boot[[i]])))
+      if (!is.null(SCAD.nfwd.grid) & penalty=="SCAD"){
+        which.SCAD.nfwd["Boot"] <- which.k.Boot
+      }else{
+        which.h["Boot"] <- which.k.Boot
+      }
+      which.lambda["Boot"] <- best.Boot[[which.k.Boot]]
       # theta
-      theta[i.Boot,] <- LR[[which.h.Boot]]$theta[,best.Boot[[which.h.Boot]]]
+      theta[i.Boot,] <- LR[[which.k.Boot]]$theta[,best.Boot[[which.k.Boot]]]
       # summary
-      summary[i.Boot,1] <- LR[[which.h.Boot]]$Gi.expl[best.Boot[[which.h.Boot]]]
-      summary[i.Boot,2] <- LR[[which.h.Boot]]$LR2[best.Boot[[which.h.Boot]]]
-      summary[i.Boot,3] <- LR[[which.h.Boot]]$lambda[best.Boot[[which.h.Boot]]]
-      summary[i.Boot,4] <- h.grid[which.h.Boot]
-      summary[i.Boot,5] <- n_selected[[which.h.Boot]][best.Boot[[which.h.Boot]]]
-      summary[i.Boot,"Boot score"] <- val.Boot[[which.h.Boot]][best.Boot[[which.h.Boot]]]
-      if ("BIC" %in% sel.choice) summary[i.Boot,"BIC score"] <- val.BIC[[which.h.Boot]][best.Boot[[which.h.Boot]]]
-      if ("CV" %in% sel.choice) summary[i.Boot,"CV score"] <- val.CV[[which.h.Boot]][best.Boot[[which.h.Boot]]]
+      summary[i.Boot,1] <- LR[[which.k.Boot]]$Gi.expl[best.Boot[[which.k.Boot]]]
+      summary[i.Boot,2] <- LR[[which.k.Boot]]$LR2[best.Boot[[which.k.Boot]]]
+      summary[i.Boot,3] <- LR[[which.k.Boot]]$lambda[best.Boot[[which.k.Boot]]]
+      if (!is.null(SCAD.nfwd.grid) & penalty=="SCAD"){
+        summary[i.Boot,4] <- SCAD.nfwd.grid[which.k.Boot]
+      }else{
+        summary[i.Boot,4] <- h.grid[which.k.Boot]
+      }
+      summary[i.Boot,5] <- n_selected[[which.k.Boot]][best.Boot[[which.k.Boot]]]
+      summary[i.Boot,"Boot score"] <- val.Boot[[which.k.Boot]][best.Boot[[which.k.Boot]]]
+      if ("BIC" %in% sel.choice) summary[i.Boot,"BIC score"] <- val.BIC[[which.k.Boot]][best.Boot[[which.k.Boot]]]
+      if ("CV" %in% sel.choice) summary[i.Boot,"CV score"] <- val.CV[[which.k.Boot]][best.Boot[[which.k.Boot]]]
       # Gi.expl and LR2
       Gi.expl[i.Boot] <- summary[i.Boot,1]
       LR2[i.Boot] <- summary[i.Boot,2]
@@ -307,20 +355,28 @@ Lorenz.Reg <- function(formula,
     if( "CV" %in% sel.choice ){
 
       i.CV <- which(sel.choice == "CV")
-      which.h.CV <- which.max(sapply(1:n.h,function(i)max(val.CV[[i]])))
-      which.h["CV"] <- which.h.CV
-      which.lambda["CV"] <- best.CV[[which.h.CV]]
+      which.k.CV <- which.max(sapply(1:lth.path,function(i)max(val.CV[[i]])))
+      if (!is.null(SCAD.nfwd.grid) & penalty=="SCAD"){
+        which.SCAD.nfwd["CV"] <- which.k.CV
+      }else{
+        which.h["CV"] <- which.k.CV
+      }
+      which.lambda["CV"] <- best.CV[[which.k.CV]]
       # theta
-      theta[i.CV,] <- LR[[which.h.CV]]$theta[,best.CV[[which.h.CV]]]
+      theta[i.CV,] <- LR[[which.k.CV]]$theta[,best.CV[[which.k.CV]]]
       # summary
-      summary[i.CV,1] <- LR[[which.h.CV]]$Gi.expl[best.CV[[which.h.CV]]]
-      summary[i.CV,2] <- LR[[which.h.CV]]$LR2[best.CV[[which.h.CV]]]
-      summary[i.CV,3] <- LR[[which.h.CV]]$lambda[best.CV[[which.h.CV]]]
-      summary[i.CV,4] <- h.grid[which.h.CV]
-      summary[i.CV,5] <- n_selected[[which.h.CV]][best.CV[[which.h.CV]]]
-      summary[i.CV,"CV score"] <- val.CV[[which.h.CV]][best.CV[[which.h.CV]]]
-      if ("BIC" %in% sel.choice) summary[i.CV,"BIC score"] <- val.BIC[[which.h.CV]][best.CV[[which.h.CV]]]
-      if ("Boot" %in% sel.choice) summary[i.CV,"Boot score"] <- val.Boot[[which.h.CV]][best.CV[[which.h.CV]]]
+      summary[i.CV,1] <- LR[[which.k.CV]]$Gi.expl[best.CV[[which.k.CV]]]
+      summary[i.CV,2] <- LR[[which.k.CV]]$LR2[best.CV[[which.k.CV]]]
+      summary[i.CV,3] <- LR[[which.k.CV]]$lambda[best.CV[[which.k.CV]]]
+      if (!is.null(SCAD.nfwd.grid) & penalty=="SCAD"){
+        summary[i.CV,4] <- SCAD.nfwd.grid[which.k.CV]
+      }else{
+        summary[i.CV,4] <- h.grid[which.k.CV]
+      }
+      summary[i.CV,5] <- n_selected[[which.k.CV]][best.CV[[which.k.CV]]]
+      summary[i.CV,"CV score"] <- val.CV[[which.k.CV]][best.CV[[which.k.CV]]]
+      if ("BIC" %in% sel.choice) summary[i.CV,"BIC score"] <- val.BIC[[which.k.CV]][best.CV[[which.k.CV]]]
+      if ("Boot" %in% sel.choice) summary[i.CV,"Boot score"] <- val.Boot[[which.k.CV]][best.CV[[which.k.CV]]]
       # Gi.expl and LR2
       Gi.expl[i.CV] <- summary[i.CV,1]
       LR2[i.CV] <- summary[i.CV,2]
@@ -340,16 +396,22 @@ Lorenz.Reg <- function(formula,
     return.list$LR2 <- LR2
     return.list$MRS <- MRS
     return.list$Fit <- Fit
-    return.list$which.h <- which.h
+    if (!is.null(SCAD.nfwd.grid) & penalty=="SCAD"){
+      return.list$which.SCAD.nfwd <- which.SCAD.nfwd
+      return.list$which.on.grid <- which.SCAD.nfwd
+    }else{
+      return.list$which.h <- which.h
+      return.list$which.on.grid <- which.h
+    }
     return.list$which.lambda <- which.lambda
 
     # Output of the bootstrap
 
     if (Boot.inference){
 
-      return.list$Gi.star <- lapply(1:n.h, function(i)Path_Boot[[i]]$Gi.star)
-      return.list$LR2.star <- lapply(1:n.h, function(i)Path_Boot[[i]]$LR2.star)
-      return.list$theta.star <- lapply(1:n.h, function(i)Path_Boot[[i]]$theta.star)
+      return.list$Gi.star <- lapply(1:lth.path, function(i)Path_Boot[[i]]$Gi.star)
+      return.list$LR2.star <- lapply(1:lth.path, function(i)Path_Boot[[i]]$LR2.star)
+      return.list$theta.star <- lapply(1:lth.path, function(i)Path_Boot[[i]]$theta.star)
 
     }
 

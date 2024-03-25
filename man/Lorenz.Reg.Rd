@@ -12,6 +12,7 @@ Lorenz.Reg(
   parallel = FALSE,
   penalty = c("none", "SCAD", "LASSO"),
   h.grid = c(0.1, 0.2, 1, 2, 5) * nrow(data)^(-1/5.5),
+  SCAD.nfwd.grid = NULL,
   eps = 0.005,
   sel.choice = c("BIC", "CV", "Boot")[1],
   nfolds = 10,
@@ -43,6 +44,8 @@ If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed
 IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.}
 
 \item{h.grid}{Only used if penalty="SCAD" or penalty="LASSO". Grid of values for the bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is (0.1,0.2,1,2,5)*n^(-1/5.5), where n is sample size.}
+
+\item{SCAD.nfwd.grid}{Only used if penalty="SCAD". Grid of values for the SCAD.nfwd argument used in the PLR.wrap function. Default value is NULL.}
 
 \item{eps}{Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
 
