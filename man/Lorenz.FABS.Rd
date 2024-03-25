@@ -13,7 +13,8 @@ Lorenz.FABS(
   iter = 10^4,
   lambda = "Shi",
   lambda.min = 1e-07,
-  gamma = 0.05
+  gamma = 0.05,
+  kernel = 1
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ Lorenz.FABS(
 \item{lambda.min}{lower bound of the penalty parameter. Only used if lambda="Shi".}
 
 \item{gamma}{value of the Lagrange multiplier in the loss function}
+
+\item{kernel}{integer indicating what kernel function to use. The value 1 is the default and implies the use of an Epanechnikov kernel while the value of 2 implies the use of a biweight kernel.}
 }
 \value{
 A list with several components:

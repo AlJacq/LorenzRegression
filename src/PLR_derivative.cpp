@@ -4,7 +4,7 @@
 using namespace arma;
 
 // [[Rcpp::export(.PLR_derivative_cpp)]]
-arma::vec PLR_derivative_cpp(arma::vec y, arma::mat X, arma::vec pi, arma::vec theta, double h, double gamma)
+arma::vec PLR_derivative_cpp(arma::vec y, arma::mat X, arma::vec pi, arma::vec theta, double h, double gamma, int kernel)
 {
   int i, j, k;
   double  a0, u=0;
@@ -31,7 +31,8 @@ arma::vec PLR_derivative_cpp(arma::vec y, arma::mat X, arma::vec pi, arma::vec t
           v(k) =  (X(i,k) - X(j,k))/h;
 
         if (u < -1 || u > 1) a0=0;
-        else a0 = 9.0/8.0 - 15.0/8.0*pow(u,2.0);
+        if (u >= -1 && u <=1 && kernel == 1) a0 = 9.0/8.0 - 15.0/8.0*pow(u,2.0);
+        if (u >= -1 && u <=1 && kernel == 2) a0 = 45.0/32.0 - 75.0/16.0*pow(u,2.0) + 105.0/32.0*pow(u,4.0);
 
         for (k=0; k<p; k++){
           der(k) = der(k) + 1.0 * pi(i)*pi(j)*(y(i)-y(j)) * a0 * (v(k));

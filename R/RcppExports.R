@@ -17,12 +17,12 @@
     .Call('_LorenzRegression_Fitness_meanrank', PACKAGE = 'LorenzRegression', x, Y, X, pi)
 }
 
-.PLR_derivative_cpp <- function(y, X, pi, theta, h, gamma) {
-    .Call('_LorenzRegression_PLR_derivative_cpp', PACKAGE = 'LorenzRegression', y, X, pi, theta, h, gamma)
+.PLR_derivative_cpp <- function(y, X, pi, theta, h, gamma, kernel) {
+    .Call('_LorenzRegression_PLR_derivative_cpp', PACKAGE = 'LorenzRegression', y, X, pi, theta, h, gamma, kernel)
 }
 
-.PLR_loss_cpp <- function(X, y, pi, theta, h, gamma) {
-    .Call('_LorenzRegression_PLR_loss_cpp', PACKAGE = 'LorenzRegression', X, y, pi, theta, h, gamma)
+.PLR_loss_cpp <- function(X, y, pi, theta, h, gamma, kernel) {
+    .Call('_LorenzRegression_PLR_loss_cpp', PACKAGE = 'LorenzRegression', X, y, pi, theta, h, gamma, kernel)
 }
 
 .SCAD_derivative_cpp <- function(x, lambda, a) {

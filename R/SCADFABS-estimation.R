@@ -21,6 +21,7 @@
 #' }
 #' @param lambda.min lower bound of the penalty parameter. Only used if lambda="Shi".
 #' @param gamma value of the Lagrange multiplier in the loss function
+#' @param kernel integer indicating what kernel function to use. The value 1 is the default and implies the use of an Epanechnikov kernel while the value of 2 implies the use of a biweight kernel.
 #'
 #' @return A list with several components:
 #' \describe{
@@ -48,7 +49,7 @@
 #' @export
 
 Lorenz.SCADFABS <- function(YX_mat, weights=NULL, h, eps, a = 3.7,
-                iter=10^4, lambda="Shi", lambda.min = 1e-7, gamma = 0.05){
+                iter=10^4, lambda="Shi", lambda.min = 1e-7, gamma = 0.05, kernel = 1){
 
   X <- YX_mat[,-1]
   y <- YX_mat[,1]
@@ -75,7 +76,7 @@ Lorenz.SCADFABS <- function(YX_mat, weights=NULL, h, eps, a = 3.7,
   b[,1] <- b0
 
   # Computing k
-  Grad0 <- -.PLR_derivative_cpp(as.vector(y),as.matrix(X),as.vector(pi),as.vector(b0),as.double(h),as.double(gamma))
+  Grad0 <- -.PLR_derivative_cpp(as.vector(y),as.matrix(X),as.vector(pi),as.vector(b0),as.double(h),as.double(gamma),as.integer(kernel))
   k0 <- which.max(abs(Grad0))
   A.set <- k0
   B.set <- 1:p
@@ -84,8 +85,8 @@ Lorenz.SCADFABS <- function(YX_mat, weights=NULL, h, eps, a = 3.7,
   b[k0,1] <- - sign(Grad0[k0])*eps
 
   # Computing lambda and the direction
-  loss0 = .PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b0), as.double(h),as.double(gamma))
-  loss  = .PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,1]), as.double(h),as.double(gamma))
+  loss0 = .PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b0), as.double(h),as.double(gamma),as.integer(kernel))
+  loss  = .PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,1]), as.double(h),as.double(gamma),as.integer(kernel))
   direction[1] <- 1
 
   if(length(lambda)==1){
@@ -114,7 +115,7 @@ Lorenz.SCADFABS <- function(YX_mat, weights=NULL, h, eps, a = 3.7,
   for (i in 1:(iter-1))
   {
     b[,i+1] <- b[,i]
-    Grad.loss.i <- -.PLR_derivative_cpp(as.vector(y),as.matrix(X),as.vector(pi),as.vector(b[,i]),as.double(h),as.double(gamma))
+    Grad.loss.i <- -.PLR_derivative_cpp(as.vector(y),as.matrix(X),as.vector(pi),as.vector(b[,i]),as.double(h),as.double(gamma),as.integer(kernel))
     Grad.Pen.i <- .SCAD_derivative_cpp(as.vector(abs(b[,i])), as.double(lambda.out[i]), as.double(a))
     # Backward direction
     Back.Obj <- -Grad.loss.i[A.set]*sign(b[A.set,i]) - Grad.Pen.i[A.set]
@@ -122,13 +123,13 @@ Lorenz.SCADFABS <- function(YX_mat, weights=NULL, h, eps, a = 3.7,
     Delta.k <- -sign(b[k,i])
     b[k,i+1] <- b[k,i] + Delta.k*eps
     Back.Obj.opt <- -Grad.loss.i[k]*sign(b[k,i]) - Grad.Pen.i[k]
-    loss.back <- .PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma))
+    loss.back <- .PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma),as.integer(kernel))
     back <- loss.back - loss.i - Grad.Pen.i[k]*eps < -.Machine$double.eps^0.5
     if(back & (length(A.set)>1)){
       # Backward step
       lambda.out[i+1] <- lambda.out[i]
       direction[i+1] <- -1
-      loss.i <- .PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma))
+      loss.i <- .PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma),as.integer(kernel))
       if(abs(b[k,i+1]) < .Machine$double.eps^0.5){
         b[k,i+1] <- 0
         A.set <- setdiff(A.set,k)
@@ -143,7 +144,7 @@ Lorenz.SCADFABS <- function(YX_mat, weights=NULL, h, eps, a = 3.7,
         k <- B.set[which.max(Fwd.Obj)]
         A.set <- union(A.set,k)
         b[k,i+1] <- b[k,i] - sign(Grad.loss.i[k])*eps
-        loss.forward <- .PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma))
+        loss.forward <- .PLR_loss_cpp(as.matrix(X), as.vector(y),as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma),as.integer(kernel))
         L_eps <- (loss.i-loss.forward)/eps
         L_eps.check <- L_eps > 0
         if(L_eps.check){
