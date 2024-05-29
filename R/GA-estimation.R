@@ -6,7 +6,8 @@
 #' The genetic algorithm is solved using function \code{\link[GA]{ga}} from the \emph{GA} package. The fitness function is coded in Rcpp to speed up computation time.
 #' When discrete covariates are introduced and ties occur in the index, the default option randomly breaks them, as advised in Section 3 of Heuchenne and Jacquemain (2020)
 #'
-#' @param YX_mat A matrix with the first column corresponding to the response vector, the remaining ones being the explanatory variables.
+#' @param y a vector of responses
+#' @param x a matrix of explanatory variables
 #' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
 #' @param popSize Size of the population of candidates in the genetic algorithm. Default value is 50.
 #' @param maxiter Maximum number ot iterations in the genetic algorithm. Default value is 1500.
@@ -33,23 +34,24 @@
 #'
 #' @examples
 #' data(Data.Incomes)
-#' YX_mat <- cbind(Data.Incomes$Income, Data.Incomes$Age, Data.Incomes$Work.Hours)
-#' Lorenz.GA(YX_mat, popSize = 40)
+#' y <- Data.Incomes$Income
+#' x <- cbind(Data.Incomes$Age, Data.Incomes$Work.Hours)
+#' Lorenz.GA(y, x, popSize = 40)
 #'
 #' @import GA
 #'
 #' @export
 
 # unit-norm normalization ----
-Lorenz.GA<-function(YX_mat, standardize=TRUE, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, weights=NULL, parallel = FALSE){
+Lorenz.GA<-function(y, x, standardize=TRUE, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, weights=NULL, parallel = FALSE){
 
   # PRE-GA ----
 
   ties.method <- match.arg(ties.method)
   ties.Gini <- match.arg(ties.Gini)
 
-  n <- length(YX_mat[,1])
-  p <- length(YX_mat[1,])-1
+  n <- length(y)
+  p <- ncol(x)
 
   if(any(weights<0)) stop("Weights must be nonnegative")
 
@@ -62,13 +64,10 @@ Lorenz.GA<-function(YX_mat, standardize=TRUE, popSize=50, maxiter=1500, run=150,
 
   if (standardize){
 
-    X <- YX_mat[,-1]
-    X.center <- colMeans(X)
-    X <- X - rep(X.center, rep.int(n,p))
-    X.scale <- sqrt(colSums(X^2)/(n-1))
-    X <- X / rep(X.scale, rep.int(n,p))
-
-    YX_mat[,-1] <- X
+    x.center <- colMeans(x)
+    x <- x - rep(x.center, rep.int(n,p))
+    x.scale <- sqrt(colSums(x^2)/(n-1))
+    x <- x / rep(x.scale, rep.int(n,p))
 
   }
 
@@ -81,7 +80,7 @@ Lorenz.GA<-function(YX_mat, standardize=TRUE, popSize=50, maxiter=1500, run=150,
 
     GA <- GA::ga(type = "real-valued",
                  population = Lorenz.Population,
-                 fitness =  function(u).Fitness_cpp(u,as.vector(YX_mat[,1]),as.matrix(YX_mat[,-1]),V,pi),
+                 fitness =  function(u).Fitness_cpp(u,as.vector(y),as.matrix(x),V,pi),
                  lower = rep(-1,p-1), upper = rep(1,p-1),
                  popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
                  parallel = parallel)
@@ -90,19 +89,18 @@ Lorenz.GA<-function(YX_mat, standardize=TRUE, popSize=50, maxiter=1500, run=150,
     theta1<-c(GA@solution[1,],1-sum(abs(GA@solution[1,]))) #The theta solution if the last coeff is positive
     theta2<-c(GA@solution[1,],-(1-sum(abs(GA@solution[1,])))) #The theta solution if the last coeff is negative
     theta<-rbind(theta1,theta2)
-    Index_1<-theta1%*%t(YX_mat[,-1])
-    Y_1<-YX_mat[order(Index_1,V),1]
+    Index_1<-theta1%*%t(x)
+    Y_1<-y[order(Index_1,V)]
     pi_1<-pi[order(Index_1,V)]
     rank_1<-cumsum(pi_1)-pi_1/2
-    Index_2<-theta2%*%t(YX_mat[,-1])
-    Y_2<-YX_mat[order(Index_2,V),1]
+    Index_2<-theta2%*%t(x)
+    Y_2<-y[order(Index_2,V)]
     pi_2<-pi[order(Index_2,V)]
     rank_2<-cumsum(pi_2)-pi_2/2
     theta.argmax<-theta[which.max(c((Y_1*pi_1)%*%rank_1,(Y_2*pi_2)%*%rank_2)),]
 
     # We compute the Lorenz-Rsquared
-    Index.sol<-as.matrix(YX_mat[,-1])%*%theta.argmax
-    Y<-YX_mat[,1]
+    Index.sol<-x%*%theta.argmax
 
   }
 
@@ -110,7 +108,7 @@ Lorenz.GA<-function(YX_mat, standardize=TRUE, popSize=50, maxiter=1500, run=150,
 
     GA <- GA::ga(type = "real-valued",
                  population = Lorenz.Population,
-                 fitness =  function(u).Fitness_meanrank(u,as.vector(YX_mat[,1]),as.matrix(YX_mat[,-1]),pi),
+                 fitness =  function(u).Fitness_meanrank(u,as.vector(y),as.matrix(x),pi),
                  lower = rep(-1,p-1), upper = rep(1,p-1),
                  popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
                  parallel = parallel)
@@ -119,9 +117,8 @@ Lorenz.GA<-function(YX_mat, standardize=TRUE, popSize=50, maxiter=1500, run=150,
     theta1<-c(GA@solution[1,],1-sum(abs(GA@solution[1,]))) #The theta solution if the last coeff is positive
     theta2<-c(GA@solution[1,],-(1-sum(abs(GA@solution[1,])))) #The theta solution if the last coeff is negative
     theta<-rbind(theta1,theta2)
-    Y <- YX_mat[,1]
-    index1<-theta1%*%t(YX_mat[,-1])
-    index2<-theta2%*%t(YX_mat[,-1])
+    index1<-theta1%*%t(x)
+    index2<-theta2%*%t(x)
     index1_k <- sort(unique(index1))
     pi1_k <- sapply(1:length(index1_k),function(k)sum(pi[index1==index1_k[k]]))
     F1_k <- cumsum(pi1_k) - 0.5*pi1_k
@@ -130,33 +127,32 @@ Lorenz.GA<-function(YX_mat, standardize=TRUE, popSize=50, maxiter=1500, run=150,
     pi2_k <- sapply(1:length(index2_k),function(k)sum(pi[index2==index2_k[k]]))
     F2_k <- cumsum(pi2_k) - 0.5*pi2_k
     F2_i <- sapply(1:length(index2),function(i)sum(F2_k[index2_k==index2[i]])) # Ensures that sum(F_i*pi) = 0.5
-    theta.argmax<-theta[which.max(c((pi*Y)%*%F1_i,(pi*Y)%*%F2_i)),]
+    theta.argmax<-theta[which.max(c((pi*y)%*%F1_i,(pi*y)%*%F2_i)),]
 
     # We compute the Lorenz-Rsquared
-    Index.sol<-as.matrix(YX_mat[,-1])%*%theta.argmax
-    Y<-YX_mat[,1]
+    Index.sol<-x%*%theta.argmax
 
   }
 
-  # POST-PLR ----
+  # POST-LR ----
 
   if(ties.Gini == "random"){
 
-    LR2.num<-Gini.coef(Y, x=Index.sol, na.rm=TRUE, ties.method="random", seed=seed.random, weights=weights)
-    LR2.denom<-Gini.coef(Y, na.rm=TRUE, ties.method="random", seed=seed.random, weights=weights)
+    LR2.num<-Gini.coef(y, x=Index.sol, na.rm=TRUE, ties.method="random", seed=seed.random, weights=weights)
+    LR2.denom<-Gini.coef(y, na.rm=TRUE, ties.method="random", seed=seed.random, weights=weights)
     LR2<-as.numeric(LR2.num/LR2.denom)
     Gi.expl<-as.numeric(LR2.num)
 
   }else{
 
-    LR2.num<-Gini.coef(Y, x=Index.sol, na.rm=TRUE, ties.method="mean", seed=seed.random, weights=weights)
-    LR2.denom<-Gini.coef(Y, na.rm=TRUE, ties.method="mean", seed=seed.random, weights=weights)
+    LR2.num<-Gini.coef(y, x=Index.sol, na.rm=TRUE, ties.method="mean", seed=seed.random, weights=weights)
+    LR2.denom<-Gini.coef(y, na.rm=TRUE, ties.method="mean", seed=seed.random, weights=weights)
     LR2<-as.numeric(LR2.num/LR2.denom)
     Gi.expl<-as.numeric(LR2.num)
 
   }
 
-  if (standardize) theta.argmax <- theta.argmax/X.scale # Need to put back on the original scale
+  if (standardize) theta.argmax <- theta.argmax/x.scale # Need to put back on the original scale
   theta <- theta.argmax/sqrt(sum(theta.argmax^2))
 
   Return.list <- list()

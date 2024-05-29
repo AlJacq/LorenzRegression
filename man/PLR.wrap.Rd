@@ -5,7 +5,8 @@
 \title{Wrapper for the \code{\link{Lorenz.SCADFABS}} and \code{\link{Lorenz.FABS}} functions}
 \usage{
 PLR.wrap(
-  YX_mat,
+  y,
+  x,
   standardize = TRUE,
   weights = NULL,
   penalty = c("SCAD", "LASSO"),
@@ -18,7 +19,9 @@ PLR.wrap(
 )
 }
 \arguments{
-\item{YX_mat}{a matrix with the first column corresponding to the response vector, the remaining ones being the explanatory variables.}
+\item{y}{a vector of responses}
+
+\item{x}{a matrix of explanatory variables}
 
 \item{standardize}{Should the variables be standardized before the estimation process? Default value is TRUE.}
 
@@ -50,8 +53,9 @@ A list with several components:
 }
 \examples{
 data(Data.Incomes)
-YX_mat <- Data.Incomes[,-2]
-PLR.wrap(YX_mat, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
+y <- Data.Incomes[,1]
+x <- as.matrix(Data.Incomes[,-c(1,2)])
+PLR.wrap(y, x, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
 
 }
 \seealso{

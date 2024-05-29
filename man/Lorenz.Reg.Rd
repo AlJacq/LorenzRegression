@@ -7,8 +7,9 @@
 Lorenz.Reg(
   formula,
   data,
+  weights,
+  na.action,
   standardize = TRUE,
-  weights = NULL,
   parallel = FALSE,
   penalty = c("none", "SCAD", "LASSO"),
   h.grid = c(0.1, 0.2, 1, 2, 5) * nrow(data)^(-1/5.5),
@@ -32,9 +33,9 @@ Lorenz.Reg(
 
 \item{data}{A data frame containing the variables displayed in the formula.}
 
-\item{standardize}{Should the variables be standardized before the estimation process? Default value is TRUE.}
-
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
+
+\item{standardize}{Should the variables be standardized before the estimation process? Default value is TRUE.}
 
 \item{parallel}{Whether parallel computing should be used to distribute the computations on different CPUs. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.}
 

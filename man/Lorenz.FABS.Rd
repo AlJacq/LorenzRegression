@@ -5,7 +5,8 @@
 \title{Solves the Penalized Lorenz Regression with Lasso penalty}
 \usage{
 Lorenz.FABS(
-  YX_mat,
+  y,
+  x,
   weights = NULL,
   h,
   w.adaptive = NULL,
@@ -18,7 +19,9 @@ Lorenz.FABS(
 )
 }
 \arguments{
-\item{YX_mat}{a matrix with the first column corresponding to the response vector, the remaining ones being the explanatory variables.}
+\item{y}{a vector of responses}
+
+\item{x}{a matrix of explanatory variables}
 
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
@@ -72,8 +75,9 @@ Shi, X., Y. Huang, J. Huang, and S. Ma (2018). A Forward and Backward Stagewise 
 
 \examples{
 data(Data.Incomes)
-YX_mat <- Data.Incomes[,-2]
-Lorenz.FABS(YX_mat, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
+y <- Data.Incomes[,1]
+x <- as.matrix(Data.Incomes[,-c(1,2)])
+Lorenz.FABS(y, x, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
 
 }
 \seealso{

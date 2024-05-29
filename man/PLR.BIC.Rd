@@ -4,10 +4,12 @@
 \alias{PLR.BIC}
 \title{Determines the regularization parameter (lambda) in a PLR via optimization of an information criterion.}
 \usage{
-PLR.BIC(YX_mat, theta, weights = NULL, IC = c("BIC", "AIC"))
+PLR.BIC(y, x, theta, weights = NULL, IC = c("BIC", "AIC"))
 }
 \arguments{
-\item{YX_mat}{A matrix with the first column corresponding to the response vector, the remaining ones being the explanatory variables.}
+\item{y}{a vector of responses}
+
+\item{x}{a matrix of explanatory variables}
 
 \item{theta}{matrix gathering the path of estimated parameter vectors. Each row corresponds to a given covariate. Each column corresponds to a given value of lambda}
 
@@ -33,9 +35,10 @@ Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap e
 
 \examples{
 data(Data.Incomes)
-YX_mat <- Data.Incomes[,-2]
-PLR <- PLR.wrap(YX_mat, h = nrow(YX_mat)^(-1/5.5), eps = 0.005)
-PLR.BIC(YX_mat, PLR$theta)
+y <- Data.Incomes[,1]
+x <- as.matrix(Data.Incomes[,-c(1,2)])
+PLR <- PLR.wrap(y, x, h = nrow(x)^(-1/5.5), eps = 0.005)
+PLR.BIC(y, x, PLR$theta)
 
 }
 \seealso{

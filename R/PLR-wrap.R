@@ -2,7 +2,8 @@
 #'
 #' \code{PLR.wrap} standardizes the covariates, run the penalized regression and spits out the path of parameter vectors.
 #'
-#' @param YX_mat a matrix with the first column corresponding to the response vector, the remaining ones being the explanatory variables.
+#' @param y a vector of responses
+#' @param x a matrix of explanatory variables
 #' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param penalty penalty used in the Penalized Lorenz Regression. Possible values are "SCAD" (default) or "LASSO".
@@ -24,32 +25,30 @@
 #'
 #' @examples
 #' data(Data.Incomes)
-#' YX_mat <- Data.Incomes[,-2]
-#' PLR.wrap(YX_mat, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
+#' y <- Data.Incomes[,1]
+#' x <- as.matrix(Data.Incomes[,-c(1,2)])
+#' PLR.wrap(y, x, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
 #'
 #' @export
 
-PLR.wrap <- function(YX_mat, standardize=TRUE, weights=NULL, penalty=c("SCAD","LASSO"), h, SCAD.nfwd = NULL, eps = 0.005, gamma = 0.05, kernel = c("Epan","Biweight"), ...){
+PLR.wrap <- function(y, x, standardize=TRUE, weights=NULL, penalty=c("SCAD","LASSO"), h, SCAD.nfwd = NULL, eps = 0.005, gamma = 0.05, kernel = c("Epan","Biweight"), ...){
 
   penalty <- match.arg(penalty)
   kernel <- match.arg(kernel)
   kernel <- switch(kernel, "Epan" = 1, "Biweight" = 2)
 
-  n <- length(YX_mat[,1])
-  p <- length(YX_mat[1,])-1
+  n <- length(y)
+  p <- ncol(x)
 
   # PRE-PLR ----
 
   if (standardize){
 
-    X <- YX_mat[,-1]
-    X.center <- colMeans(X)
-    X <- X - rep(X.center, rep.int(n,p))
-    # X.scale <- sqrt(colSums(X^2)/(n-1))
-    X.scale <- sqrt(colSums(X^2)/(n)) # Changé le 25-04-2022 pour assurer l'équivalence au niveau des catégorielles
-    X <- X / rep(X.scale, rep.int(n,p))
-
-    YX_mat[,-1] <- X
+    x.center <- colMeans(x)
+    x <- x - rep(x.center, rep.int(n,p))
+    # x.scale <- sqrt(colSums(x^2)/(n-1))
+    x.scale <- sqrt(colSums(x^2)/(n)) # Changé le 25-04-2022 pour assurer l'équivalence au niveau des catégorielles
+    x <- x / rep(x.scale, rep.int(n,p))
 
   }
 
@@ -57,14 +56,14 @@ PLR.wrap <- function(YX_mat, standardize=TRUE, weights=NULL, penalty=c("SCAD","L
 
   if(penalty == "SCAD"){
     if(is.null(SCAD.nfwd)){
-      PLR <- LorenzRegression::Lorenz.SCADFABS(YX_mat, weights=weights, eps=eps, h=h, gamma = gamma, kernel = kernel, ...)
+      PLR <- LorenzRegression::Lorenz.SCADFABS(y, x, weights=weights, eps=eps, h=h, gamma = gamma, kernel = kernel, ...)
     }else{
       if(is.null(weights)){
         weights <- rep(1,n)
       }
-      b1 <- b0 <- rep(0,ncol(YX_mat)-1)
-      Grad0 <- -.PLR_derivative_cpp(as.vector(YX_mat[,1]),
-                                    as.matrix(YX_mat[,-1]),
+      b1 <- b0 <- rep(0,p)
+      Grad0 <- -.PLR_derivative_cpp(as.vector(y),
+                                    as.matrix(x),
                                     as.vector(weights/sum(weights)),
                                     as.vector(b0),
                                     as.double(h),
@@ -72,15 +71,15 @@ PLR.wrap <- function(YX_mat, standardize=TRUE, weights=NULL, penalty=c("SCAD","L
                                     as.integer(kernel))
       k0 <- which.max(abs(Grad0))
       b1[k0] <- - sign(Grad0[k0])*eps
-      loss0 = .PLR_loss_cpp(as.matrix(YX_mat[,-1]),
-                            as.vector(YX_mat[,1]),
+      loss0 = .PLR_loss_cpp(as.matrix(x),
+                            as.vector(y),
                             as.vector(weights/sum(weights)),
                             as.vector(b0),
                             as.double(h),
                             as.double(gamma),
                             as.integer(kernel))
-      loss1  = .PLR_loss_cpp(as.matrix(YX_mat[,-1]),
-                             as.vector(YX_mat[,1]),
+      loss1  = .PLR_loss_cpp(as.matrix(x),
+                             as.vector(y),
                              as.vector(weights/sum(weights)),
                              as.vector(b1),
                              as.double(h),
@@ -90,10 +89,10 @@ PLR.wrap <- function(YX_mat, standardize=TRUE, weights=NULL, penalty=c("SCAD","L
       eps.old <- eps
       eps <- diff.loss.sqrt/sqrt(SCAD.nfwd) + sqrt(.Machine$double.eps)
       h <- h*eps/eps.old
-      PLR <- LorenzRegression::Lorenz.SCADFABS(YX_mat, weights=weights, eps=eps, h=h, gamma = gamma, kernel = kernel, ...)
+      PLR <- LorenzRegression::Lorenz.SCADFABS(y, x, weights=weights, eps=eps, h=h, gamma = gamma, kernel = kernel, ...)
     }
   }else if(penalty == "LASSO"){
-    PLR <- LorenzRegression::Lorenz.FABS(YX_mat, weights=weights, eps=eps, h=h, gamma = gamma, kernel = kernel, ...)
+    PLR <- LorenzRegression::Lorenz.FABS(y, x, weights=weights, eps=eps, h=h, gamma = gamma, kernel = kernel, ...)
   }
 
   # POST-PLR ----
@@ -103,7 +102,7 @@ PLR.wrap <- function(YX_mat, standardize=TRUE, weights=NULL, penalty=c("SCAD","L
   iter.unique <- c(which(diff(PLR$lambda)<0),PLR$iter)
 
   theta <- PLR$theta[,iter.unique] # Only one value for each value of lambda
-  if (standardize) theta <- theta/X.scale # Need to put back on the original scale
+  if (standardize) theta <- theta/x.scale # Need to put back on the original scale
   theta <- apply(theta,2,function(x)x/sqrt(sum(x^2))) # Need to normalize
   # theta[abs(theta) < 10^(-10) ] <- 0
 

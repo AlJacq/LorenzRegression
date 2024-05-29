@@ -5,7 +5,8 @@
 \title{Estimates the parameter vector in Lorenz regression using a genetic algorithm}
 \usage{
 Lorenz.GA(
-  YX_mat,
+  y,
+  x,
   standardize = TRUE,
   popSize = 50,
   maxiter = 1500,
@@ -18,7 +19,9 @@ Lorenz.GA(
 )
 }
 \arguments{
-\item{YX_mat}{A matrix with the first column corresponding to the response vector, the remaining ones being the explanatory variables.}
+\item{y}{a vector of responses}
+
+\item{x}{a matrix of explanatory variables}
 
 \item{standardize}{Should the variables be standardized before the estimation process? Default value is TRUE.}
 
@@ -63,8 +66,9 @@ Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index cond
 
 \examples{
 data(Data.Incomes)
-YX_mat <- cbind(Data.Incomes$Income, Data.Incomes$Age, Data.Incomes$Work.Hours)
-Lorenz.GA(YX_mat, popSize = 40)
+y <- Data.Incomes$Income
+x <- cbind(Data.Incomes$Age, Data.Incomes$Work.Hours)
+Lorenz.GA(y, x, popSize = 40)
 
 }
 \seealso{

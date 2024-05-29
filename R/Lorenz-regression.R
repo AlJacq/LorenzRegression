@@ -78,12 +78,15 @@
 #' NPLR$theta;PLR$theta
 #' NPLR$summary;PLR$summary
 #'
+#' @importFrom parsnip contr_one_hot
+#'
 #' @export
 
 Lorenz.Reg <- function(formula,
                        data,
+                       weights,
+                       na.action,
                        standardize=TRUE,
-                       weights=NULL,
                        parallel=FALSE,
                        penalty=c("none","SCAD","LASSO"),
                        h.grid=c(0.1,0.2,1,2,5)*nrow(data)^(-1/5.5),
@@ -101,63 +104,84 @@ Lorenz.Reg <- function(formula,
                        LR.boot=NULL,
                        ...){
 
-  # Get the call of the function
-  call <- deparse(match.call())
+  # 0 > Calls ----
+  cl <- match.call()
+  mf <- match.call(expand.dots = FALSE)
+  m <- match(c("formula", "data", "weights", "na.action"),
+             names(mf), 0L)
+  mf <- mf[c(1L, m)]
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  mf <- eval(mf, parent.frame())
+  mt <- attr(mf, "terms")
 
+  # 0 > Checks ----
   # Check on penalty
   penalty <- match.arg(penalty)
-
   # Check on sel.choice
   if( !all(sel.choice%in%c("BIC","CV","Boot")) ) stop("sel.choice should be a subvector of c(\"BIC\",\"CV\",\"Boot\")")
-
   # Check on bootstrap
-  # The idea is that if bootstrap is required, we provide all the results that are available anyway
+  # If bootstrap is required, we provide all the results that are available anyway
   if( Boot.inference ) sel.choice <- union(sel.choice,"Boot")
   if ("Boot"%in%sel.choice) Boot.inference <- TRUE
-
   # Check on SCAD.fwd.grid and h.grid
-  # The idea is that you choose either a grid for the bandwidth (via h.grid) or a grid for n_fwd (via SCAD.nfwd.grid), but not both.
+  # Choose either a grid for the bandwidth (via h.grid) or a grid for n_fwd (via SCAD.nfwd.grid), but not both.
   if(length(h.grid)>1 & length(SCAD.nfwd.grid)>1){
     warning("To avoid enormous computation time, the code does not accept a grid for h and nfwd at the same time. As such, only the first value for h.grid is used, while the whole vector is used for SCAD.nfwd.grid")
     h.grid <- h.grid[1]
   }
 
+  # 0 > Return ----
   return.list <- list()
+  return.list$na.action <- attr(mf, "na.action")
+  return.list$call <- cl
 
-  # 0. Obtain YX_mat ----
+  # 0 > Response and Design ----
 
-  # Transform the formula into dataframe
-  if (penalty=="none"){
-    YX_mat <- as.data.frame(stats::model.matrix(formula,data=data)[,-1])
-  }else{
+  y <- model.response(mf, "numeric")
+  w <- as.vector(model.weights(mf))
+  if (!is.null(w) && !is.numeric(w))
+    stop("'weights' must be a numeric vector")
 
-    YX_mat <- as.data.frame(stats::model.matrix(formula,data=data,
-                                                     contrasts.arg=lapply(data[,sapply(data,is.factor),drop=FALSE],stats::contrasts,contrasts=FALSE))[,-1])
-
-    which.factor <- which(sapply(1:ncol(data),function(i)class(data[,i])=="factor" & length(levels(data[,i]))==2))
-    binary.exclude <- sapply(which.factor,function(i)paste0(colnames(data)[i],levels(data[,i])[1]))
-
-    YX_mat <- YX_mat[,!(names(YX_mat) %in% binary.exclude)]
-
+  if (is.empty.model(mt)) {
+    # In this case, we do not explain anything : explained Gini = Lorenz R2 = 0
+  }
+  else {
+    # We need to distinguish between LR and PLR because specific treatment of categorical in PLR
+    if (penalty == "none"){
+      # In LR, only need to exclude the intercept
+      x <- model.matrix(mt, mf)[,-1,drop=FALSE]
+    }else{
+      # In PLR, one must exclude the intercept, use one-hot encoding for all variables, except when binary
+      # 1) One-hot encoding
+      cat_vars <- all.vars(mt)[sapply(all.vars(mt), function(x) is.factor(mf[[x]]))]
+      custom_contrasts <- lapply(cat_vars, function(var) {
+        parsnip::contr_one_hot(levels(mf[[var]]))
+      })
+      x <- model.matrix(mt,mf,contrasts = setNames(custom_contrasts, cat_vars))
+      # 2) Exclude intercept and binary variables
+      binary_fac <- which(sapply(mf,nlevels)==2)
+      to_del <- c("(Intercept)",paste0(names(binary_fac),sapply(mf[binary_fac],function(x)levels(x)[1])))
+      x <- x[,!colnames(x)%in%to_del,drop=FALSE]
+    }
 
   }
-  YX_mat <- cbind(stats::model.frame(formula,data=data)[,1],YX_mat)
-  colnames(YX_mat)[1] <- colnames(stats::model.frame(formula,data=data))[1]
-  n <- length(YX_mat[,1])
-  p <- length(YX_mat[1,])-1
+
+  n <- nrow(x)
+  p <- ncol(x)
 
   # 1. (Penalized) Lorenz Regression ----
 
   if(is.null(LR)){
     if(penalty == "none"){
-      LR <- Lorenz.GA(YX_mat, standardize=standardize, weights=weights, parallel=parallel, ...)
+      LR <- Lorenz.GA(y, x, standardize=standardize, weights=w, parallel=parallel, ...)
     }else{
       if(is.null(SCAD.nfwd.grid)|penalty != "SCAD"){
         n.h <- length(h.grid)
-        LR <- lapply(1:n.h,function(i)PLR.wrap(YX_mat, standardize=standardize, weights=weights, penalty=penalty, h = h.grid[i], SCAD.nfwd = NULL, eps=eps, ...))
+        LR <- lapply(1:n.h,function(i)PLR.wrap(y, x, standardize=standardize, weights=w, penalty=penalty, h = h.grid[i], SCAD.nfwd = NULL, eps=eps, ...))
       }else{
         n.c <- length(SCAD.nfwd.grid)
-        LR <- lapply(1:n.c,function(i)PLR.wrap(YX_mat, standardize=standardize, weights=weights, penalty=penalty, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], eps=eps, ...))
+        LR <- lapply(1:n.c,function(i)PLR.wrap(y, x, standardize=standardize, weights=w, penalty=penalty, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], eps=eps, ...))
       }
     }
   }
@@ -168,7 +192,7 @@ Lorenz.Reg <- function(formula,
 
     # Estimation of theta
     theta <- LR$theta # Vector of estimated coefficients
-    names(theta) <- colnames(YX_mat[,-1])
+    names(theta) <- colnames(x)
     # Summary
     summary <- c()
     summary["Explained Gini"] <- LR$Gi.expl
@@ -176,10 +200,10 @@ Lorenz.Reg <- function(formula,
     # Matrix of MRS
     MRS <- outer(theta,theta,"/")
     # Estimated index
-    Fit <- data.frame(Response = YX_mat[,1], Index = as.vector(theta%*%t(YX_mat[,-1])))
+    Fit <- data.frame(Response = y, Index = as.vector(theta%*%t(x)))
     # Bootstrap
     if(is.null(LR.boot) & Boot.inference){
-      LR.boot <- Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR, penalty = penalty, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...)
+      LR.boot <- Lorenz.boot(formula, data, standardize = standardize, weights = w, LR.est = LR, penalty = penalty, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...)
       Sigma.hat.star <- n*stats::var(LR.boot$theta.star)
       pval.theta <- sapply(1:p,function(k)2*stats::pnorm(sqrt(n)*abs(theta[k])/sqrt(Sigma.hat.star[k,k]),lower.tail=FALSE))
       names(pval.theta) <- names(theta)
@@ -210,7 +234,7 @@ Lorenz.Reg <- function(formula,
     for(i in 1:lth.path) rownames(Path[[i]]) <- c("lambda","Lorenz-R2","Explained Gini", "Number of nonzeroes")
     # BIC and/or CV
     if ("BIC" %in% sel.choice){
-      Path_BIC <- lapply(1:lth.path,function(i)PLR.BIC(YX_mat, LR[[i]]$theta, weights = weights))
+      Path_BIC <- lapply(1:lth.path,function(i)PLR.BIC(y, x, LR[[i]]$theta, weights = w))
       best.BIC <- lapply(1:lth.path,function(i)Path_BIC[[i]]$best)
       val.BIC <- lapply(1:lth.path,function(i)Path_BIC[[i]]$val)
       for (i in 1:lth.path){
@@ -222,9 +246,9 @@ Lorenz.Reg <- function(formula,
     if ("CV" %in% sel.choice){
 
       if(penalty == "SCAD" & !is.null(SCAD.nfwd.grid)){
-        Path_CV <- lapply(1:n.c,function(i)PLR.CV(formula, data, penalty = penalty, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], PLR.est = LR[[i]], standardize = standardize, weights = weights, eps = eps, nfolds = nfolds, parallel = parallel, seed.CV = seed.CV, foldID = foldID, ...))
+        Path_CV <- lapply(1:n.c,function(i)PLR.CV(formula, data, penalty = penalty, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], PLR.est = LR[[i]], standardize = standardize, weights = w, eps = eps, nfolds = nfolds, parallel = parallel, seed.CV = seed.CV, foldID = foldID, ...))
       }else{
-        Path_CV <- lapply(1:n.h,function(i)PLR.CV(formula, data, penalty = penalty, h = h.grid[i], SCAD.nfwd = NULL, PLR.est = LR[[i]], standardize = standardize, weights = weights, eps = eps, nfolds = nfolds, parallel = parallel, seed.CV = seed.CV, foldID = foldID, ...))
+        Path_CV <- lapply(1:n.h,function(i)PLR.CV(formula, data, penalty = penalty, h = h.grid[i], SCAD.nfwd = NULL, PLR.est = LR[[i]], standardize = standardize, weights = w, eps = eps, nfolds = nfolds, parallel = parallel, seed.CV = seed.CV, foldID = foldID, ...))
       }
       best.CV <- lapply(1:lth.path,function(i)Path_CV[[i]]$best)
       val.CV <- lapply(1:lth.path,function(i)Path_CV[[i]]$val)
@@ -236,9 +260,9 @@ Lorenz.Reg <- function(formula,
     if ("Boot" %in% sel.choice){
       if (is.null(LR.boot)){
         if(!is.null(SCAD.nfwd.grid) & penalty=="SCAD"){
-          Path_Boot <- lapply(1:n.c,function(i)Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR[[i]], penalty = penalty, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], eps = eps, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...))
+          Path_Boot <- lapply(1:n.c,function(i)Lorenz.boot(formula, data, standardize = standardize, weights = w, LR.est = LR[[i]], penalty = penalty, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], eps = eps, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...))
         }else{
-          Path_Boot <- lapply(1:n.h,function(i)Lorenz.boot(formula, data, standardize = standardize, weights = weights, LR.est = LR[[i]], penalty = penalty, h = h.grid[i], SCAD.nfwd = NULL, eps = eps, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...))
+          Path_Boot <- lapply(1:n.h,function(i)Lorenz.boot(formula, data, standardize = standardize, weights = w, LR.est = LR[[i]], penalty = penalty, h = h.grid[i], SCAD.nfwd = NULL, eps = eps, alpha = alpha, B = B, bootID = bootID, seed.boot = seed.boot, parallel = parallel, ...))
         }
       }else{
         Path_Boot <- LR.boot
@@ -254,12 +278,12 @@ Lorenz.Reg <- function(formula,
     for (i in 1:lth.path){
       lth <- nrow(Path[[i]])
       Path[[i]] <- rbind(Path[[i]], LR[[i]]$theta)
-      rownames(Path[[i]])[(lth+1):nrow(Path[[i]])] <- colnames(YX_mat[,-1])
+      rownames(Path[[i]])[(lth+1):nrow(Path[[i]])] <- colnames(x)
     }
 
     # Output without bootstrap
-    theta <- matrix(nrow = length(sel.choice), ncol = ncol(YX_mat)-1)
-    colnames(theta) <- colnames(YX_mat[,-1])
+    theta <- matrix(nrow = length(sel.choice), ncol = p)
+    colnames(theta) <- colnames(x)
     summary <- matrix(nrow = length(sel.choice), ncol = 5 + length(sel.choice))
     if(penalty == "SCAD" & !is.null(SCAD.nfwd.grid)){
       colnames(summary) <- c("Explained Gini", "Lorenz-R2", "lambda", "SCAD constant", "Number of variables", paste0(sel.choice," score"))
@@ -268,8 +292,8 @@ Lorenz.Reg <- function(formula,
     }
     Gi.expl <- rep(NA,length(sel.choice))
     LR2 <- rep(NA,length(sel.choice))
-    MRS <- lapply(1:length(sel.choice),function(x)matrix(nrow = ncol(YX_mat)-1, ncol = ncol(YX_mat)-1))
-    Fit <- data.frame(Response = YX_mat[,1])
+    MRS <- lapply(1:length(sel.choice),function(x)matrix(nrow = p, ncol = p))
+    Fit <- data.frame(Response = y)
     names(MRS) <- rownames(theta) <- rownames(summary) <- names(Gi.expl) <- names(LR2) <- sel.choice
 
     which.lambda <- c()
@@ -312,7 +336,7 @@ Lorenz.Reg <- function(formula,
       theta.MRS.BIC <- theta[i.BIC,][theta[i.BIC,]!=0]
       MRS$BIC <- outer(theta.MRS.BIC,theta.MRS.BIC,"/")
       # Fit
-      Fit$Index.BIC <- as.vector(theta[i.BIC,]%*%t(YX_mat[,-1]))
+      Fit$Index.BIC <- as.vector(theta[i.BIC,]%*%t(x))
 
     }
 
@@ -348,7 +372,7 @@ Lorenz.Reg <- function(formula,
       theta.MRS.Boot <- theta[i.Boot,][theta[i.Boot,]!=0]
       MRS$Boot <- outer(theta.MRS.Boot,theta.MRS.Boot,"/")
       # Fit
-      Fit$Index.Boot <- as.vector(theta[i.Boot,]%*%t(YX_mat[,-1]))
+      Fit$Index.Boot <- as.vector(theta[i.Boot,]%*%t(x))
 
     }
 
@@ -384,7 +408,7 @@ Lorenz.Reg <- function(formula,
       theta.MRS.CV <- theta[i.CV,][theta[i.CV,]!=0]
       MRS$CV <- outer(theta.MRS.CV,theta.MRS.CV,"/")
       # Fit
-      Fit$Index.CV <- as.vector(theta[i.CV,]%*%t(YX_mat[,-1]))
+      Fit$Index.CV <- as.vector(theta[i.CV,]%*%t(x))
 
     }
 
@@ -418,11 +442,6 @@ Lorenz.Reg <- function(formula,
     class(return.list) <- "PLR"
 
   }
-
-  return.list$data <- data
-  return.list$formula <- formula
-  return.list$weight <- weights
-  return.list$call <- call
 
   return(return.list)
 }
