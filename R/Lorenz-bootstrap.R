@@ -1,36 +1,30 @@
-#' Produces bootstrap-based inference for (penalized) Lorenz regression
+#' Bootstrap for (penalized) Lorenz regression
 #'
 #' \code{Lorenz.boot} determines bootstrap estimators for the weight vector, explained Gini coefficient and Lorenz-\eqn{R^2} and, if applies, selects the regularization parameter.
 #'
-#' @param formula A formula object of the form \emph{response} ~ \emph{other_variables}.
-#' @param data A data frame containing the variables displayed in the formula.
-#' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
-#' @param weights vector of sample weights. By default, each observation is given the same weight.
-#' @param LR.est Estimation on the original sample. Output of a call to \code{\link{Lorenz.GA}} or \code{\link{PLR.wrap}}.
-#' @param penalty should the regression include a penalty on the coefficients size.
-#' If "none" is chosen, a non-penalized Lorenz regression is computed using function \code{\link{Lorenz.GA}}.
-#' If "SCAD" is chosen, a penalized Lorenz regression with SCAD penalty is computed using function \code{\link{Lorenz.SCADFABS}}.
-#' IF "LASSO" is chosen, a penalized Lorenz regression with LASSO penalty is computed using function \code{\link{Lorenz.FABS}}.
-#' @param h Only used if penalty="SCAD" or penalty="LASSO". Bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is NULL (unpenalized case) but has to be specified if penalty="LASSO" or penalty="SCAD".
-#' @param SCAD.nfwd optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.
-#' @param eps Only used if penalty="SCAD" or penalty="LASSO". Step size in the FABS or SCADFABS algorithm. Default value is 0.005.
-#' @param B Number of bootstrap resamples. Default is 500.
-#' @param bootID matrix where each row provides the ID of the observations selected in each bootstrap resample. Default is NULL, in which case these are defined internally.
-#' @param seed.boot Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.
-#' @param parallel Whether parallel computing should be used to distribute the \code{B} computations on different CPUs. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
-#' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
+#' @param object An object with S3 class \code{"LR"} or \code{"PLR"}, i.e. the return of a call to the \code{\link{Lorenz.Reg}} function.
+#' @param R An integer indicating the number of bootstrap replicates.
+#' @param data.orig A data frame corresponding to the original dataset, used in the \code{\link{Lorenz.Reg}} call.
+#' @param ... Additional parameters corresponding to arguments passed to the function \code{\link{boot}} from the \code{\link{boot}} library.
 #'
-#' @return A list with several components:
+#' @return An object of class \code{c("LR_boot", "LR")} or \code{c("PLR_boot", "PLR")}, depending on whether a non-penalized or penalized regression was fitted. The object contains:
 #' \describe{
-#'    \item{\code{LR.est}}{Estimation on the original sample.}
-#'    \item{\code{Gi.star}}{In the unpenalized case, a vector gathering the bootstrap estimators of the explained Gini coefficient. In the penalized case, it becomes a list of vectors. Each element of the list corresponds to a different value of the penalization parameter}
-#'    \item{\code{LR2.star}}{In the unpenalized case, a vector gathering the bootstrap estimators of the Lorenz-\eqn{R^2}. In the penalized case, it becomes a list of vectors.}
-#'    \item{\code{theta.star}}{In the unpenalized case, a matrix gathering the bootstrap estimators of theta (rows correspond to bootstrap iterations and columns refer to the different coefficients). In the penalized case, it becomes a list of matrices.}
-#'    \item{\code{OOB.total}}{In the penalized case only. Vector gathering the OOB-score for each lambda value.}
-#'    \item{\code{OOB.best}}{In the penalized case only. index of the lambda value attaining the highest OOB-score.}
+#'    \item{\code{theta}}{The estimated vector of parameters. In the penalized case, it is a matrix where each row corresponds to a different selection method (e.g., BIC, bootstrap, cross-validation).}
+#'    \item{\code{Gi.expl}}{The estimated explained Gini coefficient. In the penalized case, it is a vector, where each element corresponds to a different selection method.}
+#'    \item{\code{LR2}}{The Lorenz-\eqn{R^2} of the regression. In the penalized case, it is a vector, where each element corresponds to a different selection method.}
+#'    \item{\code{MRS}}{The matrix of estimated marginal rates of substitution. In the penalized case, it is a list where each element corresponds to a different selection method.}
+#'    \item{\code{index}}{The estimated index. In the penalized case, it is a matrix where each row corresponds to a different selection method.}
+#'    \item{\code{boot_out}}{An object of class \code{"boot"} containing the output of the bootstrap calculation.}
 #' }
+#' For the Penalized Lorenz Regression, the list also contains the following elements
+#' \describe{
+#'    \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the original path. To this path is added the OOB-score.}
+#'    \item{\code{which.lambda}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
+#'    \item{\code{which.tuning}}{A vector indicating the index of the optimal tuning parameter obtained by each selection method.}
+#' }
+#' Note: The returned object may have additional classes such as \code{"PLR_cv"} if cross-validation was performed and used as a selection method in the penalized case.
 #'
-#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}
+#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{PLR.CV}}
 #'
 #' @section References:
 #' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
@@ -44,189 +38,133 @@
 #'             penalty = "SCAD", h = nrow(Data)^(-1/5.5),
 #'             eps = 0.02, B = 40, seed.boot = 123)
 #'
+#' @importFrom boot boot
 #'
 #' @export
 
-Lorenz.boot<-function(formula,
-                      data,
-                      standardize=TRUE,
-                      weights=NULL,
-                      LR.est=NULL,
-                      penalty=c("none","SCAD","LASSO"),
-                      h=NULL,
-                      SCAD.nfwd=NULL,
-                      eps=0.005,
-                      B = 500,
-                      bootID = NULL,
-                      seed.boot = NULL,
-                      parallel=FALSE,
-                      ...
-){
+Lorenz.boot <- function(object, R, data.orig, ...){
 
-  # Check on penalty
-  penalty <- match.arg(penalty)
+  if(!inherits(object,c("LR","PLR"))) stop("object must be the output of a (penalized) Lorenz regression.")
 
-  # Number of bootstrap resamples
-  if( !is.null(bootID) ) B <- nrow(bootID)
-
-  # Check on h
-  if( is.null(h) & penalty %in% c("SCAD","LASSO") ) stop("h has to be specified in the penalized case")
-
-  # PRE-BOOT > GETTING YX_MAT ----
-
-  # Transform the formula into dataframe
-  if (penalty=="none"){
-    YX_mat <- as.data.frame(stats::model.matrix(formula,data=data)[,-1])
+  if(inherits(object,"PLR")){
+    method <- "PLR"
   }else{
-
-    YX_mat <- as.data.frame(stats::model.matrix(formula,data=data,
-                                                contrasts.arg=lapply(data[,sapply(data,is.factor),drop=FALSE],stats::contrasts,contrasts=FALSE))[,-1])
-
-    which.factor <- which(sapply(1:ncol(data),function(i)class(data[,i])=="factor" & length(levels(data[,i]))==2))
-    binary.exclude <- sapply(which.factor,function(i)paste0(colnames(data)[i],levels(data[,i])[1]))
-
-    YX_mat <- YX_mat[,!(names(YX_mat) %in% binary.exclude)]
-
-
+    method <- "LR"
   }
-  YX_mat <- cbind(stats::model.frame(formula,data=data)[,1],YX_mat)
-  colnames(YX_mat)[1] <- colnames(stats::model.frame(formula,data=data))[1]
-  n <- length(YX_mat[,1])
-  p <- length(YX_mat[1,])-1
 
-  # PRE-BOOT > (P)LR ----
+  boot.f <- function(data, indices){
 
-  if(is.null(LR.est)){
-    if(penalty == "none"){
-      LR.est <- LorenzRegression::Lorenz.GA(YX_mat, standardize = standardize, weights = weights, parallel = parallel, ...)
+    # Construction similar to the "Boot" function in library "car".
+    # We want to avoid recomputation on the original sample
+    first <- all(indices == seq(length(indices)))
+    if(first){
+      result <- object
     }else{
-      LR.est <- LorenzRegression::PLR.wrap(YX_mat, standardize = standardize, weights = weights, h = h, SCAD.nfwd = SCAD.nfwd, penalty = penalty, eps = eps, ...)
-    }
-  }
-  theta.hat <- LR.est$theta
-  Gi.hat <- LR.est$Gi.expl
-  LR2 <- LR.est$LR2
-
-  # PRE-BOOT > Boot ID ----
-
-  if (is.null(bootID)){
-    if(!is.null(seed.boot)) set.seed(seed.boot)
-    bootID <- t(sapply(1:B,function(b)sample(1:n, replace = TRUE)))
-  }
-
-  # BOOT > INNER ----
-
-  args.ellipsis <- list(...)
-  args.GA <- formalArgs(LorenzRegression::Lorenz.GA)
-  args.wrap <- c(formalArgs(LorenzRegression::PLR.wrap),
-                 formalArgs(LorenzRegression::Lorenz.SCADFABS),
-                 formalArgs(LorenzRegression::Lorenz.FABS))
-  args.list.GA <- args.ellipsis[names(args.ellipsis)%in%args.GA]
-  args.list.wrap <- args.ellipsis[names(args.ellipsis)%in%args.wrap]
-
-  Boot.inner <- function(b){
-
-    Return.list <- list()
-
-    # Construct Test and Validation bootstrap samples
-    idx.boot <- bootID[b,]
-    YX_mat.test <- YX_mat[idx.boot,]
-    weights.test <- weights[idx.boot]
-    if(penalty != "none"){
-      YX_mat.valid <- YX_mat[-unique(idx.boot),]
-      weights.valid <- weights[-unique(idx.boot)]
-    }
-
-    # Perform the estimation
-    if(penalty == "none"){
-      LR.est.star <- do.call(LorenzRegression::Lorenz.GA, c(list(YX_mat = YX_mat.test, standardize = standardize, weights = weights.test, parallel=FALSE), args.list.GA)) # parallel turned to FALSE because we already use parallel computing to distribute the boot iterations
-    }else{
-      LR.est.star <- do.call(LorenzRegression::PLR.wrap, c(list(YX_mat = YX_mat.test, standardize = standardize, weights = weights.test, penalty = penalty, h = h, SCAD.nfwd = SCAD.nfwd, eps = eps, lambda = LR.est$lambda), args.list.wrap))
-      lambda.star <- LR.est.star$lambda
-    }
-    theta.star <- LR.est.star$theta
-    Gi.star <- LR.est.star$Gi.expl
-    LR2.star <- LR.est.star$LR2
-
-    # With SCAD, the algorithm may stop sooner than in original sample. Hence, the lambda vectors might be different (the bootstrapped might be shorter)
-    if(penalty != "none"){
-      diff.lengths <- length(LR.est$lambda)-length(lambda.star)
-      if(diff.lengths > 0){
-        l.path <- length(Gi.star)
-        theta.star <- cbind(theta.star, matrix(replicate(diff.lengths,theta.star[,l.path]),nrow=nrow(theta.star)))
-        Gi.star <- c(Gi.star,rep(Gi.star[l.path],diff.lengths))
-        LR2.star <- c(LR2.star,rep(LR2.star[l.path],diff.lengths))
+      boot.sample <- data[indices, ]
+      boot.call <- object$call
+      boot.call$data <- quote(boot.sample)
+      if(method == "LR") boot.call$parallel.GA <- quote(FALSE) # parallel will be used for bootstrap
+      if(method == "PLR") boot.call$lambda.list <- lapply(object$path,function(x)x["lambda",])
+      boot.LR <- eval(boot.call)
+      if(method == "PLR"){
+        # With penalized reg, the algorithm may stop sooner than in the original sample.
+        # Therefore the paths would be shorter and the objects would not have the same size
+        compare.paths <- function(path.long,path.short){
+          lth.diff <- ncol(path.long) - ncol(path.short)
+          if(lth.diff > 0) path.short <- cbind(path.short,replicate(lth.diff,path.short[,ncol(path.short)]))
+          return(path.short)
+        }
+        boot.LR$path <- lapply(1:length(object$path),function(i)compare.paths(object$path[[i]],boot.LR$path[[i]]))
+        # Computation of the OOB score
+        valid.x <- object$x[-unique(indices),]
+        valid.y <- object$y[-unique(indices)]
+        if(!is.null(object$weights)){
+          valid.weights <- object$weights[-unique(indices)]
+        }else{
+          valid.weights <- NULL
+        }
+        theta.boot <- lapply(boot.LR$path,function(x)x[(nrow(x)-length(boot.LR$theta)+1):nrow(x),])
+        OOB.score <- PLR.OOB(valid.y,valid.x,valid.weights,theta.boot)
       }
+      result <- boot.LR
     }
 
-    # Compute the OOB-score (if penalized LR)
-    if(penalty != "none"){
-      y.valid <- YX_mat.valid[,1]
-      X.valid <- as.matrix(YX_mat.valid[,-1])
-      n.valid <- length(y.valid)
-      OOB.score <- apply(theta.star,2,function(x)Gini.coef(y = y.valid, x = X.valid%*%x, na.rm=TRUE, ties.method = "mean", weights = weights.valid))
-      Return.list$OOB.score <- OOB.score
-    }
-
-    Return.list$theta.star <- theta.star
-    Return.list$Gi.star <- Gi.star
-    Return.list$LR2.star <- LR2.star
-
-    return(Return.list)
-
-  }
-
-  # BOOT > ITERATIONS ----
-  if(parallel){
-    if(is.numeric(parallel)){
-      registerDoParallel(parallel)
+    # All objects that require bootstrapping are stacked in a vector
+    if(method == "LR"){
+      boot.vec <- c("Gi.expl"=result$Gi.expl,
+                    "LR2"=result$LR2,
+                    result$theta)
     }else{
-      numCores <- detectCores()
-      registerDoParallel(numCores-1)
+      Gi.vec <- unlist(sapply(result$path,function(x)x["Explained Gini",]))
+      LR2.vec <- unlist(sapply(result$path,function(x)x["Lorenz-R2",]))
+      if(first){
+        OOB.vec <- rep(0,length(Gi.vec))
+      }else{
+        OOB.vec <- unlist(OOB.score)
+      }
+      boot.vec <- c(Gi.vec,LR2.vec,OOB.vec)
     }
-    Boot.b <- foreach(b=1:B) %dopar% {
-      Boot.inner(b)
+
+    return(boot.vec)
+
+  }
+
+  boot_out <- boot(data = data.orig, statistic = boot.f, R = R, ...)
+  object$boot_out <- boot_out
+
+  # For the PLR, we can also use bootstrap to compute OOB-score
+  if(method == "PLR"){
+
+    path.sizes <- sapply(object$path,ncol)
+    path.size <- sum(path.sizes)
+    lth.path <- length(path.sizes)
+    # the OOB score is the mean of the OOB scores across the bootstrap samples
+    OOB_matrix <- boot_out$t[,(ncol(boot_out$t)-path.size+1):ncol(boot_out$t)]
+    OOB_total <- colMeans(OOB_matrix)
+    # Adding OOB score to the path
+    idx <- lapply(1:lth.path,function(i)(cumsum(path.sizes)-path.sizes+1)[i]:cumsum(path.sizes)[i])
+    val.OOB <- lapply(idx,function(i)OOB_total[i])
+    lth.theta <- length(object$theta)
+    lth <- nrow(object$path[[1]]) # Same for all anyway (what changes is ncol)
+    for (i in 1:lth.path){
+      path.tmp <- rbind(object$path[[i]][1:(lth-lth.theta),],
+                        "OOB score" = val.OOB[[i]])
+      object$path[[i]] <- rbind(path.tmp,
+                                object$path[[i]][(lth-lth.theta+1):lth,])
     }
-    stopImplicitCluster()
+    # Best pair (tuning,lambda) in terms of OOB score
+    path.wl <- unlist(sapply(path.sizes,function(x)1:x))
+    path.wt <- rep(1:lth.path,times=path.sizes)
+    wl <- path.wl[which.max(OOB_total)]
+    wt <- path.wt[which.max(OOB_total)]
+    if(length(class(object))==1){
+      names(object$Gi.expl) <-
+        names(object$LR2) <-
+        names(object$which.lambda) <-
+        names(object$which.tuning) <-
+        "BIC"
+      object$theta <- t(as.matrix(object$theta))
+      rownames(object$theta) <- "BIC"
+      object$MRS <- list("BIC" = object$MRS)
+    }
+    object$which.tuning <- c(object$which.tuning,"Boot"=wt)
+    object$which.lambda <- c(object$which.lambda,"Boot"=wl)
+    object$Gi.expl <- setNames(c(object$Gi.expl, object$path[[wt]]["Explained Gini", wl]), c(names(object$Gi.expl), "Boot"))
+    object$LR2 <- setNames(c(object$LR2, object$path[[wt]]["Lorenz-R2", wl]), c(names(object$LR2), "Boot"))
+    theta.boot <- object$path[[wt]][(lth-lth.theta+1):lth, wl]
+    object$theta <- rbind(object$theta, "Boot" = theta.boot)
+    theta.boot.nz <- theta.boot[theta.boot!=0]
+    object$MRS$Boot <- outer(theta.boot.nz,theta.boot.nz,"/")
+    index.boot <- as.vector(theta.boot%*%t(object$x))
+    object$index <- rbind(object$index, "Boot" = index.boot)
+  }
+
+  if(method == "LR"){
+    class(object) <- c(class(object),"LR_boot")
   }else{
-    Boot.b <- foreach(b=1:B) %do% {
-      Boot.inner(b)
-    }
+    class(object) <- c(class(object),"PLR_boot")
   }
 
-  # BOOT > ITERATIONS > RETRIEVE ----
-  if(penalty != "none"){
-
-    OOB.matrix <- t(sapply(1:B,function(b)Boot.b[[b]]$OOB.score))
-    L <- ncol(OOB.matrix)
-    OOB.total <- colMeans(OOB.matrix)
-    OOB.best <- which.max(OOB.total)
-    lambda.OOB <- LR.est$lambda[OOB.best]
-    Gi.star <- lapply(1:L,function(i)sapply(1:B,function(b)Boot.b[[b]]$Gi.star[i]))
-    LR2.star <- lapply(1:L,function(i)sapply(1:B,function(b)Boot.b[[b]]$LR2.star[i]))
-    theta.star <- lapply(1:L,function(i)t(sapply(1:B,function(b)Boot.b[[b]]$theta.star[,i])))
-
-  }else{
-
-    Gi.star <- sapply(1:B,function(b)Boot.b[[b]]$Gi.star)
-    LR2.star <- sapply(1:B,function(b)Boot.b[[b]]$LR2.star)
-    theta.star <- t(sapply(1:B,function(b)Boot.b[[b]]$theta.star))
-
-  }
-
-  # RETURN LIST ----
-
-  Return.list <- list()
-  Return.list$LR.est <- LR.est
-  Return.list$Gi.star <- Gi.star
-  Return.list$LR2.star <- LR2.star
-  Return.list$theta.star <- theta.star
-
-  if(penalty != "none"){
-    Return.list$OOB.best <- OOB.best
-    Return.list$OOB.total <- OOB.total
-  }
-
-  return(Return.list)
+  return(object)
 
 }
