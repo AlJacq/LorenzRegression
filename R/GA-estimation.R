@@ -16,7 +16,7 @@
 #' @param ties.Gini what method should be used to break the ties in the computation of the Gini coefficient at the end of the algorithm. Possible values and default choice are the same as above.
 #' @param seed.random seed.random imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed.random is imposed.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
-#' @param parallel Whether parallel computing should be used to distribute the computations in the genetic algorithm. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
+#' @param parallel.GA Whether parallel computing should be used to distribute the computations in the genetic algorithm. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
 #'
 #' @return A list with several components:
 #' \describe{
@@ -43,7 +43,7 @@
 #' @export
 
 # unit-norm normalization ----
-Lorenz.GA<-function(y, x, standardize=TRUE, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, weights=NULL, parallel = FALSE){
+Lorenz.GA<-function(y, x, standardize=TRUE, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, weights=NULL, parallel.GA = FALSE){
 
   # PRE-GA ----
 
@@ -83,7 +83,7 @@ Lorenz.GA<-function(y, x, standardize=TRUE, popSize=50, maxiter=1500, run=150, t
                  fitness =  function(u).Fitness_cpp(u,as.vector(y),as.matrix(x),V,pi),
                  lower = rep(-1,p-1), upper = rep(1,p-1),
                  popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
-                 parallel = parallel)
+                 parallel = parallel.GA)
 
     # We need to take care of the fact that the first coefficient for theta may be positive or negative
     theta1<-c(GA@solution[1,],1-sum(abs(GA@solution[1,]))) #The theta solution if the last coeff is positive
@@ -111,7 +111,7 @@ Lorenz.GA<-function(y, x, standardize=TRUE, popSize=50, maxiter=1500, run=150, t
                  fitness =  function(u).Fitness_meanrank(u,as.vector(y),as.matrix(x),pi),
                  lower = rep(-1,p-1), upper = rep(1,p-1),
                  popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
-                 parallel = parallel)
+                 parallel = parallel.GA)
 
     # We need to take care of the fact that the first coefficient for theta may be positive or negative
     theta1<-c(GA@solution[1,],1-sum(abs(GA@solution[1,]))) #The theta solution if the last coeff is positive
