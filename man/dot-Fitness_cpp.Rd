@@ -23,4 +23,3 @@ Fitness of candidate x
 \description{
 Computes the fitness of a candidate in the genetic algorithm displayed in function Lorenz.GA.cpp
 }
-\keyword{internal}

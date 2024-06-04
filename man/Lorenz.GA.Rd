@@ -15,7 +15,7 @@ Lorenz.GA(
   ties.Gini = c("random", "mean"),
   seed.random = NULL,
   weights = NULL,
-  parallel = FALSE
+  parallel.GA = FALSE
 )
 }
 \arguments{
@@ -39,7 +39,7 @@ Lorenz.GA(
 
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
-\item{parallel}{Whether parallel computing should be used to distribute the computations in the genetic algorithm. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.}
+\item{parallel.GA}{Whether parallel computing should be used to distribute the computations in the genetic algorithm. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.}
 }
 \value{
 A list with several components:
