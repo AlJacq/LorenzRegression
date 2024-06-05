@@ -132,6 +132,7 @@ Lorenz.boot <- function(object, R, data.orig, ...){
       object$path[[i]] <- rbind(path.tmp,
                                 object$path[[i]][(lth-lth.theta+1):lth,])
     }
+    lth <- lth + 1
     # Best pair (tuning,lambda) in terms of OOB score
     path.wl <- unlist(sapply(path.sizes,function(x)1:x))
     path.wt <- rep(1:lth.path,times=path.sizes)
