@@ -44,6 +44,7 @@
 
 Lorenz.boot <- function(object, R, data.orig, ...){
 
+  # 0. Checks ----
   if(!inherits(object,c("LR","PLR"))) stop("object must be the output of a (penalized) Lorenz regression.")
 
   if(inherits(object,"PLR")){
@@ -52,6 +53,7 @@ Lorenz.boot <- function(object, R, data.orig, ...){
     method <- "LR"
   }
 
+  # 1. statistic in boot() ----
   boot.f <- function(data, indices){
 
     # Construction similar to the "Boot" function in library "car".
@@ -76,15 +78,15 @@ Lorenz.boot <- function(object, R, data.orig, ...){
         }
         boot.LR$path <- lapply(1:length(object$path),function(i)compare.paths(object$path[[i]],boot.LR$path[[i]]))
         # Computation of the OOB score
-        valid.x <- object$x[-unique(indices),]
-        valid.y <- object$y[-unique(indices)]
+        OOB.x <- object$x[-unique(indices),]
+        OOB.y <- object$y[-unique(indices)]
         if(!is.null(object$weights)){
-          valid.weights <- object$weights[-unique(indices)]
+          OOB.weights <- object$weights[-unique(indices)]
         }else{
-          valid.weights <- NULL
+          OOB.weights <- NULL
         }
         theta.boot <- lapply(boot.LR$path,function(x)x[(nrow(x)-length(boot.LR$theta)+1):nrow(x),])
-        OOB.score <- PLR.OOB(valid.y,valid.x,valid.weights,theta.boot)
+        OOB.score <- PLR.scores(OOB.y,OOB.x,OOB.weights,theta.boot)
       }
       result <- boot.LR
     }
@@ -109,10 +111,11 @@ Lorenz.boot <- function(object, R, data.orig, ...){
 
   }
 
+  # 3. boot() ----
   boot_out <- boot(data = data.orig, statistic = boot.f, R = R, ...)
   object$boot_out <- boot_out
 
-  # For the PLR, we can also use bootstrap to compute OOB-score
+  # 4. PLR specifics ----
   if(method == "PLR"){
 
     path.sizes <- sapply(object$path,ncol)
@@ -124,7 +127,7 @@ Lorenz.boot <- function(object, R, data.orig, ...){
     # Adding OOB score to the path
     idx <- lapply(1:lth.path,function(i)(cumsum(path.sizes)-path.sizes+1)[i]:cumsum(path.sizes)[i])
     val.OOB <- lapply(idx,function(i)OOB_total[i])
-    lth.theta <- length(object$theta)
+    lth.theta <- ifelse(is.vector(object$theta),length(object$theta),ncol(object$theta))
     lth <- nrow(object$path[[1]]) # Same for all anyway (what changes is ncol)
     for (i in 1:lth.path){
       path.tmp <- rbind(object$path[[i]][1:(lth-lth.theta),],
@@ -160,6 +163,7 @@ Lorenz.boot <- function(object, R, data.orig, ...){
     object$index <- rbind(object$index, "Boot" = index.boot)
   }
 
+  # 5. Return ----
   if(method == "LR"){
     class(object) <- c(class(object),"LR_boot")
   }else{
