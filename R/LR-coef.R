@@ -1,8 +1,8 @@
 #' Estimated coefficients for the Lorenz Regression
 #'
-#' \code{coef.LR} provides the estimated coefficients for an object of class \code{LR}.
+#' \code{coef.LR} provides the estimated coefficients for an object of class \code{"LR"}.
 #'
-#' @param object Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty="none"}.
+#' @param object An object of S3 class \code{"LR"}.
 #' @param ... Additional arguments.
 #'
 #' @return a vector gathering the estimated coefficients

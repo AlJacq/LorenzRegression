@@ -1,13 +1,13 @@
 #' Estimated coefficients for the Penalized Lorenz Regression
 #'
-#' \code{coef.PLR} provides the estimated coefficients for an object of class \code{PLR}.
+#' \code{coef.PLR} provides the estimated coefficients for an object of class \code{"PLR"}.
 #'
-#' @param object Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.
-#' @param renormalize whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE
+#' @param object An object of S3 class \code{"PLR"}.
+#' @param renormalize A logical value determining whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE
 #' @param ... Additional arguments
 #'
-#' @return If the PLR was fitted with only one selection method, the output is a vector gathering the estimated coefficients.
-#' If several selection methods were selected, it outputs a list of vectors, where each element of the list corresponds to a different selection method.
+#' @return a vector gathering the estimated coefficients.
+#' If the object has also class \code{"PLR_boot"} and/or \code{"PLR_cv"}, the output is a matrix, where each column corresponds to a selection method.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
@@ -23,25 +23,26 @@
 
 coef.PLR <- function(object, renormalize=TRUE, ...){
 
-  PLR <- object
+  if (!inherits(object, "PLR")) stop("The object must be of class 'PLR'")
+
   if(renormalize){
-    m1 <- PLR.normalize(PLR)
+    m1 <- PLR.normalize(object)
   }else{
-    m1 <- PLR$theta
+    m1 <- object$theta
   }
 
-  if(nrow(m1) > 1){
+  if(is.matrix(m1)){
 
     m2 <- t(m1)
     l <- split(m2,rep(1:ncol(m2), each = nrow(m2)))
-    names(l) <- rownames(PLR$theta)
+    names(l) <- colnames(m2)
     for (j in 1:length(l)) names(l[[j]]) <- rownames(m2)
 
     return(l)
 
   }else{
 
-    return(m1[1,])
+    return(m1)
 
   }
 
