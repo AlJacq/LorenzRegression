@@ -1,21 +1,19 @@
 #' Confidence intervals for the Penalized Lorenz Regression
 #'
-#' \code{confint.PLR} provides confidence intervals for the explained Gini coefficient and Lorenz-R2 for an parm of class \code{PLR}.
+#' \code{confint.PLR} provides bootstrap confidence intervals for the explained Gini coefficient and Lorenz-R2 for an parm of class \code{"PLR_boot"}.
 #'
-#' @param object Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"} and \code{Boot.inference=TRUE}.
-#' @param parm Determines whether the confidence interval is computed for the explained Gini coefficient or for the Lorenz-R2. Possible values are "Gini" (default, for the explained Gini) and "LR2" (for the Lorenz-R2).
-#' @param level level of the confidence interval
-#' @param boot.method What bootstrap method is used to construct the confidence interval. Default value is "Param", which exploits the asymptotic normality and only bootstraps the variance.
-#' Other possible values are "Perc" (percentile bootstrap) and "Basic" (basic bootstrap). Percentile bootstrap directly plugs the quantiles of the bootstrap distribution.
-#' Basic bootstrap is based on bootstrapping the whole distribution of the estimator.
-#' @param which.pars Which values of the bandwidth h and the penalty parameter lambda should be used. Default is NULL, in which case the optimal values are used.
-#' @param ... Additional arguments.
+#' @param object An object of class \code{"PLR_boot"}.
+#' @param parm A logical value determining whether the confidence interval is computed for the explained Gini coefficient, for the Lorenz-R2 or for the vector of theta coefficients. Possible values are \code{"Gini"} (default, for the explained Gini) and \code{"LR2"} (for the Lorenz-R2)
+#' @param level A numeric giving the level of the confidence interval. Default value is 0.95.
+#' @param type A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link{boot.ci}} from the \code{\link{boot}} library.
+#' @param which.pars A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
+#' Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC, bootstrap and cross-validation (if the class of \code{object} contains \code{PLR_cv}).
 #'
-#' @return A matrix gathering the desired confidence intervals. Each row corresponds to a different selection method for the pair (h,lambda).
+#' @return The desired confidence interval.
+#' If \code{which.pars=NULL}, the output is a matrix where each row corresponds to a selection method.
+#' Otherwise, the tuning and penalty parameters are specified by the vector \code{which.pars} and the output is a vector.
 #'
-#' @details Use this function only if Boot.inference was set to TRUE in the call to \code{\link{Lorenz.Reg}}. Otherwise, bootstrap was not computed and the confidence intervals cannot be determined.
-#'
-#' @seealso \code{\link{Lorenz.Reg}}
+#' @seealso \code{\link{Lorenz.boot}}, \code{\link[boot]{boot.ci}}
 #'
 #' @examples
 #' data(Data.Incomes)
@@ -28,47 +26,36 @@
 #' @method confint PLR
 #' @export
 
-confint.PLR <- function(object, parm=c("Gini","LR2"), level = 0.95, boot.method=c("Param","Basic","Perc"), which.pars = NULL, ...){
+confint.PLR <- function(object, parm=c("Gini","LR2"), level=0.95, type=c("norm","basic","perc"), which.pars = NULL, ...){
 
-  PLR <- object
+  if (!inherits(object, "LR_boot")) stop("The object must be of class 'LR_boot'")
+
   parm <- match.arg(parm)
-  boot.method <- match.arg(boot.method)
-  alpha <- 1-level
+  type <- match.arg(type)
+  type2 <- switch(type, "basic" = "basic", "norm" = "normal", "perc" = "percent")
 
-  if(length(grep(".star",names(PLR))) > 0){
-
-    if(is.null(which.pars)){
-      which.on.grid <- PLR$which.on.grid
-      which.lambda <- PLR$which.lambda
-    }else{
-      if(length(which.pars)!=2) stop("which.pars must either be NULL or a vector of size 2 where the first element is the index of the bandwidth (or of the proportionality constant) and the second the index of lambda in the path.")
-      which.on.grid <- which.pars[1]
-      which.lambda <- which.pars[2]
-    }
-
-    CI <- matrix(nrow = length(which.on.grid), ncol = 2)
-    colnames(CI) <- c("Lower bound", "Upper bound")
-    if(is.null(which.pars)) rownames(CI) <- names(PLR$which.on.grid)
-
-    for (k in 1:length(which.on.grid)){
-
-      which.on.grid.k <- which.on.grid[k]
-      which.lambda.k <- which.lambda[k]
-
-      if(parm == "Gini") CI.k <- boot.confint(PLR$path[[which.on.grid.k]]["Explained Gini",which.lambda.k],
-                                              PLR$Gi.star[[which.on.grid.k]][[which.lambda.k]],
-                                              alpha, boot.method)
-      if(parm == "LR2") CI.k <- boot.confint(PLR$path[[which.on.grid.k]]["Lorenz-R2",which.lambda.k],
-                                             PLR$LR2.star[[which.on.grid.k]][[which.lambda.k]],
-                                             alpha, boot.method)
-      CI[k,] <- CI.k
-
-    }
-
-    return(CI)
-
-  }else{
-    stop("The input must contain a bootstrap estimation. Consider turning the Boot.inference argument in the Lorenz.Reg function to TRUE")
+  ci.i <- function(which.pars,parm){
+    i <- idx[[which.pars[1]]][which.pars[2]]
+    if(parm == "LR2") i <- i + path.size
+    ci <- boot.ci(object$boot_out, conf = level, type = type, index = i)
+    ci <- ci[[type2]]
+    ci <- ci[length(ci)-c(1,0)]
+    names(ci) <- paste0((c(0,level)+(1-level)/2)*100," %")
+    return(ci)
   }
+
+  path.sizes <- sapply(object$path,ncol)
+  path.size <- sum(path.sizes)
+  lth.path <- length(path.sizes)
+  idx <- lapply(1:lth.path,function(i)(cumsum(path.sizes)-path.sizes+1)[i]:cumsum(path.sizes)[i])
+
+  if(!is.null(which.pars)){
+    ci <- ci.i(which.pars,parm)
+  }else{
+    which.pars.m <- cbind(object$which.tuning,object$which.lambda)
+    ci <- t(apply(which.pars.m,1,ci.i,parm=parm))
+  }
+
+  return(ci)
 
 }

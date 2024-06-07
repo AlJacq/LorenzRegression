@@ -1,20 +1,19 @@
 #' Confidence intervals for the Lorenz Regression
 #'
-#' \code{confint.LR} provides confidence intervals for the explained Gini coefficient, Lorenz-R2 and theta vector for an object of class \code{LR}.
+#' \code{confint.LR} provides bootstrap confidence intervals for the explained Gini coefficient, Lorenz-R2 and theta vector for an object of class \code{"LR_boot"}.
 #'
-#' @param object Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty="none"} and \code{Boot.inference=TRUE}.
-#' @param parm Determines whether the confidence interval is computed for the explained Gini coefficient, for the Lorenz-R2 or for the vector of theta coefficients. Possible values are "Gini" (default, for the explained Gini),"LR2" (for the Lorenz-R2) and "theta" (for the vector theta).
-#' @param level level of the confidence interval
-#' @param boot.method What bootstrap method is used to construct the confidence interval. Default value is "Param", which exploits the asymptotic normality and only bootstraps the variance.
-#' Other possible values are "Perc" (percentile bootstrap) and "Basic" (basic bootstrap). Percentile bootstrap directly plugs the quantiles of the bootstrap distribution.
-#' Basic bootstrap is based on bootstrapping the whole distribution of the estimator.
+#' @param object An object of class \code{"LR_boot"}.
+#' @param parm A logical value determining whether the confidence interval is computed for the explained Gini coefficient, for the Lorenz-R2 or for the vector of theta coefficients. Possible values are \code{"Gini"} (default, for the explained Gini),\code{"LR2"} (for the Lorenz-R2) and \code{"theta"} (for the vector theta).
+#' @param level A numeric giving the level of the confidence interval. Default value is 0.95.
+#' @param type A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link{boot.ci}} from the \code{\link{boot}} library.
+#'
 #' @param ... Additional arguments.
 #'
-#' @return The desired confidence interval. If parm is set to either "Gini" or "LR2", the output is a vector. If parm is set to "theta", it is a matrix where each row corresponds to a different coefficient.
+#' @return The desired confidence interval.
+#' If \code{parm="Gini"} or \code{parm="LR2"}, the output is a vector.
+#' If \code{parm="theta"}, it is a matrix where each row corresponds to a different coefficient.
 #'
-#' @details Use this function only if Boot.inference was set to TRUE in the call to \code{\link{Lorenz.Reg}}. Otherwise, bootstrap was not computed and the confidence intervals cannot be determined.
-#'
-#' @seealso \code{\link{Lorenz.Reg}}
+#' @seealso \code{\link{Lorenz.boot}}, \code{\link[boot]{boot.ci}}
 #'
 #' @examples
 #' \donttest{
@@ -27,29 +26,36 @@
 #' confint(NPLR)
 #' }
 #'
+#' @importFrom boot boot.ci
+#'
 #' @method confint LR
 #' @export
 
-confint.LR <- function(object, parm=c("Gini","LR2","theta"), level = 0.95, boot.method=c("Param","Basic","Perc"), ...){
+confint.LR <- function(object, parm=c("Gini","LR2","theta"), level=0.95, type=c("norm","basic","perc"), ...){
 
-  LR <- object
+  if (!inherits(object, "LR_boot")) stop("The object must be of class 'LR_boot'")
+
   parm <- match.arg(parm)
-  boot.method <- match.arg(boot.method)
-  alpha <- 1-level
+  type <- match.arg(type)
+  type2 <- switch(type, "basic" = "basic", "norm" = "normal", "perc" = "percent")
 
-  if(length(grep(".star",names(LR))) > 0){
-
-    if(parm == "Gini") CI <- boot.confint(LR$Gi.expl, LR$Gi.star, alpha, boot.method)
-    if(parm == "LR2") CI <- boot.confint(LR$LR2, LR$LR2.star, alpha, boot.method)
-    if(parm == "theta"){
-      CI <-t(sapply(1:length(LR$theta),function(i)boot.confint(LR$theta[i], LR$theta.star[,i], alpha, boot.method)))
-      rownames(CI) <- names(LR$theta)
-    }
-
-    return(CI)
-
-  }else{
-    stop("The input must contain a bootstrap estimation. Consider turning the Boot.inference argument in the Lorenz.Reg function to TRUE")
+  ci.i <- function(i){
+    ci <- boot.ci(object$boot_out, conf = level, type = type, index = i)
+    ci <- ci[[type2]]
+    ci <- ci[length(ci)-c(1,0)]
+    names(ci) <- paste0((c(0,level)+(1-level)/2)*100," %")
+    return(ci)
   }
+
+  if(parm == "Gini"){
+    ci <- ci.i(1)
+  }else if(parm == "LR2"){
+    ci <- ci.i(2)
+  }else{
+    ci <- t(sapply(3:ncol(object$boot_out$t),ci.i))
+    rownames(ci) <- names(object$theta)
+  }
+
+  return(ci)
 
 }
