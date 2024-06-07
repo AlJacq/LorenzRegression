@@ -2,33 +2,22 @@
 #'
 #' \code{PLR.normalize} transforms the estimated coefficients of a penalized Lorenz regression to match the model where the first category of each categorical variable is omitted.
 #'
-#' @param PLR Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.
+#' @param object An object of S3 class \code{"PLR"}.
 #'
 #' @return A matrix of re-normalized coefficients.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}
-#'
-#' @examples
-#' data(Data.Incomes)
-#' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
-#'                   sel.choice = c("BIC","CV"), h.grid = nrow(Data.Incomes)^(-1/5.5),
-#'                   eps = 0.01, seed.CV = 123, nfolds = 5)
-#' PLR.normalize(PLR)
-#'
-#' @export
 
-PLR.normalize <- function(PLR){
+PLR.normalize <- function(object){
 
-  data <- PLR$data
-  formula <- PLR$formula
-  theta <- PLR$theta
-
-  data <- stats::model.frame(formula,data)[,-1]
-  which.factor <- which(sapply(1:ncol(data),function(i)class(data[,i]))=="factor")
-  which.other <- which(sapply(1:ncol(data),function(i)class(data[,i]))!="factor")
-  all.cats <- lapply(which.factor,function(i)paste0(colnames(data)[i],levels(data[,i])))
-  ref.cats <- sapply(which.factor,function(i)paste0(colnames(data)[i],levels(data[,i])[1]))
-  other.vars <- lapply(which.other,function(i)colnames(data)[i])
+  theta <- object$theta
+  if(is.vector(theta)) theta <- t(as.matrix(theta))
+  classes_cov <- attr(object$terms,"dataClasses")[-1]
+  which.factor <- which(classes_cov=="factor")
+  which.other <- which(classes_cov!="factor")
+  all.cats <- lapply(names(object$xlevels),function(x)paste0(x,object$xlevels[[x]]))
+  ref.cats <- sapply(all.cats,function(x)x[1])
+  other.vars <- as.list(names(which.other))
   all.vars <- c(all.cats,other.vars)
 
   to.del <- sort(unique(unlist(lapply(ref.cats,function(x)grep(x,colnames(theta))))))
@@ -100,6 +89,8 @@ PLR.normalize <- function(PLR){
     theta.new <- t(apply(theta.new,1,function(x)x/sqrt(sum(x^2))))
 
   }
+
+  if(nrow(theta.new)==1) theta.new <- setNames(as.vector(theta.new),colnames(theta.new))
 
   return(theta.new)
 
