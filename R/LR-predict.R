@@ -40,6 +40,7 @@ predict.LR <- function(object, newdata, type=c("index","response"), ...){
     predictor <- index
   }else{
     predictor <- Rearrangement.estimation(object$y, object$index, t=index, weights=object$weights, ...)$H
+    names(predictor) <- NULL
   }
 
   return(predictor)
