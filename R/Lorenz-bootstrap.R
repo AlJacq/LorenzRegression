@@ -16,7 +16,11 @@
 #'    \item{\code{index}}{The estimated index. In the penalized case, it is a matrix where each row corresponds to a different selection method.}
 #'    \item{\code{boot_out}}{An object of class \code{"boot"} containing the output of the bootstrap calculation.}
 #' }
-#' For the Penalized Lorenz Regression, the list also contains the following elements
+#' For the non-penalized Lorenz regression, the list also contrains the following element.
+#' \describe{
+#'    \item{\code{pval.theta}}{The pvalues associated to each element of the parameter vector.}
+#' }
+#' For the Penalized Lorenz Regression, the list also contains the following elements.
 #' \describe{
 #'    \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the original path. To this path is added the OOB-score.}
 #'    \item{\code{which.lambda}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
@@ -163,7 +167,18 @@ Lorenz.boot <- function(object, R, data.orig, ...){
     object$index <- rbind(object$index, "Boot" = index.boot)
   }
 
-  # 5. Return ----
+  # 4. LR specifics ----
+  if(method == "LR"){
+    n <- nrow(object$x)
+    p <- ncol(object$x)
+    theta.boot <- boot_out$t[,3:ncol(boot_out$t)]
+    Sigma.star <- n*stats::var(theta.boot)
+    pval.theta <- sapply(1:p,function(k)2*stats::pnorm(sqrt(n)*abs(object$theta[k])/sqrt(Sigma.star[k,k]),lower.tail=FALSE))
+    names(pval.theta) <- names(object$theta)
+    object$pval.theta <- pval.theta
+  }
+
+  # 6. Return ----
   if(method == "LR"){
     class(object) <- c(class(object),"LR_boot")
   }else{
