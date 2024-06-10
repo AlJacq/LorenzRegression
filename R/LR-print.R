@@ -6,7 +6,7 @@
 #' @param digits The number of significant digits to be passed.
 #' @param ... Additional arguments.
 #'
-#' @return No return value, called for printing an object of class \code{"LR"} to the console
+#' @return No return value, called for printing an object of class \code{"LR"} to the console.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}
 #'

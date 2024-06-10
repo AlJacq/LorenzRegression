@@ -1,45 +1,59 @@
 #' Summary for the Lorenz Regression
 #'
-#' \code{summary.LR} provides a summary for an object of class \code{LR}.
+#' \code{summary.LR} provides a summary for an object of class \code{"LR"}.
 #'
-#' @param object Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty=="none"}.
-#' @param ... Additional arguments
+#' @param object An object of class \code{"LR"}.
+#' @param ... Additional arguments.
 #'
-#' @return A summary displaying the explained Gini coefficient, Lorenz-\eqn{R^2} and a table gathering the estimated coefficients, including p-values if bootstrap was performed.
+#' @return An object of class \code{"summary.LR"}, containing the following elements:
+#' \describe{
+#'    \item{\code{call}}{The matched call.}
+#'    \item{\code{ineq}}{A matrix with one row and three columns providing information on explained inequality. The first column gives the explained Gini coefficient, the second column gives the Gini coefficient of the response. The third column gives the Lorenz-R2.}
+#'    \item{\code{coefficients}}{A matrix providing information on the estimated coefficients. The first column gives the estimates.
+#'    If the class of \code{object} contains \code{LR_boot}, bootstrap inference was performed and the matrix contains further information. The second column is the boostrap standard error. The third column is the z-value. Finally, the last column is the p-value.}
+#' }
 #'
-#' @seealso \code{\link{Lorenz.Reg}}
+#' @details
+#' The inference provided in the \code{coefficients} matrix is obtained by using the asymptotic normality and estimating the asymptotic variance via bootstrap.
+#'
+#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.boot}}
 #'
 #' @examples
 #' data(Data.Incomes)
 #' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
 #' summary(NPLR)
 #'
-#' @import knitr
-#'
 #' @method summary LR
 #' @export
 
 summary.LR <- function(object, ...){
 
-  LR <- object
-  theta.mat <- as.matrix(LR$theta)
-  if ("pval.theta" %in% names(LR)){
-    theta.mat <- cbind(theta.mat, LR$pval.theta)
-    txt <- "Estimated coefficients and associated p-values"
-    colnames(theta.mat) <- c("estimate","p-value")
-  }else{
-    txt <- "Estimated coefficients"
-    colnames(theta.mat) <- c("estimate")
+  if (!inherits(object, "LR")) stop("The object must be of class 'LR'")
+
+  ans <- list()
+  ans$call <- object$call
+
+  ans$ineq <- matrix(c(object$Gi.expl,object$Gi.expl/object$LR2,object$LR2),
+                     nrow = 1, ncol = 3,
+                     dimnames = list("", c("Explained","Total","Lorenz-R2")))
+  ans$coefficients <- as.matrix(object$theta)
+  colnames(ans$coefficients) <- "Estimate"
+  if (inherits(object, "LR_boot")){
+    n <- nrow(object$x)
+    p <- ncol(object$x)
+    theta.boot <- object$boot_out$t[,3:ncol(object$boot_out$t)]
+    Sigma.star <- n*stats::var(theta.boot)
+    c.std <- sqrt(diag(Sigma.star)/n)
+    ans$coefficients <- cbind(ans$coefficients, c.std)
+    c.z <- object$theta/c.std
+    ans$coefficients <- cbind(ans$coefficients, c.z)
+    c.p <- sapply(1:p,function(k)2*stats::pnorm(abs(c.z[k]),lower.tail=FALSE))
+    ans$coefficients <- cbind(ans$coefficients, c.p)
+    colnames(ans$coefficients) <- c("Estimate", "Std. Error", "z value", "Pr(>|z|)")
   }
 
-  theta.table <- knitr::kable(theta.mat)
+  class(ans) <- "summary.LR"
 
-  cat(paste0("The explained Gini coefficient is of ",round(LR$Gi.expl,5)),
-            "",
-            paste0("The Lorenz-R2 is of ",round(LR$LR2,5)),
-            "",
-            txt,
-            theta.table,
-            sep = "\n")
+  return(ans)
 
 }
