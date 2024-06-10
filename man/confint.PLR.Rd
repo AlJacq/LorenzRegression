@@ -8,34 +8,30 @@
   object,
   parm = c("Gini", "LR2"),
   level = 0.95,
-  boot.method = c("Param", "Basic", "Perc"),
+  type = c("norm", "basic", "perc"),
   which.pars = NULL,
   ...
 )
 }
 \arguments{
-\item{object}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"} and \code{Boot.inference=TRUE}.}
+\item{object}{An object of class \code{"PLR_boot"}.}
 
-\item{parm}{Determines whether the confidence interval is computed for the explained Gini coefficient or for the Lorenz-R2. Possible values are "Gini" (default, for the explained Gini) and "LR2" (for the Lorenz-R2).}
+\item{parm}{A logical value determining whether the confidence interval is computed for the explained Gini coefficient, for the Lorenz-R2 or for the vector of theta coefficients. Possible values are \code{"Gini"} (default, for the explained Gini) and \code{"LR2"} (for the Lorenz-R2)}
 
-\item{level}{level of the confidence interval}
+\item{level}{A numeric giving the level of the confidence interval. Default value is 0.95.}
 
-\item{boot.method}{What bootstrap method is used to construct the confidence interval. Default value is "Param", which exploits the asymptotic normality and only bootstraps the variance.
-Other possible values are "Perc" (percentile bootstrap) and "Basic" (basic bootstrap). Percentile bootstrap directly plugs the quantiles of the bootstrap distribution.
-Basic bootstrap is based on bootstrapping the whole distribution of the estimator.}
+\item{type}{A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link{boot.ci}} from the \code{\link{boot}} library.}
 
-\item{which.pars}{Which values of the bandwidth h and the penalty parameter lambda should be used. Default is NULL, in which case the optimal values are used.}
-
-\item{...}{Additional arguments.}
+\item{which.pars}{A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
+Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC, bootstrap and cross-validation (if the class of \code{object} contains \code{PLR_cv}).}
 }
 \value{
-A matrix gathering the desired confidence intervals. Each row corresponds to a different selection method for the pair (h,lambda).
+The desired confidence interval.
+If \code{which.pars=NULL}, the output is a matrix where each row corresponds to a selection method.
+Otherwise, the tuning and penalty parameters are specified by the vector \code{which.pars} and the output is a vector.
 }
 \description{
-\code{confint.PLR} provides confidence intervals for the explained Gini coefficient and Lorenz-R2 for an parm of class \code{PLR}.
-}
-\details{
-Use this function only if Boot.inference was set to TRUE in the call to \code{\link{Lorenz.Reg}}. Otherwise, bootstrap was not computed and the confidence intervals cannot be determined.
+\code{confint.PLR} provides bootstrap confidence intervals for the explained Gini coefficient and Lorenz-R2 for an parm of class \code{"PLR_boot"}.
 }
 \examples{
 data(Data.Incomes)
@@ -47,5 +43,5 @@ confint(PLR)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}
+\code{\link{Lorenz.boot}}, \code{\link[boot]{boot.ci}}
 }

@@ -7,18 +7,18 @@
 \method{coef}{PLR}(object, renormalize = TRUE, ...)
 }
 \arguments{
-\item{object}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.}
+\item{object}{An object of S3 class \code{"PLR"}.}
 
-\item{renormalize}{whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE}
+\item{renormalize}{A logical value determining whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE}
 
 \item{...}{Additional arguments}
 }
 \value{
-If the PLR was fitted with only one selection method, the output is a vector gathering the estimated coefficients.
-If several selection methods were selected, it outputs a list of vectors, where each element of the list corresponds to a different selection method.
+a vector gathering the estimated coefficients.
+If the object has also class \code{"PLR_boot"} and/or \code{"PLR_cv"}, the output is a matrix, where each column corresponds to a selection method.
 }
 \description{
-\code{coef.PLR} provides the estimated coefficients for an object of class \code{PLR}.
+\code{coef.PLR} provides the estimated coefficients for an object of class \code{"PLR"}.
 }
 \examples{
 data(Data.Incomes)

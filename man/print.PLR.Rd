@@ -4,18 +4,20 @@
 \alias{print.PLR}
 \title{Printing method for the Penalized Lorenz Regression}
 \usage{
-\method{print}{PLR}(x, ...)
+\method{print}{PLR}(x, digits = max(3L, getOption("digits") - 3L), ...)
 }
 \arguments{
-\item{x}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.}
+\item{x}{An object of class \code{"PLR"}.}
+
+\item{digits}{The number of significant digits to be passed.}
 
 \item{...}{Additional arguments.}
 }
 \value{
-No return value, called for printing an object of class \code{PLR} to the console
+No return value, called for printing an object of class \code{"PLR"} to the console.
 }
 \description{
-\code{print.PLR} prints the arguments and estimated coefficients of an object of class \code{PLR}.
+\code{print.PLR} prints the arguments, explained Gini coefficient and estimated coefficients of an object of class \code{"PLR"}.
 }
 \examples{
 data(Data.Incomes)

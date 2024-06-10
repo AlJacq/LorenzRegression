@@ -25,7 +25,7 @@ An object of class \code{c("LR_boot", "LR")} or \code{c("PLR_boot", "PLR")}, dep
    \item{\code{index}}{The estimated index. In the penalized case, it is a matrix where each row corresponds to a different selection method.}
    \item{\code{boot_out}}{An object of class \code{"boot"} containing the output of the bootstrap calculation.}
 }
-For the Penalized Lorenz Regression, the list also contains the following elements
+For the Penalized Lorenz Regression, the list also contains the following elements.
 \describe{
    \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the original path. To this path is added the OOB-score.}
    \item{\code{which.lambda}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
@@ -52,5 +52,5 @@ Lorenz.boot(Income ~ ., data = Data,
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{PLR.CV}}
+\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{PLR.CV}}, \code{\link[boot]{boot}}
 }

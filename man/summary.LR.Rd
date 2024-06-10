@@ -7,15 +7,24 @@
 \method{summary}{LR}(object, ...)
 }
 \arguments{
-\item{object}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty=="none"}.}
+\item{object}{An object of class \code{"LR"}.}
 
-\item{...}{Additional arguments}
+\item{...}{Additional arguments.}
 }
 \value{
-A summary displaying the explained Gini coefficient, Lorenz-\eqn{R^2} and a table gathering the estimated coefficients, including p-values if bootstrap was performed.
+An object of class \code{"summary.LR"}, containing the following elements:
+\describe{
+   \item{\code{call}}{The matched call.}
+   \item{\code{ineq}}{A matrix with one row and three columns providing information on explained inequality. The first column gives the explained Gini coefficient, the second column gives the Gini coefficient of the response. The third column gives the Lorenz-R2.}
+   \item{\code{coefficients}}{A matrix providing information on the estimated coefficients. The first column gives the estimates.
+   If the class of \code{object} contains \code{LR_boot}, bootstrap inference was performed and the matrix contains further information. The second column is the boostrap standard error. The third column is the z-value. Finally, the last column is the p-value.}
+}
 }
 \description{
-\code{summary.LR} provides a summary for an object of class \code{LR}.
+\code{summary.LR} provides a summary for an object of class \code{"LR"}.
+}
+\details{
+The inference provided in the \code{coefficients} matrix is obtained by using the asymptotic normality and estimating the asymptotic variance via bootstrap.
 }
 \examples{
 data(Data.Incomes)
@@ -24,5 +33,5 @@ summary(NPLR)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}
+\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.boot}}
 }

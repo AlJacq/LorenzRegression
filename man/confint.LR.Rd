@@ -8,31 +8,28 @@
   object,
   parm = c("Gini", "LR2", "theta"),
   level = 0.95,
-  boot.method = c("Param", "Basic", "Perc"),
+  type = c("norm", "basic", "perc"),
   ...
 )
 }
 \arguments{
-\item{object}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty="none"} and \code{Boot.inference=TRUE}.}
+\item{object}{An object of class \code{"LR_boot"}.}
 
-\item{parm}{Determines whether the confidence interval is computed for the explained Gini coefficient, for the Lorenz-R2 or for the vector of theta coefficients. Possible values are "Gini" (default, for the explained Gini),"LR2" (for the Lorenz-R2) and "theta" (for the vector theta).}
+\item{parm}{A logical value determining whether the confidence interval is computed for the explained Gini coefficient, for the Lorenz-R2 or for the vector of theta coefficients. Possible values are \code{"Gini"} (default, for the explained Gini),\code{"LR2"} (for the Lorenz-R2) and \code{"theta"} (for the vector theta).}
 
-\item{level}{level of the confidence interval}
+\item{level}{A numeric giving the level of the confidence interval. Default value is 0.95.}
 
-\item{boot.method}{What bootstrap method is used to construct the confidence interval. Default value is "Param", which exploits the asymptotic normality and only bootstraps the variance.
-Other possible values are "Perc" (percentile bootstrap) and "Basic" (basic bootstrap). Percentile bootstrap directly plugs the quantiles of the bootstrap distribution.
-Basic bootstrap is based on bootstrapping the whole distribution of the estimator.}
+\item{type}{A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link{boot.ci}} from the \code{\link{boot}} library.}
 
 \item{...}{Additional arguments.}
 }
 \value{
-The desired confidence interval. If parm is set to either "Gini" or "LR2", the output is a vector. If parm is set to "theta", it is a matrix where each row corresponds to a different coefficient.
+The desired confidence interval.
+If \code{parm="Gini"} or \code{parm="LR2"}, the output is a vector.
+If \code{parm="theta"}, it is a matrix where each row corresponds to a different coefficient.
 }
 \description{
-\code{confint.LR} provides confidence intervals for the explained Gini coefficient, Lorenz-R2 and theta vector for an object of class \code{LR}.
-}
-\details{
-Use this function only if Boot.inference was set to TRUE in the call to \code{\link{Lorenz.Reg}}. Otherwise, bootstrap was not computed and the confidence intervals cannot be determined.
+\code{confint.LR} provides bootstrap confidence intervals for the explained Gini coefficient, Lorenz-R2 and theta vector for an object of class \code{"LR_boot"}.
 }
 \examples{
 \donttest{
@@ -47,5 +44,5 @@ confint(NPLR)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}
+\code{\link{Lorenz.boot}}, \code{\link[boot]{boot.ci}}
 }

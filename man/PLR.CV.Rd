@@ -2,63 +2,35 @@
 % Please edit documentation in R/PLR-CV.R
 \name{PLR.CV}
 \alias{PLR.CV}
-\title{Determines the regularization parameter (lambda) in a PLR via cross-validation}
+\title{Cross-validation for penalized Lorenz regression}
 \usage{
-PLR.CV(
-  formula,
-  data,
-  penalty = "SCAD",
-  h,
-  SCAD.nfwd = NULL,
-  PLR.est = NULL,
-  standardize = TRUE,
-  weights = NULL,
-  eps,
-  nfolds = 10,
-  foldID = NULL,
-  seed.CV = NULL,
-  parallel = FALSE,
-  ...
-)
+PLR.CV(object, k, data.orig, ...)
 }
 \arguments{
-\item{formula}{A formula object of the form \emph{response} ~ \emph{other_variables}.}
+\item{object}{An object with S3 class \code{"PLR"}, i.e. the return of a call to the \code{\link{Lorenz.Reg}} function where \code{penalty=="SCAD"} or \code{penalty=="LASSO"}.}
 
-\item{data}{A data frame containing the variables displayed in the formula.}
+\item{k}{An integer indicating the number of folds in the k-fold cross-validation}
 
-\item{penalty}{penalty used in the Penalized Lorenz Regression. Possible values are "SCAD" (default) or "LASSO".}
+\item{data.orig}{A data frame corresponding to the original dataset, used in the \code{\link{Lorenz.Reg}} call.}
 
-\item{h}{bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.}
-
-\item{SCAD.nfwd}{optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.}
-
-\item{PLR.est}{Output of a call to \code{\link{PLR.wrap}} corresponding to the estimation of the Penalized Lorenz Regression on the full sample. Default value is NULL in which case the estimation on the full sample is run internally.}
-
-\item{standardize}{Should the variables be standardized before the estimation process? Default value is TRUE.}
-
-\item{weights}{vector of sample weights. By default, each observation is given the same weight.}
-
-\item{eps}{Step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
-
-\item{nfolds}{Number of folds. Default value is 10.}
-
-\item{foldID}{vector taking value from 1 to nfolds specifying the fold index of each observation. Default value is NULL in which case the folds are defined internally.}
-
-\item{seed.CV}{Should a specific seed be used in the definition of the folds. Default value is NULL in which case no seed is imposed.}
-
-\item{parallel}{Whether parallel computing should be used to distribute the \code{nfolds} computations on different CPUs. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.}
-
-\item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.}
+\item{...}{Additional parameters corresponding to arguments passed to the function \code{\link{vfold_cv}} from the \code{\link{rsample}} library.}
 }
 \value{
-A list with two components
+An object of class \code{c("PLR_cv", "PLR")}. The object contains:
 \describe{
-   \item{\code{val}}{vector indicating the CV-score for each value of lambda.}
-   \item{\code{best}}{index where the optimum is attained.}
+   \item{\code{theta}}{The estimated vector of parameters. In the penalized case, it is a matrix where each row corresponds to a different selection method (e.g., BIC, bootstrap, cross-validation).}
+   \item{\code{Gi.expl}}{The estimated explained Gini coefficient. In the penalized case, it is a vector, where each element corresponds to a different selection method.}
+   \item{\code{LR2}}{The Lorenz-\eqn{R^2} of the regression. In the penalized case, it is a vector, where each element corresponds to a different selection method.}
+   \item{\code{MRS}}{The matrix of estimated marginal rates of substitution. In the penalized case, it is a list where each element corresponds to a different selection method.}
+   \item{\code{index}}{The estimated index. In the penalized case, it is a matrix where each row corresponds to a different selection method.}
+   \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the original path. To this path is added the CV-score.}
+   \item{\code{which.lambda}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
+   \item{\code{which.tuning}}{A vector indicating the index of the optimal tuning parameter obtained by each selection method.}
 }
+Note: The returned object may have additional classes such as \code{"PLR_boot"} if bootstrap was performed.
 }
 \description{
-\code{PLR.CV} undertakes k-fold cross-validation for a Penalized Lorenz Regression. It returns the CV-score associated to each value of the regularization parameter and the index of the optimum.
+\code{PLR.cv} selects the tuning and penalization parameters of the penalized Lorenz regression by cross-validation.
 }
 \section{References}{
 
@@ -73,5 +45,5 @@ PLR.CV(Income ~ ., Data.Incomes, PLR.est = PLR,
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.SCADFABS}}
+\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.boot}}
 }

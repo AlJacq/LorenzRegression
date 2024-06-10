@@ -11,7 +11,7 @@ Lorenz.graphs(formula, data, ...)
 
 \item{data}{A dataframe containing the variables of interest}
 
-\item{...}{other arguments (see Section 'Arguments' in \code{\link{Lorenz.curve}}).}
+\item{...}{Further arguments (see Section 'Arguments' in \code{\link{Lorenz.curve}}).}
 }
 \value{
 A plot comprising

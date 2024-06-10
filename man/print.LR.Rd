@@ -4,18 +4,20 @@
 \alias{print.LR}
 \title{Printing method for the Lorenz Regression}
 \usage{
-\method{print}{LR}(x, ...)
+\method{print}{LR}(x, digits = max(3L, getOption("digits") - 3L), ...)
 }
 \arguments{
-\item{x}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty="none"}.}
+\item{x}{An object of class \code{"LR"}.}
+
+\item{digits}{The number of significant digits to be passed.}
 
 \item{...}{Additional arguments.}
 }
 \value{
-No return value, called for printing an object of class \code{LR} to the console
+No return value, called for printing an object of class \code{"LR"} to the console.
 }
 \description{
-\code{print.LR} prints the arguments and estimated coefficients of an object of class \code{LR}.
+\code{print.LR} prints the arguments, explained Gini coefficient and estimated coefficients of an object of class \code{"LR"}.
 }
 \examples{
 data(Data.Incomes)

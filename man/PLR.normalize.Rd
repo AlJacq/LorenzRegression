@@ -4,24 +4,16 @@
 \alias{PLR.normalize}
 \title{Re-normalizes the estimated coefficients of a penalized Lorenz regression}
 \usage{
-PLR.normalize(PLR)
+PLR.normalize(object)
 }
 \arguments{
-\item{PLR}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.}
+\item{object}{An object of S3 class \code{"PLR"}.}
 }
 \value{
 A matrix of re-normalized coefficients.
 }
 \description{
 \code{PLR.normalize} transforms the estimated coefficients of a penalized Lorenz regression to match the model where the first category of each categorical variable is omitted.
-}
-\examples{
-data(Data.Incomes)
-PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
-                  sel.choice = c("BIC","CV"), h.grid = nrow(Data.Incomes)^(-1/5.5),
-                  eps = 0.01, seed.CV = 123, nfolds = 5)
-PLR.normalize(PLR)
-
 }
 \seealso{
 \code{\link{Lorenz.Reg}}

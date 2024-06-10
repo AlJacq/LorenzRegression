@@ -7,7 +7,7 @@
 \method{predict}{PLR}(object, newdata, type = c("index", "response"), ...)
 }
 \arguments{
-\item{object}{An object of class \code{"PLR"}.}
+\item{object}{An object of S3 class \code{"PLR"}.}
 
 \item{type}{A character string indicating the type of prediction. Possible values are \code{"response"} and \code{"index"} (the default).
 In the first case, the prediction estimates the conditional expectation of the response given the covariates.
@@ -16,13 +16,14 @@ In the second case, the prediction estimates only the index of the single-index 
 \item{...}{Additional arguments passed to the function \code{\link{Rearrangement.estimation}}.}
 }
 \value{
-a vector gathering the predictions. If the object has also class \code{"PLR_boot"} and/or \code{"PLR_cv"}, the output is a matrix, where each column corresponds to a selection method.
+a vector gathering the predictions.
+If the object has also class \code{"PLR_boot"} and/or \code{"PLR_cv"}, the output is a matrix, where each column corresponds to a selection method.
 }
 \description{
-\code{predict.PLR} provides predictions for an object of class \code{PLR}.
+\code{predict.PLR} provides predictions for an object of class \code{"PLR"}.
 }
 \details{
-If \code{type="Response"}, the link function of the single-index model must be estimated. This is done via the function \code{\link{Rearrangement.estimation}}.
+If \code{type="response"}, the link function of the single-index model must be estimated. This is done via the function \code{\link{Rearrangement.estimation}}.
 }
 \examples{
 data(Data.Incomes)

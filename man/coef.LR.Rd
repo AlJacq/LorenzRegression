@@ -7,7 +7,7 @@
 \method{coef}{LR}(object, ...)
 }
 \arguments{
-\item{object}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty="none"}.}
+\item{object}{An object of S3 class \code{"LR"}.}
 
 \item{...}{Additional arguments.}
 }
@@ -15,7 +15,7 @@
 a vector gathering the estimated coefficients
 }
 \description{
-\code{coef.LR} provides the estimated coefficients for an object of class \code{LR}.
+\code{coef.LR} provides the estimated coefficients for an object of class \code{"LR"}.
 }
 \examples{
 data(Data.Incomes)

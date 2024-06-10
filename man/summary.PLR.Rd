@@ -7,26 +7,32 @@
 \method{summary}{PLR}(object, renormalize = TRUE, ...)
 }
 \arguments{
-\item{object}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.}
+\item{object}{An object of class \code{"PLR"}.}
 
-\item{renormalize}{whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE}
-
-\item{...}{Additional arguments.}
+\item{...}{Additional arguments}
 }
 \value{
-A summary displaying two tables: a summary of the model and the estimated coefficients.
+An object of class \code{"summary.PLR"}, containing the following elements:
+\describe{
+   \item{\code{call}}{The matched call.}
+   \item{\code{Gi.expl}}{The estimated explained Gini coefficient.}
+   \item{\code{LR2}}{The Lorenz-\eqn{R^2} of the regression.}
+   \item{\code{coefficients}}{A matrix providing information on the estimated coefficients. The first column gives the estimates.
+   If the class of \code{object} contains \code{LR_boot}, bootstrap inference was performed and the matrix contains further information. The second column is the boostrap standard error. The third column is the z-value. Finally, the last column is the p-value.}
+}
 }
 \description{
-\code{summary.PLR} provides a summary for an object of class \code{PLR}.
+\code{summary.PLR} provides a summary for an object of class \code{"PLR"}.
+}
+\details{
+The inference provided in the \code{coefficients} matrix is obtained by using the asymptotic normality and estimating the asymptotic variance via bootstrap.
 }
 \examples{
 data(Data.Incomes)
-PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
-                  sel.choice = c("BIC","CV"), h.grid = nrow(Data.Incomes)^(-1/5.5),
-                  eps = 0.01, seed.CV = 123, nfolds = 5)
-summary(PLR)
+NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
+summary(NPLR)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}
+\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.boot}}
 }
