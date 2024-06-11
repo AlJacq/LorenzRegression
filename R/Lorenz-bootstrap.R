@@ -7,7 +7,11 @@
 #' @param data.orig A data frame corresponding to the original dataset, used in the \code{\link{Lorenz.Reg}} call.
 #' @param ... Additional parameters corresponding to arguments passed to the function \code{\link{boot}} from the \code{\link{boot}} library.
 #'
-#' @return An object of class \code{c("LR_boot", "LR")} or \code{c("PLR_boot", "PLR")}, depending on whether a non-penalized or penalized regression was fitted. The object contains:
+#' @return An object of class \code{c("LR_boot", "LR")} or \code{c("PLR_boot", "PLR")}, depending on whether a non-penalized or penalized regression was fitted.
+#'
+#' The method \code{confint} is used on an object of class \code{"LR_boot"} or \code{"PLR_boot"} to obtain bootstrap inference on the model parameters.
+#'
+#' The object returned is a list that contains the following components:
 #' \describe{
 #'    \item{\code{theta}}{The estimated vector of parameters. In the penalized case, it is a matrix where each row corresponds to a different selection method (e.g., BIC, bootstrap, cross-validation).}
 #'    \item{\code{Gi.expl}}{The estimated explained Gini coefficient. In the penalized case, it is a vector, where each element corresponds to a different selection method.}

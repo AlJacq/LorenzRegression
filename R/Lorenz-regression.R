@@ -15,7 +15,14 @@
 #' @param eps Only used if \code{penalty="SCAD"} or \code{penalty="LASSO"}. A scalar indicating the step size in the FABS or SCADFABS algorithm. Default value is 0.005.
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}} or \code{\link{Lorenz.FABS}} depending on the argument chosen in penalty.
 #'
-#' @return A list with the following elements.
+#' @return An object of class \code{"LR"} for the non-penalized Lorenz regression or of class \code{"PLR"} for a penalized Lorenz regression.
+#'
+#' For both classes, several methods are available. The function \code{summary} is used to summarize the model fits.
+#' Information on the coefficient of the single-index model is obtained via \code{coef}.
+#' The method \code{predict} is used to predict either the response or the index of the model.
+#' A visual representation of explained inequality through Lorenz curves is provided with the method \code{plot}.
+#'
+#' The object of class \code{"LR"} is a list containing the following components:
 #' \describe{
 #'    \item{\code{theta}}{The estimated vector of parameters.}
 #'    \item{\code{Gi.expl}}{The estimated explained Gini coefficient.}
@@ -24,13 +31,15 @@
 #'    we should look for row corresponding to X1 and column corresponding to X2.}
 #'    \item{\code{index}}{A vector gathering the estimated index.}
 #' }
-#' For the Penalized Lorenz Regression, the tuning parameter (i.e. the value on the grid \code{h.grid} or \code{SCAD.nfwd.grid}) and the penalization parameter are chosen optimally via the BIC method. In this case, the list also contains the following elements :
+#' For the Penalized Lorenz Regression, the tuning parameter (i.e. the value on the grid \code{h.grid} or \code{SCAD.nfwd.grid}) and the penalization parameter are chosen optimally via the BIC method.
+#' The object of class \code{"PLR"} is a list containing the same components as previously, and in addition :
 #' \describe{
 #'    \item{\code{path}}{A list where the different elements correspond to the values of the tuning parameter. Each element is a matrix where the first line displays the vector of lambda values. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that vector. The next lines display the evolution of the BIC score. The remaining lines display the evolution of the estimated parameter vector.}
 #'    \item{\code{which.lambda}}{the index of the optimal lambda obtained by the BIC method}
 #'    \item{\code{which.tuning}}{the index of the optimal tuning parameter obtained by the BIC method.}
 #' }
 #' In both cases, the list also provide technical information, such as the specified formula, weights and call, as well as the design matrix \code{x} and the response vector \code{y}.
+#'
 #'
 #' @seealso \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.boot}}
 #'
