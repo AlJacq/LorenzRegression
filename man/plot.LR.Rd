@@ -2,20 +2,20 @@
 % Please edit documentation in R/LR-plot.R
 \name{plot.LR}
 \alias{plot.LR}
-\title{Plots for the Unpenalized Lorenz Regression}
+\title{Plots for the Lorenz Regression}
 \usage{
 \method{plot}{LR}(x, ...)
 }
 \arguments{
-\item{x}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty=="none"}.}
+\item{x}{An object of class \code{"LR"}.}
 
 \item{...}{Additional arguments}
 }
 \value{
-The Lorenz curve of the response and concentration curve of the response with respect to the estimated index
+The Lorenz curve of the response and concentration curve of the response with respect to the estimated index. The graph is as an object of class \code{"ggplot"}.
 }
 \description{
-\code{plot.LR} provides plots for an object of class \code{LR}.
+\code{plot.LR} provides plots for an object of class \code{"LR"}.
 }
 \examples{
 data(Data.Incomes)

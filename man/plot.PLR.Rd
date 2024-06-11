@@ -4,24 +4,28 @@
 \alias{plot.PLR}
 \title{Plots for the Penalized Lorenz Regression}
 \usage{
-\method{plot}{PLR}(x, ...)
+\method{plot}{PLR}(
+  x,
+  type = c("explained", "traceplot", "diagnostic"),
+  traceplot.which = "BIC",
+  ...
+)
 }
 \arguments{
-\item{x}{Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.}
+\item{x}{An object of class \code{"PLR"}.}
+
+\item{type}{A character string indicating the type of plot. Possible values are \code{"explained"}, \code{"traceplot"} and \code{"diagnostic"}.
+If \code{"explained"} is selected, the graph displays the Lorenz curve of the response and concentration curve(s) of the response with respect to the estimated index. More specifically, there is one concentration curve per selection method available.
+If \code{"traceplot"} is selected, the graph displays a traceplot, where the horizontal axis is -log(lambda), lambda being the value of the penalty parameter. The vertical axis gives the size of the coefficient attached to each covariate.
+If \code{"diagnostic"} is selected, the graph displays a faceted plot, where each facet corresponds to a different value of the tuning parameter. Each plot shows the evolution of the scores of each available selection method. For comparability reasons, the scores are normalized such that the larger the better and the optimum is attained in 1.}
 
 \item{...}{Additional arguments.}
 }
 \value{
-Three types of plots
-The first is the Lorenz curve of the response and concentration curves of the response with respect to the estimated index (obtained with each selection method).
-In each of the remaining graphs, the horizontal axis is -log(lambda), lambda being the value of the regularization parameter.
-The second type of plot is a traceplot, where the vertical axis gives the size of the coefficient attached to each covariate.
-The third type of plot shows the evolution of the score(s) for each of the selection method chosen in the \code{PLR} object.
-For comparability reasons, the scores are normalized such that  the larger the better and the optimum is attained in 1.
-Since the whole path depends on the chosen bandwidth for the kernel, and the optimal bandwidth may depend on the selection method, the plots are produced for each selection method used in the PLR object
+The graph, as an object of class \code{"ggplot"}.
 }
 \description{
-\code{plot.PLR} provides plots for an object of class \code{PLR}.
+\code{plot.PLR} provides plots for an object of class \code{"PLR"}.
 }
 \examples{
 data(Data.Incomes)
