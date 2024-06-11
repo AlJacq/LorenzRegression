@@ -4,7 +4,7 @@
 #'
 #' @param formula A formula object of the form \emph{response} ~ \emph{other_variables}.
 #' @param data A dataframe containing the variables of interest
-#' @param ... other arguments (see Section 'Arguments' in \code{\link{Lorenz.curve}}).
+#' @param ... Further arguments (see Section 'Arguments' in \code{\link{Lorenz.curve}}).
 #'
 #' @return A plot comprising
 #' \itemize{
@@ -24,25 +24,36 @@
 
 Lorenz.graphs <- function(formula, data, ...){
 
-  p <- NULL
-  Data.temp.X <- as.data.frame(stats::model.matrix(formula,data=data)[,-1])
-  Data.temp.Y <- stats::model.frame(formula,data=data)[,1]
-  Data.temp <- cbind(Data.temp.Y,Data.temp.X)
-  colnames(Data.temp)[1] <- colnames(stats::model.frame(formula,data=data))[1]
+  # 0 > Calls ----
+  cl <- match.call()
+  mf <- match.call(expand.dots = FALSE)
+  m <- match(c("formula", "data", "weights", "na.action"),
+             names(mf), 0L)
+  mf <- mf[c(1L, m)]
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  mf <- eval(mf, parent.frame())
+  mt <- attr(mf, "terms")
 
-  if(length(Data.temp.X[1,])==1) colnames(Data.temp)[2] <- colnames(stats::model.matrix(formula,data=data))[2]
+  y <- model.response(mf, "numeric")
+  w <- as.vector(model.weights(mf))
+  if (!is.null(w) && !is.numeric(w))
+    stop("'weights' must be a numeric vector")
+  x <- model.matrix(mt, mf)[,-1,drop=FALSE]
+
+  p <- NULL
 
   graph <- ggplot2::ggplot(data.frame(p=c(0,1)),aes(p)) +
-    scale_color_manual(values = 2:(length(Data.temp[1,])+1),
-                       breaks = colnames(Data.temp)) +
+    scale_color_manual(values = 2:(ncol(mf)+1),
+                       breaks = colnames(mf)) +
     stat_function(fun=function(p)p, geom="line", color=1) +
-    stat_function(fun=function(p)Lorenz.curve(Data.temp.Y, ...)(p), geom="line",aes(color=colnames(Data.temp)[1])) +
-    labs(x = "Cumulative share of the population",y = paste0("Cumulative share of ",colnames(Data.temp)[1]), color= "Ranking:")
+    stat_function(fun=function(p)Lorenz.curve(y, ...)(p), geom="line",aes(color=colnames(mf)[1])) +
+    labs(x = "Cumulative share of the population",y = paste0("Cumulative share of ",colnames(mf)[1]), color= "Ranking:")
 
-  for (i in 1:length(Data.temp.X[1,])){
+  for (i in 1:ncol(x)){
     graph <- local({
     j <- i
-    graph + stat_function(fun=function(p)Lorenz.curve(Data.temp.Y,Data.temp.X[,j], ...)(p), geom="line", aes(color=colnames(Data.temp)[j+1]))
+    graph + stat_function(fun=function(p)Lorenz.curve(y,x[,j], ...)(p), geom="line", aes(color=colnames(mf)[j+1]))
     })
   }
   graph

@@ -1,17 +1,15 @@
 #' Plots for the Penalized Lorenz Regression
 #'
-#' \code{plot.PLR} provides plots for an object of class \code{PLR}.
+#' \code{plot.PLR} provides plots for an object of class \code{"PLR"}.
 #'
-#' @param x Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty!="none"}.
+#' @param x An object of class \code{"PLR"}.
+#' @param type A character string indicating the type of plot. Possible values are \code{"explained"}, \code{"traceplot"} and \code{"diagnostic"}.
+#' If \code{"explained"} is selected, the graph displays the Lorenz curve of the response and concentration curve(s) of the response with respect to the estimated index. More specifically, there is one concentration curve per selection method available.
+#' If \code{"traceplot"} is selected, the graph displays a traceplot, where the horizontal axis is -log(lambda), lambda being the value of the penalty parameter. The vertical axis gives the size of the coefficient attached to each covariate.
+#' If \code{"diagnostic"} is selected, the graph displays a faceted plot, where each facet corresponds to a different value of the tuning parameter. Each plot shows the evolution of the scores of each available selection method. For comparability reasons, the scores are normalized such that the larger the better and the optimum is attained in 1.
 #' @param ... Additional arguments.
 #'
-#' @return Three types of plots
-#' The first is the Lorenz curve of the response and concentration curves of the response with respect to the estimated index (obtained with each selection method).
-#' In each of the remaining graphs, the horizontal axis is -log(lambda), lambda being the value of the regularization parameter.
-#' The second type of plot is a traceplot, where the vertical axis gives the size of the coefficient attached to each covariate.
-#' The third type of plot shows the evolution of the score(s) for each of the selection method chosen in the \code{PLR} object.
-#' For comparability reasons, the scores are normalized such that  the larger the better and the optimum is attained in 1.
-#' Since the whole path depends on the chosen bandwidth for the kernel, and the optimal bandwidth may depend on the selection method, the plots are produced for each selection method used in the PLR object
+#' @return The graph, as an object of class \code{"ggplot"}.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
@@ -27,169 +25,122 @@
 #' @method plot PLR
 #' @export
 
-plot.PLR <- function(x, ...){
+plot.PLR <- function(x, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", ...){
 
-  PLR <- x
-  p0 <- Lorenz.graphs(Response ~ ., PLR$Fit, weights = PLR$weights)
-  p0 <- p0 + ggtitle("Observed and explained inequality")
+  if (!inherits(x, "PLR")) stop("x must be of class 'PLR'")
 
-  exclude.trace <- c("lambda","Lorenz-R2","Explained Gini","Number of nonzeroes","BIC score","CV score","Boot score")
+  type <- match.arg(type)
 
-  # 1. BIC ----
+  if(is.character(traceplot.which)){
+    traceplot.which <- match.arg(tolower(traceplot.which),c("bic","boot","cv"))
+  }else{
+    if(!(traceplot.which %in% 1:length(x$path))) stop("If traceplot.which is set to an integer, it must correspond to the index of a value on the grid of the tuning parameter.")
+  }
 
-  if ("BIC" %in% names(PLR$which.on.grid)){
+  # 1. type = explained ----
 
-    Path <- PLR$path[[PLR$which.on.grid["BIC"]]]
+  if(type == "explained"){
 
-    # Traceplots
+    formula <- as.formula(paste(as.character(x$call$formula[[2]]), "~ ."))
 
-    Path.cov <- Path[!(rownames(Path) %in% exclude.trace),]
-    names.var <- rownames(Path.cov)
-    n.iter <- ncol(Path.cov)
-    Plot.data <- data.frame(
-      "Variable" = rep(names.var,n.iter),
-      "theta" = as.vector(Path.cov),
-      "minloglambda" = rep(-log(Path["lambda",]),each=length(names.var))
+    if( inherits(x, c("PLR_boot","PLR_cv"))){
+      data <- data.frame(x$y, t(x$index))
+      names(data) <- c(all.vars(formula)[1],paste("index",rownames(x$index),sep="."))
+    }else{
+      data <- data.frame(x$y,x$index)
+      names(data) <- c(all.vars(formula)[1],"index")
+    }
+
+    g <- Lorenz.graphs(formula, data, weights = x$weights)
+    g <- g + ggtitle("Observed and explained inequality")
+
+  }
+
+  # 2. type = "traceplot" ----
+
+  if (type == "traceplot"){
+
+    if(traceplot.which == "bic"){
+      if(!inherits(x,c("PLR_boot","PLR_cv"))){
+        traceplot.which <- x$which.tuning
+      }else{
+        traceplot.which <- x$which.tuning["BIC"]
+      }
+    }
+    if(traceplot.which == "boot"){
+      if(!inherits(x,"PLR_boot")) stop("The object must be of class 'PLR_boot'")
+      traceplot.which <- x$which.tuning["Boot"]
+    }
+    if(traceplot.which == "cv"){
+      if(!inherits(x,"PLR_cv")) stop("The object must be of class 'PLR_cv'")
+      traceplot.which <- x$which.tuning["CV"]
+    }
+
+    path <- x$path[[traceplot.which]]
+
+    if(inherits(x,c("PLR_cv","PLR_boot"))){
+      var_names <- colnames(x$theta)
+    }else{
+      var_names <- names(x$theta)
+    }
+
+    path.theta <- path[var_names,]
+    n.iter <- ncol(path.theta)
+
+    df.long <- data.frame(
+      "Variable" = rep(var_names,n.iter),
+      "theta" = as.vector(path.theta),
+      "minloglambda" = rep(-log(path["lambda",]),each=length(var_names))
     )
 
-    p1 <- ggplot2::ggplot(Plot.data) +
+    g <- ggplot2::ggplot(df.long) +
       aes(x = minloglambda, y = theta, colour = Variable) +
-      geom_line(size = 1L) +
+      geom_line(linewidth = 1L) +
       scale_color_hue() +
       labs(x = expression(paste("-log(", symbol(lambda), ")",sep="")),
            y = expression(symbol(theta)[k]),
-           title = "Traceplot - bandwidth selected by BIC") +
-      theme_minimal()
-
-    # Evolution of the score
-
-    Path.score <- Path[grep("score",rownames(Path)),,drop=FALSE]
-    Path.score <- apply(Path.score,1,function(x)x/max(x))
-    if ("BIC score" %in% colnames(Path.score)) Path.score[,"BIC score"] <- 1/Path.score[,"BIC score"]
-
-    Score.data <- data.frame(
-      "Score" = rep(colnames(Path.score),n.iter),
-      "value" = as.vector(t(Path.score)),
-      "minloglambda" = rep(-log(Path["lambda",]),each=length(colnames(Path.score)))
-    )
-
-    p2 <- ggplot2::ggplot(Score.data) +
-      aes(x = minloglambda, y = value, colour = Score) +
-      geom_line(size = 1L) +
-      scale_color_hue() +
-      labs(x = expression(paste("-log(", symbol(lambda), ")",sep="")),
-           y = "value",
-           title = "Evolution of the scores - bandwidth selected by BIC") +
+           title = "Traceplot") +
       theme_minimal()
 
   }
 
-  # 2. Boot ----
+  # 3. type = "diagnostic" ----
 
-  if ("Boot" %in% names(PLR$which.on.grid)){
+  if (type == "diagnostic"){
 
-    Path <- PLR$path[[PLR$which.on.grid["Boot"]]]
+    df.wide <- do.call(rbind, lapply(1:length(x$path), function(i) {
+      data.frame(
+        tuning = i,
+        lambda = -log(x$path[[i]]["lambda",]),
+        score.BIC = x$path[[i]]["BIC score",],
+        score.OOB = if (inherits(x, "PLR_boot")) x$path[[i]]["OOB score",] else NA,
+        score.CV = if (inherits(x, "PLR_cv")) x$path[[i]]["CV score",] else NA
+      )
+    }))
 
-    # Traceplots
+    df.wide$score.BIC <- max(df.wide$score.BIC)/df.wide$score.BIC
+    if(inherits(x, "PLR_boot")) df.wide$score.OOB <- df.wide$score.OOB/max(df.wide$score.OOB)
+    if (inherits(x, "PLR_cv")) df.wide$score.CV <- df.wide$score.CV/max(df.wide$score.CV)
 
-    Path.cov <- Path[!(rownames(Path) %in% exclude.trace),]
-    names.var <- rownames(Path.cov)
-    n.iter <- ncol(Path.cov)
-    Plot.data <- data.frame(
-      "Variable" = rep(names.var,n.iter),
-      "theta" = as.vector(Path.cov),
-      "minloglambda" = rep(-log(Path["lambda",]),each=length(names.var))
+    df.long <- data.frame(
+      tuning = rep(df.wide$tuning, 3), # Repeat 'tuning' column values for each method
+      lambda = rep(df.wide$lambda, 3),
+      method = c(rep("BIC", nrow(df.wide)), rep("OOB", nrow(df.wide)),rep("CV", nrow(df.wide))), # Create method column
+      score = c(df.wide$score.BIC, df.wide$score.OOB, df.wide$score.CV) # Combine scores
     )
 
-    p3 <- ggplot2::ggplot(Plot.data) +
-      aes(x = minloglambda, y = theta, colour = Variable) +
-      geom_line(size = 1L) +
-      scale_color_hue() +
-      labs(x = expression(paste("-log(", symbol(lambda), ")",sep="")),
-           y = expression(symbol(theta)[k]),
-           title = "Traceplot - bandwidth selected by bootstrap") +
-      theme_minimal()
+    df.long <- na.omit(df.long)
 
-    # Evolution of the score
-
-    Path.score <- Path[grep("score",rownames(Path)),,drop=FALSE]
-    Path.score <- apply(Path.score,1,function(x)x/max(x))
-    if ("BIC score" %in% colnames(Path.score)) Path.score[,"BIC score"] <- 1/Path.score[,"BIC score"]
-
-    Score.data <- data.frame(
-      "Score" = rep(colnames(Path.score),n.iter),
-      "value" = as.vector(t(Path.score)),
-      "minloglambda" = rep(-log(Path["lambda",]),each=length(colnames(Path.score)))
-    )
-
-    p4 <- ggplot2::ggplot(Score.data) +
-      aes(x = minloglambda, y = value, colour = Score) +
-      geom_line(size = 1L) +
-      scale_color_hue() +
-      labs(x = expression(paste("-log(", symbol(lambda), ")",sep="")),
-           y = "value",
-           title = "Evolution of the scores - bandwidth selected by bootstrap") +
-      theme_minimal()
-
-  }
-
-  # 3. CV ----
-
-  if ("CV" %in% names(PLR$which.on.grid)){
-
-    Path <- PLR$path[[PLR$which.on.grid["CV"]]]
-
-    # Traceplots
-
-    Path.cov <- Path[!(rownames(Path) %in% exclude.trace),]
-    names.var <- rownames(Path.cov)
-    n.iter <- ncol(Path.cov)
-    Plot.data <- data.frame(
-      "Variable" = rep(names.var,n.iter),
-      "theta" = as.vector(Path.cov),
-      "minloglambda" = rep(-log(Path["lambda",]),each=length(names.var))
-    )
-
-    p5 <- ggplot2::ggplot(Plot.data) +
-      aes(x = minloglambda, y = theta, colour = Variable) +
-      geom_line(size = 1L) +
-      scale_color_hue() +
-      labs(x = expression(paste("-log(", symbol(lambda), ")",sep="")),
-           y = expression(symbol(theta)[k]),
-           title = "Traceplot - bandwidth selected by cross-validation") +
-      theme_minimal()
-
-    # Evolution of the score
-
-    Path.score <- Path[grep("score",rownames(Path)),,drop=FALSE]
-    Path.score <- apply(Path.score,1,function(x)x/max(x))
-    if ("BIC score" %in% colnames(Path.score)) Path.score[,"BIC score"] <- 1/Path.score[,"BIC score"]
-
-    Score.data <- data.frame(
-      "Score" = rep(colnames(Path.score),n.iter),
-      "value" = as.vector(t(Path.score)),
-      "minloglambda" = rep(-log(Path["lambda",]),each=length(colnames(Path.score)))
-    )
-
-    p6 <- ggplot2::ggplot(Score.data) +
-      aes(x = minloglambda, y = value, colour = Score) +
-      geom_line(size = 1L) +
-      scale_color_hue() +
-      labs(x = expression(paste("-log(", symbol(lambda), ")",sep="")),
-           y = "value",
-           title = "Evolution of the scores - bandwidth selected by cross-validation") +
-      theme_minimal()
+    g <- ggplot(df.long, aes(x = lambda, y = score, color = method)) +
+      geom_line() +
+      facet_wrap(~ tuning, scales = "free_x") +
+      labs(x = "Lambda", y = "Score", color = "Selection method") +
+      theme(legend.position = "bottom")
 
   }
 
   # 4. Output ----
 
-  p <- list()
-  p[[1]] <- p0
-  if ("BIC" %in% names(PLR$which.on.grid)) p <- append(p,list(p1,p2))
-  if ("Boot" %in% names(PLR$which.on.grid)) p <- append(p,list(p3,p4))
-  if ("CV" %in% names(PLR$which.on.grid)) p <- append(p,list(p5,p6))
-
-  p
+  g
 
 }

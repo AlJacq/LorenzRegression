@@ -1,11 +1,11 @@
-#' Plots for the Unpenalized Lorenz Regression
+#' Plots for the Lorenz Regression
 #'
-#' \code{plot.LR} provides plots for an object of class \code{LR}.
+#' \code{plot.LR} provides plots for an object of class \code{"LR"}.
 #'
-#' @param x Output of a call to \code{\link{Lorenz.Reg}}, where \code{penalty=="none"}.
+#' @param x An object of class \code{"LR"}.
 #' @param ... Additional arguments
 #'
-#' @return The Lorenz curve of the response and concentration curve of the response with respect to the estimated index
+#' @return The Lorenz curve of the response and concentration curve of the response with respect to the estimated index. The graph is as an object of class \code{"ggplot"}.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
@@ -21,9 +21,15 @@
 
 plot.LR <- function(x, ...){
 
-  p0 <- Lorenz.graphs(Response ~ ., x$Fit, weights = x$weights)
-  p0 <- p0 + ggtitle("Observed and explained inequality")
+  if (!inherits(x, "LR")) stop("x must be of class 'LR'")
 
-  p0
+  formula <- update.formula(x, . ~ index)
+  data <- data.frame(x$y,x$index)
+  names(data) <- all.vars(formula)
+
+  g <- Lorenz.graphs(formula, data, weights = x$weights)
+  g <- g + ggtitle("Observed and explained inequality")
+
+  g
 
 }
