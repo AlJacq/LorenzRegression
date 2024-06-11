@@ -22,7 +22,7 @@
 
 print.PLR <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
 
-  if (!inherits(x, "PLR")) stop("The object must be of class 'PLR'")
+  if (!inherits(x, "PLR")) stop("x must be of class 'PLR'")
 
   cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
       "\n\n", sep = "")

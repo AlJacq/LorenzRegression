@@ -20,7 +20,7 @@
 
 print.LR <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
 
-  if (!inherits(x, "LR")) stop("The object must be of class 'LR'")
+  if (!inherits(x, "LR")) stop("x must be of class 'LR'")
 
   cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
       "\n\n", sep = "")

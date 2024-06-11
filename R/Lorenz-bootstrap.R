@@ -149,6 +149,8 @@ Lorenz.boot <- function(object, R, data.orig, ...){
         "BIC"
       object$theta <- t(as.matrix(object$theta))
       rownames(object$theta) <- "BIC"
+      object$index <- t(as.matrix(object$index))
+      rownames(object$index) <- "BIC"
       object$MRS <- list("BIC" = object$MRS)
     }
     object$which.tuning <- c(object$which.tuning,"Boot"=wt)

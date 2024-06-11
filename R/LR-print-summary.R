@@ -19,7 +19,7 @@
 
 print.summary.LR <- function(x, digits = max(3L, getOption("digits") - 3L), signif.stars = getOption("show.signif.stars"), ...){
 
-  if (!inherits(x, "summary.LR")) stop("The object must be of class 'summary.LR'")
+  if (!inherits(x, "summary.LR")) stop("x must be of class 'summary.LR'")
 
   cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
       "\n\n", sep = "")

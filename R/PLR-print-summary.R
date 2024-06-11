@@ -19,7 +19,7 @@
 
 print.summary.PLR <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
 
-  if (!inherits(x, "summary.PLR")) stop("The object must be of class 'summary.PLR'")
+  if (!inherits(x, "summary.PLR")) stop("x must be of class 'summary.PLR'")
 
   cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
       "\n\n", sep = "")
