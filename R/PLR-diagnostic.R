@@ -20,14 +20,11 @@
 #'   \item{\code{best}}{The best model. It is obtained by considering the pair (tuning, lambda) in the restricted path that maximizes the minimum score across all selection methods available.}
 #' }
 #'
-#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.boot}}
+#' @seealso \code{\link{Lorenz.Reg}}
 #'
 #' @examples
 #' data(Data.Incomes)
-#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-#' summary(NPLR)
 #'
-#' @method diagnostic PLR
 #' @export
 
 diagnostic.PLR <- function(object, tol = 0.99, method = c("union","intersect","BIC","Boot","CV")){

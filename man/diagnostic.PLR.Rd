@@ -4,7 +4,7 @@
 \alias{diagnostic.PLR}
 \title{Diagnostic for the Penalized Lorenz Regression}
 \usage{
-\method{diagnostic}{PLR}(
+diagnostic.PLR(
   object,
   tol = 0.99,
   method = c("union", "intersect", "BIC", "Boot", "CV")
@@ -38,10 +38,8 @@ It restricts the path of the PLR to pairs of parameters (tuning, lambda) that sa
 }
 \examples{
 data(Data.Incomes)
-NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-summary(NPLR)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.boot}}
+\code{\link{Lorenz.Reg}}
 }
