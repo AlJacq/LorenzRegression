@@ -106,7 +106,7 @@ Lorenz.Reg <- function(formula,
     stop("'weights' must be a numeric vector")
 
   if (is.empty.model(mt)) {
-    # In this case, we do not explain anything : explained Gini = Lorenz R2 = 0
+    x <- as.matrix(rep(1,length(y)))
   }
   else {
     # We need to distinguish between LR and PLR because specific treatment of categorical in PLR
@@ -117,6 +117,9 @@ Lorenz.Reg <- function(formula,
       x <- model_matrix_PLR(mt, mf)
     }
 
+  }
+  if(ncol(x)==1){
+    penalty <- "none"
   }
 
   n <- nrow(x)
@@ -198,15 +201,21 @@ Lorenz.Reg <- function(formula,
   }
 
   names(theta) <- colnames(x)
-  # Matrix of MRS
-  if(penalty == "none"){
-    MRS <- outer(theta,theta,"/")
+
+  if(!is.null(theta)){
+    # Matrix of MRS
+    if(penalty == "none"){
+      MRS <- outer(theta,theta,"/")
+    }else{
+      theta_nz <- theta[theta!=0]
+      MRS <- outer(theta_nz,theta_nz,"/")
+    }
+    # Estimated index
+    index <- as.vector(theta%*%t(x))
   }else{
-    theta_nz <- theta[theta!=0]
-    MRS <- outer(theta_nz,theta_nz,"/")
+    MRS <- index <- NULL
   }
-  # Estimated index
-  index <- as.vector(theta%*%t(x))
+
   # Return fitted objects
   return.list$theta <- theta
   return.list$Gi.expl <- Gi.expl

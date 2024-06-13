@@ -33,24 +33,35 @@ summary.LR <- function(object, ...){
   ans <- list()
   ans$call <- object$call
 
-  ans$ineq <- matrix(c(object$Gi.expl,object$Gi.expl/object$LR2,object$LR2),
-                     nrow = 1, ncol = 3,
-                     dimnames = list("", c("Explained","Total","Lorenz-R2")))
-  ans$coefficients <- as.matrix(object$theta)
-  colnames(ans$coefficients) <- "Estimate"
-  if (inherits(object, "LR_boot")){
-    n <- nrow(object$x)
-    p <- ncol(object$x)
-    theta.boot <- object$boot_out$t[,3:ncol(object$boot_out$t)]
-    Sigma.star <- n*stats::var(theta.boot)
-    c.std <- sqrt(diag(Sigma.star)/n)
-    ans$coefficients <- cbind(ans$coefficients, c.std)
-    c.z <- object$theta/c.std
-    ans$coefficients <- cbind(ans$coefficients, c.z)
-    c.p <- sapply(1:p,function(k)2*stats::pnorm(abs(c.z[k]),lower.tail=FALSE))
-    ans$coefficients <- cbind(ans$coefficients, c.p)
-    colnames(ans$coefficients) <- c("Estimate", "Std. Error", "z value", "Pr(>|z|)")
+  if(!is.null(object$theta)){
+
+    ans$ineq <- matrix(c(object$Gi.expl,object$Gi.expl/object$LR2,object$LR2),
+                       nrow = 1, ncol = 3,
+                       dimnames = list("", c("Explained","Total","Lorenz-R2")))
+    ans$coefficients <- as.matrix(object$theta)
+    colnames(ans$coefficients) <- "Estimate"
+    if (inherits(object, "LR_boot")){
+      n <- nrow(object$x)
+      p <- ncol(object$x)
+      theta.boot <- object$boot_out$t[,3:ncol(object$boot_out$t)]
+      Sigma.star <- n*stats::var(theta.boot)
+      c.std <- sqrt(diag(Sigma.star)/n)
+      ans$coefficients <- cbind(ans$coefficients, c.std)
+      c.z <- object$theta/c.std
+      ans$coefficients <- cbind(ans$coefficients, c.z)
+      c.p <- sapply(1:p,function(k)2*stats::pnorm(abs(c.z[k]),lower.tail=FALSE))
+      ans$coefficients <- cbind(ans$coefficients, c.p)
+      colnames(ans$coefficients) <- c("Estimate", "Std. Error", "z value", "Pr(>|z|)")
+    }
+
+  }else{
+
+    ans$ineq <- NULL
+    ans$coefficients <- NULL
+
   }
+
+
 
   class(ans) <- "summary.LR"
 

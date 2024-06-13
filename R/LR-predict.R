@@ -25,7 +25,8 @@
 predict.LR <- function(object, newdata, type=c("index","response"), ...){
 
   tt <- terms(object)
-  if (!inherits(object, "LR")) stop("The object must be of class 'LR'")
+  if (!inherits(object, "LR")) stop("The object must be of class 'LR'.")
+  if (is.null(object$theta)) stop("No prediction is available for an empty model.")
   type <- match.arg(type)
   noData <- (missing(newdata) || is.null(newdata))
   if(noData){

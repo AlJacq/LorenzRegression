@@ -22,6 +22,7 @@
 plot.LR <- function(x, ...){
 
   if (!inherits(x, "LR")) stop("x must be of class 'LR'")
+  if (is.null(x$theta)) stop("No plots are available for an empty model.")
 
   formula <- update.formula(x, . ~ index)
   data <- data.frame(x$y,x$index)

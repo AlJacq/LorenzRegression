@@ -24,15 +24,24 @@ print.summary.LR <- function(x, digits = max(3L, getOption("digits") - 3L), sign
   cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
       "\n\n", sep = "")
 
-  cat("Explained Inequality Table\n\n")
+  if(!is.null(x$ineq)){
 
-  printCoefmat(x$ineq, digits = digits, na.print = "NA", ...)
+    cat("Explained Inequality Table\n\n")
 
-  cat("\n (Explained inequality is measured by the explained Gini coefficient. Total inequality is the Gini coefficient of the response. The Lorenz-R2 is the proportion of inequality explained by the model.")
+    printCoefmat(x$ineq, digits = digits, na.print = "NA", ...)
 
-  cat("\n\nCoefficients Table for the Single-Index Model\n")
+    cat("\n (Explained inequality is measured by the explained Gini coefficient. Total inequality is the Gini coefficient of the response. The Lorenz-R2 is the proportion of inequality explained by the model.")
 
-  printCoefmat(x$coefficients, digits = digits, signif.stars = signif.stars,
-               na.print = "NA", ...)
+    cat("\n\nCoefficients Table for the Single-Index Model\n")
+
+    printCoefmat(x$coefficients, digits = digits, signif.stars = signif.stars,
+                 na.print = "NA", ...)
+
+  }else(
+
+    cat("The model is empty. Therefore, explained inequality measured by the explained Gini coefficient is 0 and no single-index model is estimated.")
+
+  )
+
 
 }
