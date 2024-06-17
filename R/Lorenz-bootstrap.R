@@ -71,6 +71,7 @@ Lorenz.boot <- function(object, R, data.orig, ...){
       boot.call$data <- quote(boot.sample)
       if(method == "LR") boot.call$parallel.GA <- quote(FALSE) # parallel will be used for bootstrap
       if(method == "PLR") boot.call$lambda.list <- lapply(object$path,function(x)x["lambda",])
+      if(!is.null(object$weights)) boot.call$weights <- object$weights[indices]
       boot.LR <- eval(boot.call)
       if(method == "PLR"){
         # With penalized reg, the algorithm may stop sooner than in the original sample.
