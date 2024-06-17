@@ -5,6 +5,7 @@
 #' @param object An object with S3 class \code{"PLR"}, i.e. the return of a call to the \code{\link{Lorenz.Reg}} function where \code{penalty=="SCAD"} or \code{penalty=="LASSO"}.
 #' @param k An integer indicating the number of folds in the k-fold cross-validation
 #' @param data.orig A data frame corresponding to the original dataset, used in the \code{\link{Lorenz.Reg}} call.
+#' @param seed.CV An optional seed that is used internally for the creation of the folds. Default is \code{NULL}, in which case no seed is imposed.
 #' @param ... Additional parameters corresponding to arguments passed to the function \code{\link{vfold_cv}} from the \code{\link{rsample}} library.
 #'
 #' @return An object of class \code{c("PLR_cv", "PLR")}. The object contains:
@@ -31,13 +32,18 @@
 #' PLR.CV(Income ~ ., Data.Incomes, PLR.est = PLR,
 #'        h = nrow(Data.Incomes)^(-1/5.5), eps = 0.01, nfolds = 5)
 #'
-#' @importFrom rsample vfold_cv
+#' @importFrom rsample vfold_cv analysis
+#' @importFrom doParallel registerDoParallel stopImplicitCluster
+#' @importFrom parallel detectCores
+#' @importFrom foreach foreach '%do%' '%dopar%'
 #'
 #' @export
 
 PLR.CV<-function(object,
                  k,
                  data.orig,
+                 seed.CV=NULL,
+                 parallel=FALSE,
                  ...
 ){
 
@@ -47,8 +53,9 @@ PLR.CV<-function(object,
   # 1. statistic for cv ----
   cv.f <- function(split) {
     train.sample <- analysis(split)
-    indices <- as.integer(rownames(train.sample))
+    indices <- split$in_id
     train.call <- object$call
+    if(!is.null(object$weights)) train.call$weights <- train.sample$weights_CV
     train.call$data <- quote(train.sample)
     train.call$lambda.list <- lapply(object$path,function(x)x["lambda",])
     train.LR <- eval(train.call)
@@ -76,11 +83,40 @@ PLR.CV<-function(object,
 
   }
 
-  # 2. cv computations ----
-  cv_folds <- vfold_cv(data.orig, v = k, ...)
-  cv_out <- t(sapply(cv_folds$splits, cv.f))
+  # 2. cv folds ----
 
-  # 3. Adding to the PLR object ----
+  if (!is.null(object$weights)){
+    data.orig$weights_CV <- object$weights
+  }
+  if (!is.null(seed.CV)) {
+    old_seed <- .Random.seed
+    on.exit(.Random.seed <<- old_seed)
+    set.seed(seed.CV)
+  }
+  cv_folds <- vfold_cv(data.orig, v = k, ...)
+
+  # 3. cv computations ----
+
+  if(parallel){
+    if(is.numeric(parallel)){
+      registerDoParallel(parallel)
+    }else{
+      numCores <- detectCores()
+      registerDoParallel(numCores-1)
+    }
+    cv.j <- foreach(j=1:k) %dopar% {
+      cv.f(cv_folds$splits[[j]])
+    }
+    stopImplicitCluster()
+  }else{
+    cv.j <- foreach(j=1:k) %do% {
+      cv.f(cv_folds$splits[[j]])
+    }
+  }
+
+  cv_out <- t(sapply(1:k,function(j)cv.j[[j]]))
+
+  # 4. Adding to the PLR object ----
   path.sizes <- sapply(object$path,ncol)
   path.size <- sum(path.sizes)
   lth.path <- length(path.sizes)
@@ -123,6 +159,7 @@ PLR.CV<-function(object,
   object$MRS$CV <- outer(theta.cv.nz,theta.cv.nz,"/")
   index.cv <- as.vector(theta.cv%*%t(object$x))
   object$index <- rbind(object$index, "CV" = index.cv)
+  object$splits <- cv_folds$splits
 
   class(object) <- c(class(object),"PLR_cv")
 
