@@ -54,10 +54,10 @@ diagnostic.PLR <- function(object, tol = 0.99, method = c("union","intersect","B
   if(method == "BIC"){
     chosen <- "score.BIC"
   }else if(method == "Boot"){
-    if(!inherits(x,"PLR_boot")) stop("The object must be of class 'PLR_boot'")
+    if(!inherits(object,"PLR_boot")) stop("The object must be of class 'PLR_boot'")
     chosen <- "score.OOB"
   }else if(method == "CV"){
-    if(!inherits(x,"PLR_cv")) stop("The object must be of class 'PLR_cv'")
+    if(!inherits(object,"PLR_cv")) stop("The object must be of class 'PLR_cv'")
     chosen <- "score.CV"
   }else{
     chosen <- grep("score",names(df.wide),value=T)
@@ -78,7 +78,7 @@ diagnostic.PLR <- function(object, tol = 0.99, method = c("union","intersect","B
     warning("No value of (tuning,lambda) meets the required scores. Consider switching 'method' to another value than 'intersect' or lower the value of 'tol'.")
   }else{
     path.keep2 <- path.keep[path.keep$nnzeroes == min(path.keep$nnzeroes),,drop=FALSE]
-    best.keep <- path.keep2[which.max(apply(path.keep2[,grep("score",names(df.restricted2),value=T)],1,min)),]
+    best.keep <- path.keep2[which.max(apply(path.keep2[,grep("score",names(path.keep2),value=T)],1,min)),]
     return(list("path"=path.keep,"best"=best.keep))
   }
 

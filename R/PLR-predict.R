@@ -39,7 +39,7 @@ predict.PLR <- function(object, newdata, type=c("index","response"), ...){
   index <- object$theta%*%t(x)
   if (inherits(object,c("PLR_boot","PLR_cv"))){
     if(type=="index"){
-      predictor <- index
+      predictor <- t(index)
     }else{
       predictor <- sapply(1:nrow(index),function(i)Rearrangement.estimation(object$y, object$index[i,], t=index[i,], weights=object$weights, ...)$H)
       colnames(predictor) <- rownames(index)
