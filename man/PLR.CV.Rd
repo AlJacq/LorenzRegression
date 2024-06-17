@@ -4,7 +4,7 @@
 \alias{PLR.CV}
 \title{Cross-validation for penalized Lorenz regression}
 \usage{
-PLR.CV(object, k, data.orig, ...)
+PLR.CV(object, k, data.orig, seed.CV = NULL, parallel = FALSE, ...)
 }
 \arguments{
 \item{object}{An object with S3 class \code{"PLR"}, i.e. the return of a call to the \code{\link{Lorenz.Reg}} function where \code{penalty=="SCAD"} or \code{penalty=="LASSO"}.}
@@ -12,6 +12,8 @@ PLR.CV(object, k, data.orig, ...)
 \item{k}{An integer indicating the number of folds in the k-fold cross-validation}
 
 \item{data.orig}{A data frame corresponding to the original dataset, used in the \code{\link{Lorenz.Reg}} call.}
+
+\item{seed.CV}{An optional seed that is used internally for the creation of the folds. Default is \code{NULL}, in which case no seed is imposed.}
 
 \item{...}{Additional parameters corresponding to arguments passed to the function \code{\link{vfold_cv}} from the \code{\link{rsample}} library.}
 }

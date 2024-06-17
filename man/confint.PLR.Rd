@@ -10,6 +10,7 @@
   level = 0.95,
   type = c("norm", "basic", "perc"),
   which.pars = NULL,
+  bias.corr = TRUE,
   ...
 )
 }
@@ -24,6 +25,8 @@
 
 \item{which.pars}{A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
 Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC, bootstrap and cross-validation (if the class of \code{object} contains \code{PLR_cv}).}
+
+\item{bias.corr}{A logical determining whether bias correction should be performed. Only used if \code{type="norm"}. Default is \code{TRUE}.}
 }
 \value{
 The desired confidence interval.
