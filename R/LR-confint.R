@@ -6,6 +6,7 @@
 #' @param parm A logical value determining whether the confidence interval is computed for the explained Gini coefficient, for the Lorenz-R2 or for the vector of theta coefficients. Possible values are \code{"Gini"} (default, for the explained Gini),\code{"LR2"} (for the Lorenz-R2) and \code{"theta"} (for the vector theta).
 #' @param level A numeric giving the level of the confidence interval. Default value is 0.95.
 #' @param type A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link{boot.ci}} from the \code{\link{boot}} library.
+#' @param bias.corr A logical determining whether bias correction should be performed. Only used if \code{type="norm"}. Default is \code{TRUE}.
 #'
 #' @param ... Additional arguments.
 #'
@@ -31,7 +32,7 @@
 #' @method confint LR
 #' @export
 
-confint.LR <- function(object, parm=c("Gini","LR2","theta"), level=0.95, type=c("norm","basic","perc"), ...){
+confint.LR <- function(object, parm=c("Gini","LR2","theta"), level=0.95, type=c("norm","basic","perc"), bias.corr=TRUE, ...){
 
   if (!inherits(object, "LR_boot")) stop("The object must be of class 'LR_boot'")
 
@@ -43,6 +44,7 @@ confint.LR <- function(object, parm=c("Gini","LR2","theta"), level=0.95, type=c(
     ci <- boot.ci(object$boot_out, conf = level, type = type, index = i)
     ci <- ci[[type2]]
     ci <- ci[length(ci)-c(1,0)]
+    if(!bias.corr & type=="norm") ci <- ci - mean(ci) + object$boot_out$t0[i]
     names(ci) <- paste0((c(0,level)+(1-level)/2)*100," %")
     return(ci)
   }

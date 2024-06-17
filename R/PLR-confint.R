@@ -8,6 +8,7 @@
 #' @param type A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link{boot.ci}} from the \code{\link{boot}} library.
 #' @param which.pars A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
 #' Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC, bootstrap and cross-validation (if the class of \code{object} contains \code{PLR_cv}).
+#' @param bias.corr A logical determining whether bias correction should be performed. Only used if \code{type="norm"}. Default is \code{TRUE}.
 #'
 #' @return The desired confidence interval.
 #' If \code{which.pars=NULL}, the output is a matrix where each row corresponds to a selection method.
@@ -26,9 +27,9 @@
 #' @method confint PLR
 #' @export
 
-confint.PLR <- function(object, parm=c("Gini","LR2"), level=0.95, type=c("norm","basic","perc"), which.pars = NULL, ...){
+confint.PLR <- function(object, parm=c("Gini","LR2"), level=0.95, type=c("norm","basic","perc"), which.pars = NULL, bias.corr = TRUE, ...){
 
-  if (!inherits(object, "LR_boot")) stop("The object must be of class 'LR_boot'")
+  if (!inherits(object, "PLR_boot")) stop("The object must be of class 'PLR_boot'")
 
   parm <- match.arg(parm)
   type <- match.arg(type)
@@ -40,6 +41,7 @@ confint.PLR <- function(object, parm=c("Gini","LR2"), level=0.95, type=c("norm",
     ci <- boot.ci(object$boot_out, conf = level, type = type, index = i)
     ci <- ci[[type2]]
     ci <- ci[length(ci)-c(1,0)]
+    if(!bias.corr & type=="norm") ci <- ci - mean(ci) + object$boot_out$t0[i]
     names(ci) <- paste0((c(0,level)+(1-level)/2)*100," %")
     return(ci)
   }
