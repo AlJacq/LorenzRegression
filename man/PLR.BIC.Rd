@@ -37,10 +37,10 @@ Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap e
 data(Data.Incomes)
 y <- Data.Incomes[,1]
 x <- as.matrix(Data.Incomes[,-c(1,2)])
-PLR <- PLR.wrap(y, x, h = nrow(x)^(-1/5.5), eps = 0.005)
+PLR <- Lorenz.FABS(y, x, h = nrow(x)^(-1/5.5), eps = 0.005)
 PLR.BIC(y, x, PLR$theta)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.SCADFABS}}
+\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.SCADFABS}}
 }

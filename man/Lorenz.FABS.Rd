@@ -7,6 +7,7 @@
 Lorenz.FABS(
   y,
   x,
+  standardize = TRUE,
   weights = NULL,
   h,
   w.adaptive = NULL,
@@ -22,6 +23,8 @@ Lorenz.FABS(
 \item{y}{a vector of responses}
 
 \item{x}{a matrix of explanatory variables}
+
+\item{standardize}{Should the variables be standardized before the estimation process? Default value is TRUE.}
 
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
@@ -49,13 +52,10 @@ Lorenz.FABS(
 \value{
 A list with several components:
 \describe{
-   \item{\code{iter}}{number of iterations attained by the algorithm.}
-   \item{\code{direction}}{vector providing the direction (-1 = backward step, 1 = forward step) for each iteration.}
-   \item{\code{lambda}}{value of the regularization parameter for each iteration.}
-   \item{\code{h}}{value of the bandwidth.}
-   \item{\code{theta}}{matrix where column i provides the estimated parameter vector for iteration i.}
-   \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression.}
-   \item{\code{Gi.expl}}{the estimated explained Gini coefficient.}
+   \item{\code{lambda}}{vector gathering the different values of the regularization parameter}
+   \item{\code{theta}}{matrix where column i provides the vector of estimated coefficients corresponding to the value \code{lambda[i]} of the regularization parameter.}
+   \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} attached to the value \code{lambda[i]} of the regularization parameter.}
+   \item{\code{Gi.expl}}{vector where element i provides the estimated explained Gini coefficient related to the value \code{lambda[i]} of the regularization parameter.}
 }
 }
 \description{
@@ -82,5 +82,5 @@ Lorenz.FABS(y, x, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.SCADFABS}}
+\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.SCADFABS}}
 }

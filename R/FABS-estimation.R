@@ -9,6 +9,7 @@
 #'
 #' @param y a vector of responses
 #' @param x a matrix of explanatory variables
+#' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.
 #' @param w.adaptive vector of size equal to the number of covariates where each entry indicates the weight in the adaptive Lasso. By default, each covariate is given the same weight (Lasso).
@@ -26,16 +27,13 @@
 #'
 #' @return A list with several components:
 #' \describe{
-#'    \item{\code{iter}}{number of iterations attained by the algorithm.}
-#'    \item{\code{direction}}{vector providing the direction (-1 = backward step, 1 = forward step) for each iteration.}
-#'    \item{\code{lambda}}{value of the regularization parameter for each iteration.}
-#'    \item{\code{h}}{value of the bandwidth.}
-#'    \item{\code{theta}}{matrix where column i provides the estimated parameter vector for iteration i.}
-#'    \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression.}
-#'    \item{\code{Gi.expl}}{the estimated explained Gini coefficient.}
+#'    \item{\code{lambda}}{vector gathering the different values of the regularization parameter}
+#'    \item{\code{theta}}{matrix where column i provides the vector of estimated coefficients corresponding to the value \code{lambda[i]} of the regularization parameter.}
+#'    \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} attached to the value \code{lambda[i]} of the regularization parameter.}
+#'    \item{\code{Gi.expl}}{vector where element i provides the estimated explained Gini coefficient related to the value \code{lambda[i]} of the regularization parameter.}
 #' }
 #'
-#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.SCADFABS}}
+#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.SCADFABS}}
 #'
 #' @section References:
 #' Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
@@ -53,11 +51,23 @@
 #' @export
 
 # Largely based on the code proposed by Xingjie Shi on github
-Lorenz.FABS <- function(y, x, weights=NULL, h, w.adaptive=NULL, eps,
+Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL, h, w.adaptive=NULL, eps,
                         iter=10^4, lambda="Shi", lambda.min = 1e-7, gamma = 0.05, kernel = 1){
 
   n <- length(y)
   p <- ncol(x)
+
+  # Standardization
+
+  if (standardize){
+
+    x.center <- colMeans(x)
+    x <- x - rep(x.center, rep.int(n,p))
+    # x.scale <- sqrt(colSums(x^2)/(n-1))
+    x.scale <- sqrt(colSums(x^2)/(n)) # Changé le 25-04-2022 pour assurer l'équivalence au niveau des catégorielles
+    x <- x / rep(x.scale, rep.int(n,p))
+
+  }
 
   # Observation weights
 
@@ -167,27 +177,28 @@ Lorenz.FABS <- function(y, x, weights=NULL, h, w.adaptive=NULL, eps,
       warning("Solution path unfinished, more iterations are needed.")
   }
 
-  # We compute the Lorenz-Rsquared and explained Gini coef along the path
-  theta <- b[,1:i]
+  # We retrieve the different values along the path until algo stops
+  iter <- i
+  lambda <- lambda.out[1:iter]
+  theta <- b[,1:iter]
   Index.sol <- x%*%theta
-
   LR2.num <- apply(Index.sol, 2, function(t) Gini.coef(y, x=t, na.rm=TRUE, ties.method="mean", weights=weights))
   LR2.denom <- Gini.coef(y, na.rm=TRUE, ties.method="mean", weights=weights)
   LR2<-as.numeric(LR2.num/LR2.denom)
   Gi.expl<-as.numeric(LR2.num)
 
-  # WARNING ----
-
-  # If eps is too large, the path may be really rough
-  # if (length(unique(lambda.out[1:i]))<5) warning("The algorithm generated less than 5 different values for lambda. We suggest you to consider decreasing eps to have a finer grid")
+  # At this stage, there are several iterations for each value of lambda. We need to retrieve only the last one.
+  iter.unique <- c(which(diff(lambda)<0),iter)
+  theta <- theta[,iter.unique]
+  if (standardize) theta <- theta/x.scale # Need to put back on the original scale
+  theta <- apply(theta,2,function(x)x/sqrt(sum(x^2))) # Need to normalize
+  lambda <- lambda[iter.unique]
+  LR2 <- LR2[iter.unique]
+  Gi.expl <- Gi.expl[iter.unique]
 
   # OUTPUT ----
-
   return.list <- list(
-    iter = i,
-    direction = direction[1:i],
-    lambda = lambda.out[1:i],
-    h = h,
+    lambda = lambda,
     theta = theta,
     LR2=LR2,
     Gi.expl=Gi.expl

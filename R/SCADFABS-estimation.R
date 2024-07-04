@@ -9,8 +9,10 @@
 #'
 #' @param y a vector of responses
 #' @param x a matrix of explanatory variables
+#' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.
+#' @param SCAD.nfwd optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.
 #' @param eps step size in the FABS algorithm.
 #' @param a parameter of the SCAD penalty. Default value is 3.7.
 #' @param iter maximum number of iterations. Default value is 10^4.
@@ -26,16 +28,13 @@
 #'
 #' @return A list with several components:
 #' \describe{
-#'    \item{\code{iter}}{number of iterations attained by the algorithm.}
-#'    \item{\code{direction}}{vector providing the direction (-1 = backward step, 1 = forward step) for each iteration.}
-#'    \item{\code{lambda}}{value of the regularization parameter for each iteration.}
-#'    \item{\code{h}}{value of the bandwidth.}
-#'    \item{\code{theta}}{matrix where column i provides the non-normalized estimated parameter vector for iteration i.}
-#'    \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} of the regression for iteration i.}
-#'    \item{\code{Gi.expl}}{vector where element i provides the estimated explained Gini coefficient for iteration i.}
+#'    \item{\code{lambda}}{vector gathering the different values of the regularization parameter}
+#'    \item{\code{theta}}{matrix where column i provides the vector of estimated coefficients corresponding to the value \code{lambda[i]} of the regularization parameter.}
+#'    \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} attached to the value \code{lambda[i]} of the regularization parameter.}
+#'    \item{\code{Gi.expl}}{vector where element i provides the estimated explained Gini coefficient related to the value \code{lambda[i]} of the regularization parameter.}
 #' }
 #'
-#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.FABS}}
+#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.FABS}}
 #'
 #' @section References:
 #' Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
@@ -50,11 +49,23 @@
 #'
 #' @export
 
-Lorenz.SCADFABS <- function(y, x, weights=NULL, h, eps, a = 3.7,
+Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL, h, SCAD.nfwd = NULL, eps, a = 3.7,
                 iter=10^4, lambda="Shi", lambda.min = 1e-7, gamma = 0.05, kernel = 1){
 
   n <- length(y)
   p <- ncol(x)
+
+  # Standardization
+
+  if (standardize){
+
+    x.center <- colMeans(x)
+    x <- x - rep(x.center, rep.int(n,p))
+    # x.scale <- sqrt(colSums(x^2)/(n-1))
+    x.scale <- sqrt(colSums(x^2)/(n)) # Changé le 25-04-2022 pour assurer l'équivalence au niveau des catégorielles
+    x <- x / rep(x.scale, rep.int(n,p))
+
+  }
 
   # Observation weights
 
@@ -67,6 +78,41 @@ Lorenz.SCADFABS <- function(y, x, weights=NULL, h, eps, a = 3.7,
 
   # We are going to record the lambda and the direction (backward or forward) for each iteration
   lambda.out <- direction <- numeric(iter)
+
+  # SCAD-FABS > n_fwd argument
+
+  if(!is.null(SCAD.nfwd)){
+
+    b1 <- b0 <- rep(0,p)
+    Grad0 <- -.PLR_derivative_cpp(as.vector(y),
+                                  as.matrix(x),
+                                  as.vector(weights/sum(weights)),
+                                  as.vector(b0),
+                                  as.double(h),
+                                  as.double(gamma),
+                                  as.integer(kernel))
+    k0 <- which.max(abs(Grad0))
+    b1[k0] <- - sign(Grad0[k0])*eps
+    loss0 = .PLR_loss_cpp(as.matrix(x),
+                          as.vector(y),
+                          as.vector(weights/sum(weights)),
+                          as.vector(b0),
+                          as.double(h),
+                          as.double(gamma),
+                          as.integer(kernel))
+    loss1  = .PLR_loss_cpp(as.matrix(x),
+                           as.vector(y),
+                           as.vector(weights/sum(weights)),
+                           as.vector(b1),
+                           as.double(h),
+                           as.double(gamma),
+                           as.integer(kernel))
+    diff.loss.sqrt <- sqrt(loss0-loss1)
+    eps.old <- eps
+    eps <- diff.loss.sqrt/sqrt(SCAD.nfwd) + sqrt(.Machine$double.eps)
+    h <- h*eps/eps.old
+
+  }
 
   # SCAD-FABS > INITIALIZATION ----
 
@@ -180,27 +226,29 @@ Lorenz.SCADFABS <- function(y, x, weights=NULL, h, eps, a = 3.7,
       warning("Solution path unfinished, more iterations are needed.")
   }
 
-  # We compute the Lorenz-Rsquared and explained Gini coef along the path
-  theta <- b[,1:i]
+  # We retrieve the different values along the path until algo stops
+  iter <- i
+  lambda <- lambda.out[1:iter]
+  theta <- b[,1:iter]
   Index.sol <- x%*%theta
-
   LR2.num <- apply(Index.sol, 2, function(t) Gini.coef(y, x=t, na.rm=TRUE, ties.method="mean", weights=weights))
   LR2.denom <- Gini.coef(y, na.rm=TRUE, ties.method="mean", weights=weights)
   LR2<-as.numeric(LR2.num/LR2.denom)
   Gi.expl<-as.numeric(LR2.num)
 
-  # WARNING ----
-
-  # If eps is too large, the path may be really rough
-  # if (length(unique(lambda.out[1:i]))<5) warning("The algorithm generated less than 5 different values for lambda. We suggest you to consider decreasing eps to have a finer grid")
+  # At this stage, there are several iterations for each value of lambda. We need to retrieve only the last one.
+  iter.unique <- c(which(diff(lambda)<0),iter)
+  theta <- theta[,iter.unique]
+  if (standardize) theta <- theta/x.scale # Need to put back on the original scale
+  theta <- apply(theta,2,function(x)x/sqrt(sum(x^2))) # Need to normalize
+  lambda <- lambda[iter.unique]
+  LR2 <- LR2[iter.unique]
+  Gi.expl <- Gi.expl[iter.unique]
 
   # OUTPUT ----
 
   return.list <- list(
-    iter = i,
-    direction = direction[1:i],
-    lambda = lambda.out[1:i],
-    h = h,
+    lambda = lambda,
     theta = theta,
     LR2=LR2,
     Gi.expl=Gi.expl

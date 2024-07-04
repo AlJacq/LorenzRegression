@@ -55,5 +55,5 @@ plot(PLR_CV, type = "diagnostic") # Plot of the scores depending on the tuning a
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.boot}}
+\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.boot}}
 }

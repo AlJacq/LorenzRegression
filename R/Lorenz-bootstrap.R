@@ -36,7 +36,7 @@
 #' The argument \code{boot_out_only} can be set to \code{TRUE} to avoid unnecessary computations. If so, the returned object does not inherit from the class \code{"LR_boot"} or \code{"PLR_boot"}. The function simply returns the original \code{object}, to which is added the \code{boot_out} object.
 #' If this second option is chosen, the instances have to be combined using the function \code{\link{Lorenz.boot.combine}}.
 #'
-#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{PLR.CV}}, \code{\link[boot]{boot}}
+#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.CV}}, \code{\link[boot]{boot}}
 #'
 #' @section References:
 #' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.

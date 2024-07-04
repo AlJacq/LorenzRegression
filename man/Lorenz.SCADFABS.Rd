@@ -7,8 +7,10 @@
 Lorenz.SCADFABS(
   y,
   x,
+  standardize = TRUE,
   weights = NULL,
   h,
+  SCAD.nfwd = NULL,
   eps,
   a = 3.7,
   iter = 10^4,
@@ -23,9 +25,13 @@ Lorenz.SCADFABS(
 
 \item{x}{a matrix of explanatory variables}
 
+\item{standardize}{Should the variables be standardized before the estimation process? Default value is TRUE.}
+
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
 \item{h}{bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.}
+
+\item{SCAD.nfwd}{optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.}
 
 \item{eps}{step size in the FABS algorithm.}
 
@@ -49,13 +55,10 @@ Lorenz.SCADFABS(
 \value{
 A list with several components:
 \describe{
-   \item{\code{iter}}{number of iterations attained by the algorithm.}
-   \item{\code{direction}}{vector providing the direction (-1 = backward step, 1 = forward step) for each iteration.}
-   \item{\code{lambda}}{value of the regularization parameter for each iteration.}
-   \item{\code{h}}{value of the bandwidth.}
-   \item{\code{theta}}{matrix where column i provides the non-normalized estimated parameter vector for iteration i.}
-   \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} of the regression for iteration i.}
-   \item{\code{Gi.expl}}{vector where element i provides the estimated explained Gini coefficient for iteration i.}
+   \item{\code{lambda}}{vector gathering the different values of the regularization parameter}
+   \item{\code{theta}}{matrix where column i provides the vector of estimated coefficients corresponding to the value \code{lambda[i]} of the regularization parameter.}
+   \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} attached to the value \code{lambda[i]} of the regularization parameter.}
+   \item{\code{Gi.expl}}{vector where element i provides the estimated explained Gini coefficient related to the value \code{lambda[i]} of the regularization parameter.}
 }
 }
 \description{
@@ -80,5 +83,5 @@ Lorenz.SCADFABS(y, x, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.FABS}}
+\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.FABS}}
 }

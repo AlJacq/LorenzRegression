@@ -85,5 +85,5 @@ confint(PLR_boot)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{PLR.CV}}, \code{\link[boot]{boot}}
+\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.CV}}, \code{\link[boot]{boot}}
 }

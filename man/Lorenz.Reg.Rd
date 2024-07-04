@@ -31,15 +31,15 @@ Lorenz.Reg(
 
 \item{penalty}{A character string specifying the type of penalty on the size of the estimated coefficients of the single-index model.
 The default value is \code{"none"}, in which case a non-penalized Lorenz regression is fitted using \code{\link{Lorenz.GA}}.
-Other possible values are \code{"LASSO"} and \code{"SCAD"}, in which case a penalized Lorenz regression is fitted using \code{\link{PLR.wrap}}.}
+Other possible values are \code{"LASSO"} and \code{"SCAD"}, in which case a penalized Lorenz regression is fitted using \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}} respectively.}
 
 \item{h.grid}{Only used if \code{penalty="SCAD"} or \code{penalty="LASSO"}. A vector (grid) of values for the bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. By default, it is set to (0.1,0.2,1,2,5)*n^(-1/5.5), where n is the sample size.}
 
-\item{SCAD.nfwd.grid}{Only used if \code{penalty="SCAD"}. A vector (grid) of values for the \code{SCAD.nfwd} argument used in the \code{\link{PLR.wrap}} function. Default value is \code{NULL}. If a vector is supplied, the argument \code{h.grid} is modified to only use the first value of the vector.}
+\item{SCAD.nfwd.grid}{Only used if \code{penalty="SCAD"}. A vector (grid) of values for the \code{SCAD.nfwd} argument used in the \code{\link{Lorenz.SCADFABS}} function. Default value is \code{NULL}. If a vector is supplied, the argument \code{h.grid} is modified to only use the first value of the vector.}
 
 \item{eps}{Only used if \code{penalty="SCAD"} or \code{penalty="LASSO"}. A scalar indicating the step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
 
-\item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}} or \code{\link{PLR.wrap}}, depending on the argument chosen in \code{penalty}.}
+\item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}}, \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}}, depending on the argument chosen in \code{penalty}.}
 }
 \value{
 An object of class \code{"LR"} for the non-penalized Lorenz regression or of class \code{"PLR"} for a penalized Lorenz regression.
@@ -72,8 +72,8 @@ In both cases, the list also provides technical information, such as the specifi
 }
 \details{
 In the penalized case, the model is fitted for a grid of values of two parameters : the penalty parameter (lambda) and a tuning parameter.
-By default, the tuning parameter is the bandwidth of the kernel (argument \code{h} in \code{\link{PLR.wrap}}). Its grid is defined by the user via the argument \code{h.grid}.
-Alternatively, and only if the SCAD penalty is used, the tuning parameter can also be the \eqn{n_{fwd}} parameter described in Jacquemain et al. (argument \code{SCAD.nfwd} in \code{\link{PLR.wrap}}). Its grid is defined by the user via the argument \code{SCAD.nfwd.grid}.
+By default, the tuning parameter is the bandwidth of the kernel (argument \code{h} in \code{\link{Lorenz.FABS}} and \code{\link{Lorenz.SCADFABS}}). Its grid is defined by the user via the argument \code{h.grid}.
+Alternatively, and only if the SCAD penalty is used, the tuning parameter can also be the \eqn{n_{fwd}} parameter described in Jacquemain et al. (argument \code{SCAD.nfwd} in \code{\link{Lorenz.SCADFABS}}). Its grid is defined by the user via the argument \code{SCAD.nfwd.grid}.
 To avoid too large computation time, the user must choose between providing a grid for \code{h} or for \code{SCAD.nfwd}. If \code{SCAD.nfwd.grid} is supplied, only the first value of \code{h.grid} is used for the bandwidth.
 The optimal values of the parameters are selected using the BIC criterion. Other selections methods include bootstrap (obtained with \code{\link{Lorenz.boot}}) and cross-validation (obtained with \code{\link{PLR.CV}}).
 }
@@ -114,5 +114,5 @@ plot(PLR,type="traceplot")
 
 }
 \seealso{
-\code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.boot}}
+\code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, code{\link{Lorenz.boot}}
 }
