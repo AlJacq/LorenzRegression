@@ -1,6 +1,6 @@
 #' Wrapper for the \code{\link{Lorenz.SCADFABS}} and \code{\link{Lorenz.FABS}} functions
 #'
-#' \code{PLR.wrap} standardizes the covariates, run the penalized regression and spits out the path of parameter vectors.
+#' \code{PLR.wrap} standardizes the covariates, runs the penalized regression and returns the path of estimated coefficients.
 #'
 #' @param y a vector of responses
 #' @param x a matrix of explanatory variables
@@ -16,9 +16,9 @@
 #' @return A list with several components:
 #' \describe{
 #'    \item{\code{lambda}}{vector gathering the different values of the regularization parameter}
-#'    \item{\code{theta}}{matrix where column i provides the normalized estimated parameter vector corresponding to value lambda[i] of the regularization parameter.}
-#'    \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} of the regression related to value lambda[i] of the regularization parameter.}
-#'    \item{\code{Gi.expl}}{vector where element i provides the estimated explained Gini coefficient related to value lambda[i] of the regularization parameter.}
+#'    \item{\code{theta}}{matrix where column i provides the vector of estimated coefficients corresponding to the value \code{lambda[i]} of the regularization parameter.}
+#'    \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} attached to the value \code{lambda[i]} of the regularization parameter.}
+#'    \item{\code{Gi.expl}}{vector where element i provides the estimated explained Gini coefficient related to the value \code{lambda[i]} of the regularization parameter.}
 #' }
 #'
 #' @seealso \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}

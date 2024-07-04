@@ -12,9 +12,13 @@
 )
 }
 \arguments{
-\item{...}{Additional arguments}
+\item{x}{An object of class \code{"summary.LR"}.}
 
-\item{object}{An object of class \code{"summary.LR"}.}
+\item{digits}{Number of significant digits to be passed.}
+
+\item{signif.stars}{Logical determining whether p-values should be also encoded visually. See the help of the function \code{\link{printCoefmat}} for more information.}
+
+\item{...}{Additional arguments passed to the function \code{\link{printCoefmat}}.}
 }
 \value{
 No return value, called for printing an object of class \code{"LR"} to the console.
@@ -23,9 +27,7 @@ No return value, called for printing an object of class \code{"LR"} to the conso
 \code{print.summary.LR} provides a printing method for an object of class \code{"summary.LR"}.
 }
 \examples{
-data(Data.Incomes)
-NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-summary(NPLR)
+## For examples see example(Lorenz.Reg) and example(Lorenz.boot)
 
 }
 \seealso{

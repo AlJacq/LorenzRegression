@@ -18,9 +18,7 @@ a vector gathering the estimated coefficients
 \code{coef.LR} provides the estimated coefficients for an object of class \code{"LR"}.
 }
 \examples{
-data(Data.Incomes)
-NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-coef(NPLR)
+## For examples see example(Lorenz.Reg)
 
 }
 \seealso{

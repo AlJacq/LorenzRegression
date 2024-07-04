@@ -43,13 +43,13 @@ PLR.wrap(
 A list with several components:
 \describe{
    \item{\code{lambda}}{vector gathering the different values of the regularization parameter}
-   \item{\code{theta}}{matrix where column i provides the normalized estimated parameter vector corresponding to value lambda[i] of the regularization parameter.}
-   \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} of the regression related to value lambda[i] of the regularization parameter.}
-   \item{\code{Gi.expl}}{vector where element i provides the estimated explained Gini coefficient related to value lambda[i] of the regularization parameter.}
+   \item{\code{theta}}{matrix where column i provides the vector of estimated coefficients corresponding to the value \code{lambda[i]} of the regularization parameter.}
+   \item{\code{LR2}}{vector where element i provides the Lorenz-\eqn{R^2} attached to the value \code{lambda[i]} of the regularization parameter.}
+   \item{\code{Gi.expl}}{vector where element i provides the estimated explained Gini coefficient related to the value \code{lambda[i]} of the regularization parameter.}
 }
 }
 \description{
-\code{PLR.wrap} standardizes the covariates, run the penalized regression and spits out the path of parameter vectors.
+\code{PLR.wrap} standardizes the covariates, runs the penalized regression and returns the path of estimated coefficients.
 }
 \examples{
 data(Data.Incomes)

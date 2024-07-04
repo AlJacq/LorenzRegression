@@ -16,7 +16,7 @@
 
 \item{type}{A character string indicating the type of plot. Possible values are \code{"explained"}, \code{"traceplot"} and \code{"diagnostic"}.
 If \code{"explained"} is selected, the graph displays the Lorenz curve of the response and concentration curve(s) of the response with respect to the estimated index. More specifically, there is one concentration curve per selection method available.
-If \code{"traceplot"} is selected, the graph displays a traceplot, where the horizontal axis is -log(lambda), lambda being the value of the penalty parameter. The vertical axis gives the size of the coefficient attached to each covariate.
+If \code{"traceplot"} is selected, the graph displays a traceplot, where the horizontal axis is -log(lambda), lambda being the value of the penalty parameter. The vertical axis gives the value of the estimated coefficient attached to each covariate.
 If \code{"diagnostic"} is selected, the graph displays a faceted plot, where each facet corresponds to a different value of the tuning parameter. Each plot shows the evolution of the scores of each available selection method. For comparability reasons, the scores are normalized such that the larger the better and the optimum is attained in 1.}
 
 \item{...}{Additional arguments.}
@@ -28,11 +28,7 @@ The graph, as an object of class \code{"ggplot"}.
 \code{plot.PLR} provides plots for an object of class \code{"PLR"}.
 }
 \examples{
-data(Data.Incomes)
-PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
-                  sel.choice = c("BIC","CV"), h.grid = nrow(Data.Incomes)^(-1/5.5),
-                  eps = 0.01, seed.CV = 123, nfolds = 5)
-plot(PLR)
+## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 
 }
 \seealso{

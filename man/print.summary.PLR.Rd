@@ -7,20 +7,20 @@
 \method{print}{summary.PLR}(x, digits = max(3L, getOption("digits") - 3L), ...)
 }
 \arguments{
-\item{...}{Additional arguments}
+\item{x}{An object of class \code{"summary.PLR"}.}
 
-\item{object}{An object of class \code{"summary.PLR"}.}
+\item{digits}{Number of significant digits to be passed.}
+
+\item{...}{Additional arguments passed to the function \code{\link{printCoefmat}}.}
 }
 \value{
-No return value, called for printing an object of class \code{"PLR"} to the console.
+No return value, called for printing an object of class \code{"summary.PLR"} to the console.
 }
 \description{
 \code{print.summary.PLR} provides a printing method for an object of class \code{"summary.PLR"}.
 }
 \examples{
-data(Data.Incomes)
-NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-summary(NPLR)
+## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 
 }
 \seealso{

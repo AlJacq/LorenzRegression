@@ -35,12 +35,12 @@ Lorenz.FABS(
 
 \item{lambda}{this parameter relates to the regularization parameter. Several options are available.
 \describe{
-    \item{\code{grid}}{If lambda="grid", lambda is defined on a grid, equidistant in the logarithmic scale.}
-    \item{\code{Shi}}{If lambda="Shi", lambda, is defined within the algorithm, as in Shi et al (2018).}
+    \item{\code{grid}}{If \code{lambda="grid"}, lambda is defined on a grid, equidistant in the logarithmic scale.}
+    \item{\code{Shi}}{If \code{lambda="Shi"}, lambda, is defined within the algorithm, as in Shi et al (2018).}
     \item{\code{supplied}}{If the user wants to supply the lambda vector himself}
 }}
 
-\item{lambda.min}{lower bound of the penalty parameter. Only used if lambda="Shi".}
+\item{lambda.min}{lower bound of the penalty parameter. Only used if \code{lambda="Shi"}.}
 
 \item{gamma}{value of the Lagrange multiplier in the loss function}
 
@@ -70,6 +70,7 @@ In order to ensure identifiability, theta is forced to have a L2-norm equal to o
 \section{References}{
 
 Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
+
 Shi, X., Y. Huang, J. Huang, and S. Ma (2018). A Forward and Backward Stagewise Algorithm for Nonconvex Loss Function with Adaptive Lasso, \emph{Computational Statistics & Data Analysis 124}, 235-251.
 }
 

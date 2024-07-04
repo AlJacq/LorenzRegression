@@ -4,7 +4,7 @@
 #' It restricts the path of the PLR to pairs of parameters (tuning, lambda) that satisfy a threshold criterion.
 #'
 #' @param object An object of class \code{"PLR"}.
-#' @param tol A numeric threshold value used to restrict the PLR path. More specifically, we restrict to pairs (tuning,lambda) whose score exceeds \code{tol}. Default value is 0.95.
+#' @param tol A numeric threshold value used to restrict the PLR path. More specifically, we restrict to pairs (tuning,lambda) whose normalized score exceeds \code{tol}. Default value is 0.95.
 #' @param method A character string specifying the method used to evaluate the scores.
 #'        Options are \code{"union"}, \code{"intersect"}, \code{"BIC"}, \code{"Boot"}, and \code{"CV"}.
 #'        \describe{
@@ -17,13 +17,23 @@
 #' @return A list with two elements:
 #' \describe{
 #'   \item{\code{path}}{The restricted model path, containing only the values of the pair (tuning, lambda) that satisfy the threshold criterion.}
-#'   \item{\code{best}}{The best model. It is obtained by considering the pair (tuning, lambda) in the restricted path that maximizes the minimum score across all selection methods available.}
+#'   \item{\code{best}}{The best model. It is obtained by considering the pair (tuning, lambda) in the restricted path that leads to the sparsest model.
+#'    If several pairs yield the same level of sparsity, we consider the pair that maximizes the minimum score across all selection methods available.}
 #' }
 #'
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
 #' @examples
-#' data(Data.Incomes)
+#' \dontshow{
+#' utils::example(Lorenz.boot, echo = FALSE)
+#' }
+#' # Continuing the  Lorenz.boot(.) example:
+#' # The out-of-bag score seems to remain relatively flat when lambda is small enough
+#' plot(PLR_boot, type = "diagnostic")
+#' # What is the best couple (tuning parameter, penalty parameter) that is close enough to the highest OOB score
+#' diagnostic.PLR(PLR_boot, tol = 0.99, method = "Boot")
+#' # Say we want the solution to be "close enough" from the best, both in terms of BIC-score and in terms of OOB-score.
+#' diagnostic.PLR(PLR_boot, method = "intersect")
 #'
 #' @export
 

@@ -15,17 +15,17 @@ PLR.CV(object, k, data.orig, seed.CV = NULL, parallel = FALSE, ...)
 
 \item{seed.CV}{An optional seed that is used internally for the creation of the folds. Default is \code{NULL}, in which case no seed is imposed.}
 
-\item{...}{Additional parameters corresponding to arguments passed to the function \code{\link{vfold_cv}} from the \code{\link{rsample}} library.}
+\item{...}{Additional parameters corresponding to arguments passed to the function \code{\link{vfold_cv}} from the \emph{rsample} library.}
 }
 \value{
 An object of class \code{c("PLR_cv", "PLR")}. The object contains:
 \describe{
-   \item{\code{theta}}{The estimated vector of parameters. In the penalized case, it is a matrix where each row corresponds to a different selection method (e.g., BIC, bootstrap, cross-validation).}
-   \item{\code{Gi.expl}}{The estimated explained Gini coefficient. In the penalized case, it is a vector, where each element corresponds to a different selection method.}
-   \item{\code{LR2}}{The Lorenz-\eqn{R^2} of the regression. In the penalized case, it is a vector, where each element corresponds to a different selection method.}
-   \item{\code{MRS}}{The matrix of estimated marginal rates of substitution. In the penalized case, it is a list where each element corresponds to a different selection method.}
-   \item{\code{index}}{The estimated index. In the penalized case, it is a matrix where each row corresponds to a different selection method.}
-   \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the original path. To this path is added the CV-score.}
+   \item{\code{theta}}{The estimated vector of parameters. It is a matrix where each row corresponds to a different selection method (e.g., BIC, bootstrap, cross-validation).}
+   \item{\code{Gi.expl}}{The estimated explained Gini coefficient. It is a vector, where each element corresponds to a different selection method.}
+   \item{\code{LR2}}{The Lorenz-\eqn{R^2} of the regression. It is a vector, where each element corresponds to a different selection method.}
+   \item{\code{MRS}}{The matrix of estimated marginal rates of substitution. It is a list where each element corresponds to a different selection method.}
+   \item{\code{index}}{The estimated index. It is a matrix where each row corresponds to a different selection method.}
+   \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the documentation of the original path. To this path is added the CV-score.}
    \item{\code{which.lambda}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
    \item{\code{which.tuning}}{A vector indicating the index of the optimal tuning parameter obtained by each selection method.}
 }
@@ -40,12 +40,20 @@ Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap e
 }
 
 \examples{
-YX_mat <- Data.Incomes[,-2]
-PLR <- PLR.wrap(YX_mat, h = nrow(YX_mat)^(-1/5.5), eps=0.01)
-PLR.CV(Income ~ ., Data.Incomes, PLR.est = PLR,
-       h = nrow(Data.Incomes)^(-1/5.5), eps = 0.01, nfolds = 5)
+\dontshow{
+utils::example(Lorenz.Reg, echo = FALSE)
+}
+# Continuing the  Lorenz.Reg(.) example:
+PLR_CV <- PLR.CV(PLR, k = 5, data.orig = data, seed.CV = 123)
+# Because the object inherits from the class "PLR_CV", the methods (also) display the results obtained by cross-validation.
+print(PLR_CV)
+summary(PLR_CV)
+coef(PLR_CV)
+predict(PLR_CV)
+plot(PLR_CV)
+plot(PLR_CV, type = "diagnostic") # Plot of the scores depending on the tuning and penalty parameters
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.boot}}
+\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{PLR.wrap}}, \code{\link{Lorenz.boot}}
 }

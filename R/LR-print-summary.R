@@ -2,17 +2,17 @@
 #'
 #' \code{print.summary.LR} provides a printing method for an object of class \code{"summary.LR"}.
 #'
-#' @param object An object of class \code{"summary.LR"}.
-#' @param ... Additional arguments
+#' @param x An object of class \code{"summary.LR"}.
+#' @param digits Number of significant digits to be passed.
+#' @param signif.stars Logical determining whether p-values should be also encoded visually. See the help of the function \code{\link{printCoefmat}} for more information.
+#' @param ... Additional arguments passed to the function \code{\link{printCoefmat}}.
 #'
 #' @return No return value, called for printing an object of class \code{"LR"} to the console.
 #'
 #' @seealso \code{\link{summary.LR}}
 #'
 #' @examples
-#' data(Data.Incomes)
-#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-#' summary(NPLR)
+#' ## For examples see example(Lorenz.Reg) and example(Lorenz.boot)
 #'
 #' @method print summary.LR
 #' @export

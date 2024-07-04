@@ -10,9 +10,7 @@
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
 #' @examples
-#' data(Data.Incomes)
-#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-#' coef(NPLR)
+#' ## For examples see example(Lorenz.Reg)
 #'
 #' @method coef LR
 #' @export

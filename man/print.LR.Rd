@@ -20,9 +20,7 @@ No return value, called for printing an object of class \code{"LR"} to the conso
 \code{print.LR} prints the arguments, explained Gini coefficient and estimated coefficients of an object of class \code{"LR"}.
 }
 \examples{
-data(Data.Incomes)
-NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-print(NPLR)
+## For examples see example(Lorenz.Reg)
 
 }
 \seealso{

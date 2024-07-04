@@ -4,28 +4,28 @@
 \alias{coef.PLR}
 \title{Estimated coefficients for the Penalized Lorenz Regression}
 \usage{
-\method{coef}{PLR}(object, renormalize = TRUE, ...)
+\method{coef}{PLR}(object, renormalize = TRUE, which.pars = NULL, ...)
 }
 \arguments{
 \item{object}{An object of S3 class \code{"PLR"}.}
 
 \item{renormalize}{A logical value determining whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE}
 
+\item{which.pars}{A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
+Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).}
+
 \item{...}{Additional arguments}
 }
 \value{
 a vector gathering the estimated coefficients.
 If the object has also class \code{"PLR_boot"} and/or \code{"PLR_cv"}, the output is a matrix, where each column corresponds to a selection method.
+If the argument \code{which.pars} is specified, the output is a vector and the estimated coefficients correspond to the specified tuning and penalty parameters.
 }
 \description{
 \code{coef.PLR} provides the estimated coefficients for an object of class \code{"PLR"}.
 }
 \examples{
-data(Data.Incomes)
-PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
-                  h.grid = nrow(Data.Incomes)^(-1/5.5), sel.choice = c("BIC","CV"),
-                  eps = 0.01, seed.CV = 123, nfolds = 5)
-coef(PLR)
+## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 
 }
 \seealso{

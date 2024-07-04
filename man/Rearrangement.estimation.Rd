@@ -40,8 +40,8 @@ Chernozhukov, V., I. Fernández-Val, and A. Galichon (2009). Improving Point and
 data(Data.Incomes)
 PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
                   h.grid = nrow(Data.Incomes)^(-1/5.5), eps = 0.01)
-Y <- PLR$Fit[,1]
-Index <- PLR$Fit[,2]
+Y <- PLR$y
+Index <- PLR$index
 Rearrangement.estimation(Y = Y, Index = Index)
 
 }

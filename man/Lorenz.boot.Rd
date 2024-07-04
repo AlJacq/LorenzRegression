@@ -2,9 +2,9 @@
 % Please edit documentation in R/Lorenz-bootstrap.R
 \name{Lorenz.boot}
 \alias{Lorenz.boot}
-\title{Bootstrap for (penalized) Lorenz regression}
+\title{Bootstrap for the (penalized) Lorenz regression}
 \usage{
-Lorenz.boot(object, R, data.orig, ...)
+Lorenz.boot(object, R, data.orig, boot_out_only = FALSE, ...)
 }
 \arguments{
 \item{object}{An object with S3 class \code{"LR"} or \code{"PLR"}, i.e. the return of a call to the \code{\link{Lorenz.Reg}} function.}
@@ -13,12 +13,14 @@ Lorenz.boot(object, R, data.orig, ...)
 
 \item{data.orig}{A data frame corresponding to the original dataset, used in the \code{\link{Lorenz.Reg}} call.}
 
-\item{...}{Additional parameters corresponding to arguments passed to the function \code{\link{boot}} from the \code{\link{boot}} library.}
+\item{boot_out_only}{A logical determining whether the function should return raw bootstrap results. This is an advanced feature that helps save computation time in certain instances. See Details.}
+
+\item{...}{Additional parameters corresponding to arguments passed to the function \code{\link{boot}} from the \emph{boot} library.}
 }
 \value{
 An object of class \code{c("LR_boot", "LR")} or \code{c("PLR_boot", "PLR")}, depending on whether a non-penalized or penalized regression was fitted.
 
-The method \code{confint} is used on an object of class \code{"LR_boot"} or \code{"PLR_boot"} to obtain bootstrap inference on the model parameters.
+The method \code{confint} is used on an object of class \code{"LR_boot"} or \code{"PLR_boot"} to construct confidence intervals for the model parameters.
 
 The object returned is a list that contains the following components:
 \describe{
@@ -31,28 +33,55 @@ The object returned is a list that contains the following components:
 }
 For the Penalized Lorenz Regression, the list also contains the following elements.
 \describe{
-   \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the original path. To this path is added the OOB-score.}
+   \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the original path. To this path is added the out-of-bag (OOB) score.}
    \item{\code{which.lambda}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
    \item{\code{which.tuning}}{A vector indicating the index of the optimal tuning parameter obtained by each selection method.}
 }
-Note: The returned object may have additional classes such as \code{"PLR_cv"} if cross-validation was performed and used as a selection method in the penalized case.
+Note: in the penalized case, the returned object may have additional classes such as \code{"PLR_cv"} if cross-validation was performed and used as a selection method.
 }
 \description{
-\code{Lorenz.boot} determines bootstrap estimators for the weight vector, explained Gini coefficient and Lorenz-\eqn{R^2} and, if applies, selects the regularization parameter.
+\code{Lorenz.boot} determines bootstrap estimators for the vector of coefficients of the single-index model, explained Gini coefficient and Lorenz-\eqn{R^2}. In the penalized case, it also provides a selection method.
+}
+\details{
+Users that want to perform parallel computing have two options. The first and most obvious option is to use the facilities provided by the function \code{\link[boot]{boot}}.
+Indeed, arguments such as \code{parallel}, \code{ncpus} and \code{cl} can be passed through the \code{...}.
+Alternatively, users might want to run different instances of the function, each taking care of a portion of the bootstrap samples.
+The argument \code{boot_out_only} can be set to \code{TRUE} to avoid unnecessary computations. If so, the returned object does not inherit from the class \code{"LR_boot"} or \code{"PLR_boot"}. The function simply returns the original \code{object}, to which is added the \code{boot_out} object.
+If this second option is chosen, the instances have to be combined using the function \code{\link{Lorenz.boot.combine}}.
 }
 \section{References}{
 
 Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
+
 Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
 }
 
 \examples{
-data(Data.Incomes)
+\dontshow{
+utils::example(Lorenz.Reg, echo = FALSE)
+}
+# Continuing the Lorenz.Reg(.) example for the non-penalized regression:
+# This example is not run as it takes > 5 seconds to run.
+\dontrun{
 set.seed(123)
-Data <- Data.Incomes[sample(1:nrow(Data.Incomes),50),]
-Lorenz.boot(Income ~ ., data = Data,
-            penalty = "SCAD", h = nrow(Data)^(-1/5.5),
-            eps = 0.02, B = 40, seed.boot = 123)
+NPLR_boot <- Lorenz.boot(NPLR, R = 40, data.orig = data)
+# The method confint() is available to objects of class "LR_boot".
+confint(NPLR_boot)
+summary(NPLR_boot)
+}
+# Continuing the Lorenz.Reg(.) example for the penalized regression:
+set.seed(123)
+PLR_boot <- Lorenz.boot(PLR, R = 40, data.orig = data)
+# Because the object inherits from the class "PLR_boot", the methods (also) display the results obtained by bootstrap.
+print(PLR_boot)
+summary(PLR_boot)
+coef(PLR_boot)
+predict(PLR_boot)
+plot(PLR_boot)
+# Plot of the scores for each selection method depending on the tuning and penalty parameters
+plot(PLR_boot, type = "diagnostic")
+# The method confint() is available to objects of class "PLR_boot".
+confint(PLR_boot)
 
 }
 \seealso{

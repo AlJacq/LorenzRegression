@@ -2,17 +2,16 @@
 #'
 #' \code{print.summary.PLR} provides a printing method for an object of class \code{"summary.PLR"}.
 #'
-#' @param object An object of class \code{"summary.PLR"}.
-#' @param ... Additional arguments
+#' @param x An object of class \code{"summary.PLR"}.
+#' @param digits Number of significant digits to be passed.
+#' @param ... Additional arguments passed to the function \code{\link{printCoefmat}}.
 #'
-#' @return No return value, called for printing an object of class \code{"PLR"} to the console.
+#' @return No return value, called for printing an object of class \code{"summary.PLR"} to the console.
 #'
 #' @seealso \code{\link{summary.PLR}}
 #'
 #' @examples
-#' data(Data.Incomes)
-#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-#' summary(NPLR)
+#' ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 #'
 #' @method print summary.PLR
 #' @export

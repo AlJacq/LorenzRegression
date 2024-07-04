@@ -1,8 +1,9 @@
 #' Prediction for the Lorenz regression
 #'
-#' \code{predict.LR} provides predictions for an object of class \code{LR}.
+#' \code{predict.LR} provides predictions for an object of class \code{"LR"}.
 #'
 #' @param object An object of class \code{"LR"}.
+#' @param newdata An optional data frame in which to look for variables with which to predict. If omitted, the original data are used.
 #' @param type A character string indicating the type of prediction. Possible values are \code{"response"} and \code{"index"} (the default).
 #' In the first case, the prediction estimates the conditional expectation of the response given the covariates.
 #' In the second case, the prediction estimates only the index of the single-index model.
@@ -15,9 +16,7 @@
 #' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Rearrangement.estimation}}
 #'
 #' @examples
-#' data(Data.Incomes)
-#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-#' predict(NPLR)
+#' ## For examples see example(Lorenz.Reg)
 #'
 #' @method predict LR
 #' @export

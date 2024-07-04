@@ -27,9 +27,7 @@ An object of class \code{"summary.LR"}, containing the following elements:
 The inference provided in the \code{coefficients} matrix is obtained by using the asymptotic normality and estimating the asymptotic variance via bootstrap.
 }
 \examples{
-data(Data.Incomes)
-NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-summary(NPLR)
+## For examples see example(Lorenz.Reg) and example(Lorenz.boot)
 
 }
 \seealso{

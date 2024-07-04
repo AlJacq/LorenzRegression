@@ -4,26 +4,31 @@
 #'
 #' @param object An object of S3 class \code{"PLR"}.
 #' @param renormalize A logical value determining whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE
+#' @param which.pars A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
+#' Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).
 #' @param ... Additional arguments
 #'
 #' @return a vector gathering the estimated coefficients.
 #' If the object has also class \code{"PLR_boot"} and/or \code{"PLR_cv"}, the output is a matrix, where each column corresponds to a selection method.
+#' If the argument \code{which.pars} is specified, the output is a vector and the estimated coefficients correspond to the specified tuning and penalty parameters.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
 #' @examples
-#' data(Data.Incomes)
-#' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
-#'                   h.grid = nrow(Data.Incomes)^(-1/5.5), sel.choice = c("BIC","CV"),
-#'                   eps = 0.01, seed.CV = 123, nfolds = 5)
-#' coef(PLR)
+#' ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 #'
 #' @method coef PLR
 #' @export
 
-coef.PLR <- function(object, renormalize=TRUE, ...){
+coef.PLR <- function(object, renormalize=TRUE, which.pars=NULL, ...){
 
   if (!inherits(object, "PLR")) stop("The object must be of class 'PLR'")
+
+  if(!is.null(which.pars)){
+    l <- ncol(object$x)
+    pth <- object$path[[which.pars[1]]][,which.pars[2]]
+    object$theta <- pth[(length(pth)-l+1):length(pth)]
+  }
 
   if(renormalize){
     m1 <- PLR.normalize(object)

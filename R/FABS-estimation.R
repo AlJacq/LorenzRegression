@@ -16,11 +16,11 @@
 #' @param iter maximum number of iterations. Default value is 10^4.
 #' @param lambda this parameter relates to the regularization parameter. Several options are available.
 #' \describe{
-#'     \item{\code{grid}}{If lambda="grid", lambda is defined on a grid, equidistant in the logarithmic scale.}
-#'     \item{\code{Shi}}{If lambda="Shi", lambda, is defined within the algorithm, as in Shi et al (2018).}
+#'     \item{\code{grid}}{If \code{lambda="grid"}, lambda is defined on a grid, equidistant in the logarithmic scale.}
+#'     \item{\code{Shi}}{If \code{lambda="Shi"}, lambda, is defined within the algorithm, as in Shi et al (2018).}
 #'     \item{\code{supplied}}{If the user wants to supply the lambda vector himself}
 #' }
-#' @param lambda.min lower bound of the penalty parameter. Only used if lambda="Shi".
+#' @param lambda.min lower bound of the penalty parameter. Only used if \code{lambda="Shi"}.
 #' @param gamma value of the Lagrange multiplier in the loss function
 #' @param kernel integer indicating what kernel function to use. The value 1 is the default and implies the use of an Epanechnikov kernel while the value of 2 implies the use of a biweight kernel.
 #'
@@ -39,6 +39,7 @@
 #'
 #' @section References:
 #' Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
+#'
 #' Shi, X., Y. Huang, J. Huang, and S. Ma (2018). A Forward and Backward Stagewise Algorithm for Nonconvex Loss Function with Adaptive Lasso, \emph{Computational Statistics & Data Analysis 124}, 235-251.
 #'
 #' @examples

@@ -20,11 +20,7 @@ No return value, called for printing an object of class \code{"PLR"} to the cons
 \code{print.PLR} prints the arguments, explained Gini coefficient and estimated coefficients of an object of class \code{"PLR"}.
 }
 \examples{
-data(Data.Incomes)
-PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
-                  sel.choice = c("BIC","CV"), h.grid = nrow(Data.Incomes)^(-1/5.5),
-                  eps = 0.01, seed.CV = 123, nfolds = 5)
-print(PLR)
+## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 
 }
 \seealso{

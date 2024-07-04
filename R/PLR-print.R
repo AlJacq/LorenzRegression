@@ -11,11 +11,7 @@
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
 #' @examples
-#' data(Data.Incomes)
-#' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
-#'                   sel.choice = c("BIC","CV"), h.grid = nrow(Data.Incomes)^(-1/5.5),
-#'                   eps = 0.01, seed.CV = 123, nfolds = 5)
-#' print(PLR)
+#' ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 #'
 #' @method print PLR
 #' @export

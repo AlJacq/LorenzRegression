@@ -19,9 +19,7 @@
 #' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.boot}}
 #'
 #' @examples
-#' data(Data.Incomes)
-#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-#' summary(NPLR)
+#' ## For examples see example(Lorenz.Reg) and example(Lorenz.boot)
 #'
 #' @method summary LR
 #' @export

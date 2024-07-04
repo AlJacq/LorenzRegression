@@ -4,10 +4,15 @@
 \alias{summary.PLR}
 \title{Summary for the Penalized Lorenz Regression}
 \usage{
-\method{summary}{PLR}(object, renormalize = TRUE, ...)
+\method{summary}{PLR}(object, renormalize = TRUE, which.pars = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \code{"PLR"}.}
+
+\item{renormalize}{A logical value determining whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE}
+
+\item{which.pars}{A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
+Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).}
 
 \item{...}{Additional arguments}
 }
@@ -15,22 +20,15 @@
 An object of class \code{"summary.PLR"}, containing the following elements:
 \describe{
    \item{\code{call}}{The matched call.}
-   \item{\code{Gi.expl}}{The estimated explained Gini coefficient.}
-   \item{\code{LR2}}{The Lorenz-\eqn{R^2} of the regression.}
-   \item{\code{coefficients}}{A matrix providing information on the estimated coefficients. The first column gives the estimates.
-   If the class of \code{object} contains \code{LR_boot}, bootstrap inference was performed and the matrix contains further information. The second column is the boostrap standard error. The third column is the z-value. Finally, the last column is the p-value.}
+   \item{\code{ineq}}{The table of explained inequality. The first column displays the explained Gini coefficient, the second displays the Gini coefficient of the response and the last column displays the Lorenz-R2. Each row corresponds to a different selection method.}
+   \item{\code{coefficients}}{A matrix providing information on the estimated coefficients. Each column corresponds to a different selection method}
 }
 }
 \description{
 \code{summary.PLR} provides a summary for an object of class \code{"PLR"}.
 }
-\details{
-The inference provided in the \code{coefficients} matrix is obtained by using the asymptotic normality and estimating the asymptotic variance via bootstrap.
-}
 \examples{
-data(Data.Incomes)
-NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-summary(NPLR)
+## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 
 }
 \seealso{

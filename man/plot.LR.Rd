@@ -18,9 +18,7 @@ The Lorenz curve of the response and concentration curve of the response with re
 \code{plot.LR} provides plots for an object of class \code{"LR"}.
 }
 \examples{
-data(Data.Incomes)
-NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none")
-plot(NPLR)
+## For examples see example(Lorenz.Reg)
 
 }
 \seealso{

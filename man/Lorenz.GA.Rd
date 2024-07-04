@@ -52,12 +52,12 @@ A list with several components:
 }
 }
 \description{
-\code{Lorenz.GA} estimates the vector of parameters in Lorenz regression using the unit-norm normalization
+\code{Lorenz.GA} estimates the coefficient vector of the single-index model.
 It also returns the Lorenz-\eqn{R^2} of the regression as well as the estimated explained Gini coefficient.
 }
 \details{
 The genetic algorithm is solved using function \code{\link[GA]{ga}} from the \emph{GA} package. The fitness function is coded in Rcpp to speed up computation time.
-When discrete covariates are introduced and ties occur in the index, the default option randomly breaks them, as advised in Section 3 of Heuchenne and Jacquemain (2020)
+When discrete covariates are introduced and ties occur in the index, the default option randomly breaks them, as advised in Section 3 of Heuchenne and Jacquemain (2022)
 }
 \section{References}{
 

@@ -1,13 +1,13 @@
 #' Confidence intervals for the Penalized Lorenz Regression
 #'
-#' \code{confint.PLR} provides bootstrap confidence intervals for the explained Gini coefficient and Lorenz-R2 for an parm of class \code{"PLR_boot"}.
+#' \code{confint.PLR_boot} provides bootstrap confidence intervals for the explained Gini coefficient and Lorenz-R2 for an object of class \code{"PLR_boot"}.
 #'
 #' @param object An object of class \code{"PLR_boot"}.
-#' @param parm A logical value determining whether the confidence interval is computed for the explained Gini coefficient, for the Lorenz-R2 or for the vector of theta coefficients. Possible values are \code{"Gini"} (default, for the explained Gini) and \code{"LR2"} (for the Lorenz-R2)
+#' @param parm A character string determining whether the confidence interval is computed for the explained Gini coefficient or for the Lorenz-R2. Possible values are \code{"Gini"} (default, for the explained Gini) and \code{"LR2"} (for the Lorenz-R2)
 #' @param level A numeric giving the level of the confidence interval. Default value is 0.95.
-#' @param type A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link{boot.ci}} from the \code{\link{boot}} library.
+#' @param type A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link{boot.ci}} from the \emph{boot} library.
 #' @param which.pars A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
-#' Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC, bootstrap and cross-validation (if the class of \code{object} contains \code{PLR_cv}).
+#' Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).
 #' @param bias.corr A logical determining whether bias correction should be performed. Only used if \code{type="norm"}. Default is \code{TRUE}.
 #'
 #' @return The desired confidence interval.
@@ -17,17 +17,12 @@
 #' @seealso \code{\link{Lorenz.boot}}, \code{\link[boot]{boot.ci}}
 #'
 #' @examples
-#' data(Data.Incomes)
-#' set.seed(123)
-#' Data <- Data.Incomes[sample(1:nrow(Data.Incomes),50),]
-#' PLR <- Lorenz.Reg(Income ~ ., data = Data, h.grid = nrow(Data)^(-1/5.5),
-#'                   penalty = "SCAD", eps = 0.02, seed.boot = 123, B = 40, Boot.inference = TRUE)
-#' confint(PLR)
+#' ## For examples see example(Lorenz.boot)
 #'
-#' @method confint PLR
+#' @method confint PLR_boot
 #' @export
 
-confint.PLR <- function(object, parm=c("Gini","LR2"), level=0.95, type=c("norm","basic","perc"), which.pars = NULL, bias.corr = TRUE, ...){
+confint.PLR_boot <- function(object, parm=c("Gini","LR2"), level=0.95, type=c("norm","basic","perc"), which.pars = NULL, bias.corr = TRUE, ...){
 
   if (!inherits(object, "PLR_boot")) stop("The object must be of class 'PLR_boot'")
 
