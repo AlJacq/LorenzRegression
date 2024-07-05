@@ -13,7 +13,7 @@
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.
 #' @param SCAD.nfwd optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.
-#' @param eps step size in the FABS algorithm.
+#' @param eps step size in the FABS algorithm. Default value is 0.005.
 #' @param a parameter of the SCAD penalty. Default value is 3.7.
 #' @param iter maximum number of iterations. Default value is 10^4.
 #' @param lambda this parameter relates to the regularization parameter. Several options are available.
@@ -49,7 +49,7 @@
 #'
 #' @export
 
-Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL, h, SCAD.nfwd = NULL, eps, a = 3.7,
+Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL, h, SCAD.nfwd = NULL, eps = 0.005, a = 3.7,
                 iter=10^4, lambda="Shi", lambda.min = 1e-7, gamma = 0.05, kernel = 1){
 
   n <- length(y)

@@ -9,11 +9,9 @@ Lorenz.Reg(
   data,
   weights,
   na.action,
-  standardize = TRUE,
   penalty = c("none", "SCAD", "LASSO"),
   h.grid = NULL,
   SCAD.nfwd.grid = NULL,
-  eps = 0.005,
   lambda.list = NULL,
   ...
 )
@@ -27,8 +25,6 @@ Lorenz.Reg(
 
 \item{na.action}{A function which indicates what should happen when the data contain \code{NA}s. The default is set by the \code{na.action} setting of \code{\link{options}}, and is \code{\link{na.fail}} if that is unset. The 'factory-fresh' default is \code{\link{na.omit}}. Another possible value is \code{NULL}, no action. Value \code{\link{na.exclude}} can be useful.}
 
-\item{standardize}{A logical determining whether the variables should be standardized before the estimation process. Default value is \code{TRUE}.}
-
 \item{penalty}{A character string specifying the type of penalty on the size of the estimated coefficients of the single-index model.
 The default value is \code{"none"}, in which case a non-penalized Lorenz regression is fitted using \code{\link{Lorenz.GA}}.
 Other possible values are \code{"LASSO"} and \code{"SCAD"}, in which case a penalized Lorenz regression is fitted using \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}} respectively.}
@@ -36,8 +32,6 @@ Other possible values are \code{"LASSO"} and \code{"SCAD"}, in which case a pena
 \item{h.grid}{Only used if \code{penalty="SCAD"} or \code{penalty="LASSO"}. A vector (grid) of values for the bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. By default, it is set to (0.1,0.2,1,2,5)*n^(-1/5.5), where n is the sample size.}
 
 \item{SCAD.nfwd.grid}{Only used if \code{penalty="SCAD"}. A vector (grid) of values for the \code{SCAD.nfwd} argument used in the \code{\link{Lorenz.SCADFABS}} function. Default value is \code{NULL}. If a vector is supplied, the argument \code{h.grid} is modified to only use the first value of the vector.}
-
-\item{eps}{Only used if \code{penalty="SCAD"} or \code{penalty="LASSO"}. A scalar indicating the step size in the FABS or SCADFABS algorithm. Default value is 0.005.}
 
 \item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}}, \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}}, depending on the argument chosen in \code{penalty}.}
 }

@@ -13,7 +13,7 @@
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.
 #' @param w.adaptive vector of size equal to the number of covariates where each entry indicates the weight in the adaptive Lasso. By default, each covariate is given the same weight (Lasso).
-#' @param eps step size in the FABS algorithm.
+#' @param eps step size in the FABS algorithm. Default value is 0.005.
 #' @param iter maximum number of iterations. Default value is 10^4.
 #' @param lambda this parameter relates to the regularization parameter. Several options are available.
 #' \describe{
@@ -51,7 +51,7 @@
 #' @export
 
 # Largely based on the code proposed by Xingjie Shi on github
-Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL, h, w.adaptive=NULL, eps,
+Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL, h, w.adaptive=NULL, eps=0.005,
                         iter=10^4, lambda="Shi", lambda.min = 1e-7, gamma = 0.05, kernel = 1){
 
   n <- length(y)

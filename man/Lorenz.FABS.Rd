@@ -11,7 +11,7 @@ Lorenz.FABS(
   weights = NULL,
   h,
   w.adaptive = NULL,
-  eps,
+  eps = 0.005,
   iter = 10^4,
   lambda = "Shi",
   lambda.min = 1e-07,
@@ -32,7 +32,7 @@ Lorenz.FABS(
 
 \item{w.adaptive}{vector of size equal to the number of covariates where each entry indicates the weight in the adaptive Lasso. By default, each covariate is given the same weight (Lasso).}
 
-\item{eps}{step size in the FABS algorithm.}
+\item{eps}{step size in the FABS algorithm. Default value is 0.005.}
 
 \item{iter}{maximum number of iterations. Default value is 10^4.}
 

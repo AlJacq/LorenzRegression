@@ -6,13 +6,11 @@
 #' @param data An optional data frame, list or environment (or object coercible by \code{\link{as.data.frame}} to a data frame) containing the variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which \code{Lorenz.Reg} is called.
 #' @param weights An optional vector of sample weights to be used in the fitting process. Should be \code{NULL} or a numeric vector.
 #' @param na.action A function which indicates what should happen when the data contain \code{NA}s. The default is set by the \code{na.action} setting of \code{\link{options}}, and is \code{\link{na.fail}} if that is unset. The 'factory-fresh' default is \code{\link{na.omit}}. Another possible value is \code{NULL}, no action. Value \code{\link{na.exclude}} can be useful.
-#' @param standardize A logical determining whether the variables should be standardized before the estimation process. Default value is \code{TRUE}.
 #' @param penalty A character string specifying the type of penalty on the size of the estimated coefficients of the single-index model.
 #' The default value is \code{"none"}, in which case a non-penalized Lorenz regression is fitted using \code{\link{Lorenz.GA}}.
 #' Other possible values are \code{"LASSO"} and \code{"SCAD"}, in which case a penalized Lorenz regression is fitted using \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}} respectively.
 #' @param h.grid Only used if \code{penalty="SCAD"} or \code{penalty="LASSO"}. A vector (grid) of values for the bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. By default, it is set to (0.1,0.2,1,2,5)*n^(-1/5.5), where n is the sample size.
 #' @param SCAD.nfwd.grid Only used if \code{penalty="SCAD"}. A vector (grid) of values for the \code{SCAD.nfwd} argument used in the \code{\link{Lorenz.SCADFABS}} function. Default value is \code{NULL}. If a vector is supplied, the argument \code{h.grid} is modified to only use the first value of the vector.
-#' @param eps Only used if \code{penalty="SCAD"} or \code{penalty="LASSO"}. A scalar indicating the step size in the FABS or SCADFABS algorithm. Default value is 0.005.
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}}, \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}}, depending on the argument chosen in \code{penalty}.
 #'
 #' @return An object of class \code{"LR"} for the non-penalized Lorenz regression or of class \code{"PLR"} for a penalized Lorenz regression.
@@ -87,11 +85,9 @@ Lorenz.Reg <- function(formula,
                        data,
                        weights,
                        na.action,
-                       standardize = TRUE,
                        penalty=c("none","SCAD","LASSO"),
                        h.grid=NULL,
                        SCAD.nfwd.grid = NULL,
-                       eps=0.005,
                        lambda.list=NULL,
                        ...){
 
@@ -156,30 +152,30 @@ Lorenz.Reg <- function(formula,
   # 1. (Penalized) Lorenz Regression ----
 
   if(penalty == "none"){
-    LR <- Lorenz.GA(y, x, standardize=standardize, weights=w, ...)
+    LR <- Lorenz.GA(y, x, weights=w, ...)
   }else{
     if(is.null(h.grid)) h.grid <- c(0.1,0.2,1,2,5)*length(y)^(-1/5.5)
     n.h <- length(h.grid)
     if(penalty=="LASSO"){
       if(is.null(lambda.list)){
-        LR <- lapply(1:n.h,function(i)Lorenz.FABS(y, x, standardize=standardize, weights=w, h = h.grid[i], eps=eps, ...))
+        LR <- lapply(1:n.h,function(i)Lorenz.FABS(y, x, weights=w, h = h.grid[i], ...))
       }else{
-        LR <- lapply(1:n.h,function(i)Lorenz.FABS(y, x, standardize=standardize, weights=w, h = h.grid[i], eps=eps, lambda = lambda.list[[i]], ...))
+        LR <- lapply(1:n.h,function(i)Lorenz.FABS(y, x, weights=w, h = h.grid[i], lambda = lambda.list[[i]], ...))
       }
     }
     if(penalty=="SCAD"){
       if(is.null(SCAD.nfwd.grid)){
         if(is.null(lambda.list)){
-          LR <- lapply(1:n.h,function(i)Lorenz.SCADFABS(y, x, standardize=standardize, weights=w, h = h.grid[i], SCAD.nfwd = NULL, eps=eps, ...))
+          LR <- lapply(1:n.h,function(i)Lorenz.SCADFABS(y, x, weights=w, h = h.grid[i], SCAD.nfwd = NULL, ...))
         }else{
-          LR <- lapply(1:n.h,function(i)Lorenz.SCADFABS(y, x, standardize=standardize, weights=w, h = h.grid[i], SCAD.nfwd = NULL, eps=eps, lambda = lambda.list[[i]], ...))
+          LR <- lapply(1:n.h,function(i)Lorenz.SCADFABS(y, x, weights=w, h = h.grid[i], SCAD.nfwd = NULL, lambda = lambda.list[[i]], ...))
         }
       }else{
         n.c <- length(SCAD.nfwd.grid)
         if(is.null(lambda.list)){
-          LR <- lapply(1:n.c,function(i)Lorenz.SCADFABS(y, x, standardize=standardize, weights=w, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], eps=eps, ...))
+          LR <- lapply(1:n.c,function(i)Lorenz.SCADFABS(y, x, weights=w, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], ...))
         }else{
-          LR <- lapply(1:n.c,function(i)Lorenz.SCADFABS(y, x, standardize=standardize, weights=w, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], eps=eps, lambda = lambda.list[[i]], ...))
+          LR <- lapply(1:n.c,function(i)Lorenz.SCADFABS(y, x, weights=w, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], lambda = lambda.list[[i]], ...))
         }
       }
     }

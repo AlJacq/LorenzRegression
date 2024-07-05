@@ -11,7 +11,7 @@ Lorenz.SCADFABS(
   weights = NULL,
   h,
   SCAD.nfwd = NULL,
-  eps,
+  eps = 0.005,
   a = 3.7,
   iter = 10^4,
   lambda = "Shi",
@@ -33,7 +33,7 @@ Lorenz.SCADFABS(
 
 \item{SCAD.nfwd}{optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.}
 
-\item{eps}{step size in the FABS algorithm.}
+\item{eps}{step size in the FABS algorithm. Default value is 0.005.}
 
 \item{a}{parameter of the SCAD penalty. Default value is 3.7.}
 
