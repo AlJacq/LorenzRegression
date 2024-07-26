@@ -1,6 +1,6 @@
 #' Cross-validation for penalized Lorenz regression
 #'
-#' \code{PLR.cv} selects the tuning and penalization parameters of the penalized Lorenz regression by cross-validation.
+#' \code{PLR.CV} selects the tuning and penalization parameters of the penalized Lorenz regression by cross-validation.
 #'
 #' @param object An object with S3 class \code{"PLR"}, i.e. the return of a call to the \code{\link{Lorenz.Reg}} function where \code{penalty=="SCAD"} or \code{penalty=="LASSO"}.
 #' @param k An integer indicating the number of folds in the k-fold cross-validation

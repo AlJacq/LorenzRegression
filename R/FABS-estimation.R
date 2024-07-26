@@ -11,19 +11,19 @@
 #' @param x a matrix of explanatory variables
 #' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
-#' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.
-#' @param w.adaptive vector of size equal to the number of covariates where each entry indicates the weight in the adaptive Lasso. By default, each covariate is given the same weight (Lasso).
-#' @param eps step size in the FABS algorithm. Default value is 0.005.
-#' @param iter maximum number of iterations. Default value is 10^4.
+#' @param kernel integer indicating what kernel function to use. The value 1 is the default and implies the use of an Epanechnikov kernel while the value of 2 implies the use of a biweight kernel.
+#' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is n^(-1/5.5) where n is the sample size.
+#' @param gamma value of the Lagrange multiplier in the loss function
 #' @param lambda this parameter relates to the regularization parameter. Several options are available.
 #' \describe{
 #'     \item{\code{grid}}{If \code{lambda="grid"}, lambda is defined on a grid, equidistant in the logarithmic scale.}
 #'     \item{\code{Shi}}{If \code{lambda="Shi"}, lambda, is defined within the algorithm, as in Shi et al (2018).}
 #'     \item{\code{supplied}}{If the user wants to supply the lambda vector himself}
 #' }
+#' @param w.adaptive vector of size equal to the number of covariates where each entry indicates the weight in the adaptive Lasso. By default, each covariate is given the same weight (Lasso).
+#' @param eps step size in the FABS algorithm. Default value is 0.005.
+#' @param iter maximum number of iterations. Default value is 10^4.
 #' @param lambda.min lower bound of the penalty parameter. Only used if \code{lambda="Shi"}.
-#' @param gamma value of the Lagrange multiplier in the loss function
-#' @param kernel integer indicating what kernel function to use. The value 1 is the default and implies the use of an Epanechnikov kernel while the value of 2 implies the use of a biweight kernel.
 #'
 #' @return A list with several components:
 #' \describe{
@@ -44,15 +44,17 @@
 #' data(Data.Incomes)
 #' y <- Data.Incomes[,1]
 #' x <- as.matrix(Data.Incomes[,-c(1,2)])
-#' Lorenz.FABS(y, x, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
+#' Lorenz.FABS(y, x)
 #'
 #' @import MASS
 #'
 #' @export
 
 # Largely based on the code proposed by Xingjie Shi on github
-Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL, h, w.adaptive=NULL, eps=0.005,
-                        iter=10^4, lambda="Shi", lambda.min = 1e-7, gamma = 0.05, kernel = 1){
+Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL,
+                        kernel = 1, h=length(y)^(-1/5.5), gamma = 0.05,
+                        lambda="Shi", w.adaptive=NULL,
+                        eps=0.005, iter=10^4, lambda.min = 1e-7){
 
   n <- length(y)
   p <- ncol(x)

@@ -11,20 +11,20 @@
 #' @param x a matrix of explanatory variables
 #' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
-#' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.
-#' @param SCAD.nfwd optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.
-#' @param eps step size in the FABS algorithm. Default value is 0.005.
+#' @param kernel integer indicating what kernel function to use. The value 1 is the default and implies the use of an Epanechnikov kernel while the value of 2 implies the use of a biweight kernel.
+#' @param h bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is n^(-1/5.5) where n is the sample size.
+#' @param gamma value of the Lagrange multiplier in the loss function
 #' @param a parameter of the SCAD penalty. Default value is 3.7.
-#' @param iter maximum number of iterations. Default value is 10^4.
 #' @param lambda this parameter relates to the regularization parameter. Several options are available.
 #' \describe{
 #'     \item{\code{grid}}{If lambda="grid", lambda is defined on a grid, equidistant in the logarithmic scale.}
 #'     \item{\code{Shi}}{If lambda="Shi", lambda, is defined within the algorithm, as in Shi et al (2018).}
 #'     \item{\code{supplied}}{If the user wants to supply the lambda vector himself}
 #' }
+#' @param eps step size in the FABS algorithm. Default value is 0.005.
+#' @param SCAD.nfwd optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.
+#' @param iter maximum number of iterations. Default value is 10^4.
 #' @param lambda.min lower bound of the penalty parameter. Only used if lambda="Shi".
-#' @param gamma value of the Lagrange multiplier in the loss function
-#' @param kernel integer indicating what kernel function to use. The value 1 is the default and implies the use of an Epanechnikov kernel while the value of 2 implies the use of a biweight kernel.
 #'
 #' @return A list with several components:
 #' \describe{
@@ -43,14 +43,16 @@
 #' data(Data.Incomes)
 #' y <- Data.Incomes[,1]
 #' x <- as.matrix(Data.Incomes[,-c(1,2)])
-#' Lorenz.SCADFABS(y, x, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
+#' Lorenz.SCADFABS(y, x)
 #'
 #' @import MASS
 #'
 #' @export
 
-Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL, h, SCAD.nfwd = NULL, eps = 0.005, a = 3.7,
-                iter=10^4, lambda="Shi", lambda.min = 1e-7, gamma = 0.05, kernel = 1){
+Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL,
+                            kernel = 1, h=length(y)^(-1/5.5), gamma = 0.05,
+                            a = 3.7, lambda="Shi",
+                            eps = 0.005, SCAD.nfwd = NULL, iter=10^4, lambda.min = 1e-7){
 
   n <- length(y)
   p <- ncol(x)

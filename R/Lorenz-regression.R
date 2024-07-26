@@ -9,8 +9,6 @@
 #' @param penalty A character string specifying the type of penalty on the size of the estimated coefficients of the single-index model.
 #' The default value is \code{"none"}, in which case a non-penalized Lorenz regression is fitted using \code{\link{Lorenz.GA}}.
 #' Other possible values are \code{"LASSO"} and \code{"SCAD"}, in which case a penalized Lorenz regression is fitted using \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}} respectively.
-#' @param h.grid Only used if \code{penalty="SCAD"} or \code{penalty="LASSO"}. A vector (grid) of values for the bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. By default, it is set to (0.1,0.2,1,2,5)*n^(-1/5.5), where n is the sample size.
-#' @param SCAD.nfwd.grid Only used if \code{penalty="SCAD"}. A vector (grid) of values for the \code{SCAD.nfwd} argument used in the \code{\link{Lorenz.SCADFABS}} function. Default value is \code{NULL}. If a vector is supplied, the argument \code{h.grid} is modified to only use the first value of the vector.
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}}, \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}}, depending on the argument chosen in \code{penalty}.
 #'
 #' @return An object of class \code{"LR"} for the non-penalized Lorenz regression or of class \code{"PLR"} for a penalized Lorenz regression.
@@ -29,7 +27,7 @@
 #'    we should look for row corresponding to \eqn{X_1} and column corresponding to \eqn{X_2}.}
 #'    \item{\code{index}}{A vector gathering the estimated index.}
 #' }
-#' For the Penalized Lorenz Regression, the tuning parameter (i.e. the value on the grid \code{h.grid} or \code{SCAD.nfwd.grid}) and the penalization parameter (lambda) are chosen optimally via the BIC method.
+#' For the Penalized Lorenz Regression, the tuning parameter (i.e. the value on the grid \code{grid.value}) and the penalization parameter (lambda) are chosen optimally via the BIC method.
 #' The object of class \code{"PLR"} is a list containing the same components as previously, and in addition :
 #' \describe{
 #'    \item{\code{path}}{A list where the different elements correspond to the values of the tuning parameter. Each element is a matrix where the first line displays the vector of lambda values. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that vector. The next lines display the evolution of the BIC score. The remaining lines display the evolution of the estimated coefficients of the single-index model.}
@@ -86,8 +84,8 @@ Lorenz.Reg <- function(formula,
                        weights,
                        na.action,
                        penalty=c("none","SCAD","LASSO"),
-                       h.grid=NULL,
-                       SCAD.nfwd.grid = NULL,
+                       grid.arg=c("h","SCAD.nfwd","eps","kernel","a","gamma"),
+                       grid.value=NULL,
                        lambda.list=NULL,
                        ...){
 
@@ -103,14 +101,9 @@ Lorenz.Reg <- function(formula,
   mt <- attr(mf, "terms")
 
   # 0 > Checks ----
-  # Check on penalty
+
   penalty <- match.arg(penalty)
-  # Check on SCAD.fwd.grid and h.grid
-  # Choose either a grid for the bandwidth (via h.grid) or a grid for n_fwd (via SCAD.nfwd.grid), but not both.
-  if(length(h.grid)>1 & length(SCAD.nfwd.grid)>1){
-    warning("To avoid enormous computation time, the code does not accept a grid for h and nfwd at the same time. As such, only the first value for h.grid is used, while the whole vector is used for SCAD.nfwd.grid")
-    h.grid <- h.grid[1]
-  }
+  grid.arg <- match.arg(grid.arg)
 
   # 0 > Response and Design ----
 
@@ -121,8 +114,7 @@ Lorenz.Reg <- function(formula,
 
   if (is.empty.model(mt)) {
     x <- as.matrix(rep(1,length(y)))
-  }
-  else {
+  } else {
     # We need to distinguish between LR and PLR because specific treatment of categorical in PLR
     if (penalty == "none"){
       # In LR, only need to exclude the intercept
@@ -154,31 +146,22 @@ Lorenz.Reg <- function(formula,
   if(penalty == "none"){
     LR <- Lorenz.GA(y, x, weights=w, ...)
   }else{
-    if(is.null(h.grid)) h.grid <- c(0.1,0.2,1,2,5)*length(y)^(-1/5.5)
-    n.h <- length(h.grid)
-    if(penalty=="LASSO"){
-      if(is.null(lambda.list)){
-        LR <- lapply(1:n.h,function(i)Lorenz.FABS(y, x, weights=w, h = h.grid[i], ...))
-      }else{
-        LR <- lapply(1:n.h,function(i)Lorenz.FABS(y, x, weights=w, h = h.grid[i], lambda = lambda.list[[i]], ...))
-      }
+    if(is.null(grid.value)){
+      lth.path <- 1
+    }else{
+      lth.path <- length(grid.value)
     }
-    if(penalty=="SCAD"){
-      if(is.null(SCAD.nfwd.grid)){
-        if(is.null(lambda.list)){
-          LR <- lapply(1:n.h,function(i)Lorenz.SCADFABS(y, x, weights=w, h = h.grid[i], SCAD.nfwd = NULL, ...))
-        }else{
-          LR <- lapply(1:n.h,function(i)Lorenz.SCADFABS(y, x, weights=w, h = h.grid[i], SCAD.nfwd = NULL, lambda = lambda.list[[i]], ...))
-        }
-      }else{
-        n.c <- length(SCAD.nfwd.grid)
-        if(is.null(lambda.list)){
-          LR <- lapply(1:n.c,function(i)Lorenz.SCADFABS(y, x, weights=w, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], ...))
-        }else{
-          LR <- lapply(1:n.c,function(i)Lorenz.SCADFABS(y, x, weights=w, h = h.grid[1], SCAD.nfwd = SCAD.nfwd.grid[i], lambda = lambda.list[[i]], ...))
-        }
-      }
+    fun <- switch(penalty,
+                  "LASSO" = Lorenz.FABS,
+                  "SCAD" = Lorenz.SCADFABS)
+    arg.list <- lapply(1:lth.path,function(z)list(y = y, x = x, weights = w))
+    for (i in 1:lth.path){
+      if(!is.null(lambda.list)) arg.list[[i]]$lambda <- lambda.list[[i]]
+      if(!is.null(grid.value)) arg.list[[i]][grid.arg] <- grid.value[i]
     }
+    dots <- list(...)
+    call.list <- lapply(1:lth.path,function(i)c(arg.list[[i]],dots))
+    LR <- lapply(1:lth.path,function(i)do.call(fun,call.list[[i]]))
   }
 
   # 2. Output of the (P)LR ----
@@ -189,8 +172,6 @@ Lorenz.Reg <- function(formula,
     LR2 <- LR$LR2
     class(return.list) <- "LR"
   }else{
-    # Construction of the path
-    lth.path <- ifelse(!is.null(SCAD.nfwd.grid) & penalty=="SCAD",n.c,n.h)
     # Construction of the path > Number of selected vars
     n_selected <- lapply(1:lth.path,function(i)apply(LR[[i]]$theta,2,function(x)sum(abs(x) > 10^(-10))))
     # Construction of the path > Main objects
