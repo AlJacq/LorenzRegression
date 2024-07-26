@@ -8,13 +8,13 @@ Lorenz.GA(
   y,
   x,
   standardize = TRUE,
+  weights = NULL,
   popSize = 50,
   maxiter = 1500,
   run = 150,
   ties.method = c("random", "mean"),
   ties.Gini = c("random", "mean"),
   seed.random = NULL,
-  weights = NULL,
   parallel.GA = FALSE
 )
 }
@@ -24,6 +24,8 @@ Lorenz.GA(
 \item{x}{a matrix of explanatory variables}
 
 \item{standardize}{Should the variables be standardized before the estimation process? Default value is TRUE.}
+
+\item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
 \item{popSize}{Size of the population of candidates in the genetic algorithm. Default value is 50.}
 
@@ -36,8 +38,6 @@ Lorenz.GA(
 \item{ties.Gini}{what method should be used to break the ties in the computation of the Gini coefficient at the end of the algorithm. Possible values and default choice are the same as above.}
 
 \item{seed.random}{seed.random imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed.random is imposed.}
-
-\item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
 \item{parallel.GA}{Whether parallel computing should be used to distribute the computations in the genetic algorithm. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.}
 }

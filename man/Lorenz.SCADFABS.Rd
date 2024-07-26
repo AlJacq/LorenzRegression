@@ -9,15 +9,15 @@ Lorenz.SCADFABS(
   x,
   standardize = TRUE,
   weights = NULL,
-  h,
-  SCAD.nfwd = NULL,
-  eps = 0.005,
-  a = 3.7,
-  iter = 10^4,
-  lambda = "Shi",
-  lambda.min = 1e-07,
+  kernel = 1,
+  h = length(y)^(-1/5.5),
   gamma = 0.05,
-  kernel = 1
+  a = 3.7,
+  lambda = "Shi",
+  eps = 0.005,
+  SCAD.nfwd = NULL,
+  iter = 10^4,
+  lambda.min = 1e-07
 )
 }
 \arguments{
@@ -29,15 +29,13 @@ Lorenz.SCADFABS(
 
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
-\item{h}{bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.}
+\item{kernel}{integer indicating what kernel function to use. The value 1 is the default and implies the use of an Epanechnikov kernel while the value of 2 implies the use of a biweight kernel.}
 
-\item{SCAD.nfwd}{optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.}
+\item{h}{bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is n^(-1/5.5) where n is the sample size.}
 
-\item{eps}{step size in the FABS algorithm. Default value is 0.005.}
+\item{gamma}{value of the Lagrange multiplier in the loss function}
 
 \item{a}{parameter of the SCAD penalty. Default value is 3.7.}
-
-\item{iter}{maximum number of iterations. Default value is 10^4.}
 
 \item{lambda}{this parameter relates to the regularization parameter. Several options are available.
 \describe{
@@ -46,11 +44,13 @@ Lorenz.SCADFABS(
     \item{\code{supplied}}{If the user wants to supply the lambda vector himself}
 }}
 
+\item{eps}{step size in the FABS algorithm. Default value is 0.005.}
+
+\item{SCAD.nfwd}{optional tuning parameter used if penalty="SCAD". Default value is NULL. The larger the value of this parameter, the sooner the path produced by the SCAD will differ from the path produced by the LASSO.}
+
+\item{iter}{maximum number of iterations. Default value is 10^4.}
+
 \item{lambda.min}{lower bound of the penalty parameter. Only used if lambda="Shi".}
-
-\item{gamma}{value of the Lagrange multiplier in the loss function}
-
-\item{kernel}{integer indicating what kernel function to use. The value 1 is the default and implies the use of an Epanechnikov kernel while the value of 2 implies the use of a biweight kernel.}
 }
 \value{
 A list with several components:
@@ -79,7 +79,7 @@ Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap e
 data(Data.Incomes)
 y <- Data.Incomes[,1]
 x <- as.matrix(Data.Incomes[,-c(1,2)])
-Lorenz.SCADFABS(y, x, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
+Lorenz.SCADFABS(y, x)
 
 }
 \seealso{

@@ -10,8 +10,8 @@ Lorenz.Reg(
   weights,
   na.action,
   penalty = c("none", "SCAD", "LASSO"),
-  h.grid = NULL,
-  SCAD.nfwd.grid = NULL,
+  grid.arg = c("h", "SCAD.nfwd", "eps", "kernel", "a", "gamma"),
+  grid.value = NULL,
   lambda.list = NULL,
   ...
 )
@@ -28,10 +28,6 @@ Lorenz.Reg(
 \item{penalty}{A character string specifying the type of penalty on the size of the estimated coefficients of the single-index model.
 The default value is \code{"none"}, in which case a non-penalized Lorenz regression is fitted using \code{\link{Lorenz.GA}}.
 Other possible values are \code{"LASSO"} and \code{"SCAD"}, in which case a penalized Lorenz regression is fitted using \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}} respectively.}
-
-\item{h.grid}{Only used if \code{penalty="SCAD"} or \code{penalty="LASSO"}. A vector (grid) of values for the bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. By default, it is set to (0.1,0.2,1,2,5)*n^(-1/5.5), where n is the sample size.}
-
-\item{SCAD.nfwd.grid}{Only used if \code{penalty="SCAD"}. A vector (grid) of values for the \code{SCAD.nfwd} argument used in the \code{\link{Lorenz.SCADFABS}} function. Default value is \code{NULL}. If a vector is supplied, the argument \code{h.grid} is modified to only use the first value of the vector.}
 
 \item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}}, \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}}, depending on the argument chosen in \code{penalty}.}
 }
@@ -52,7 +48,7 @@ The object of class \code{"LR"} is a list containing the following components:
    we should look for row corresponding to \eqn{X_1} and column corresponding to \eqn{X_2}.}
    \item{\code{index}}{A vector gathering the estimated index.}
 }
-For the Penalized Lorenz Regression, the tuning parameter (i.e. the value on the grid \code{h.grid} or \code{SCAD.nfwd.grid}) and the penalization parameter (lambda) are chosen optimally via the BIC method.
+For the Penalized Lorenz Regression, the tuning parameter (i.e. the value on the grid \code{grid.value}) and the penalization parameter (lambda) are chosen optimally via the BIC method.
 The object of class \code{"PLR"} is a list containing the same components as previously, and in addition :
 \describe{
    \item{\code{path}}{A list where the different elements correspond to the values of the tuning parameter. Each element is a matrix where the first line displays the vector of lambda values. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that vector. The next lines display the evolution of the BIC score. The remaining lines display the evolution of the estimated coefficients of the single-index model.}

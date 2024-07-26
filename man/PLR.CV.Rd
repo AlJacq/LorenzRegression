@@ -32,7 +32,7 @@ An object of class \code{c("PLR_cv", "PLR")}. The object contains:
 Note: The returned object may have additional classes such as \code{"PLR_boot"} if bootstrap was performed.
 }
 \description{
-\code{PLR.cv} selects the tuning and penalization parameters of the penalized Lorenz regression by cross-validation.
+\code{PLR.CV} selects the tuning and penalization parameters of the penalized Lorenz regression by cross-validation.
 }
 \section{References}{
 

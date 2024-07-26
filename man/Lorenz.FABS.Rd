@@ -9,14 +9,14 @@ Lorenz.FABS(
   x,
   standardize = TRUE,
   weights = NULL,
-  h,
+  kernel = 1,
+  h = length(y)^(-1/5.5),
+  gamma = 0.05,
+  lambda = "Shi",
   w.adaptive = NULL,
   eps = 0.005,
   iter = 10^4,
-  lambda = "Shi",
-  lambda.min = 1e-07,
-  gamma = 0.05,
-  kernel = 1
+  lambda.min = 1e-07
 )
 }
 \arguments{
@@ -28,13 +28,11 @@ Lorenz.FABS(
 
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
-\item{h}{bandwidth of the kernel, determining the smoothness of the approximation of the indicator function.}
+\item{kernel}{integer indicating what kernel function to use. The value 1 is the default and implies the use of an Epanechnikov kernel while the value of 2 implies the use of a biweight kernel.}
 
-\item{w.adaptive}{vector of size equal to the number of covariates where each entry indicates the weight in the adaptive Lasso. By default, each covariate is given the same weight (Lasso).}
+\item{h}{bandwidth of the kernel, determining the smoothness of the approximation of the indicator function. Default value is n^(-1/5.5) where n is the sample size.}
 
-\item{eps}{step size in the FABS algorithm. Default value is 0.005.}
-
-\item{iter}{maximum number of iterations. Default value is 10^4.}
+\item{gamma}{value of the Lagrange multiplier in the loss function}
 
 \item{lambda}{this parameter relates to the regularization parameter. Several options are available.
 \describe{
@@ -43,11 +41,13 @@ Lorenz.FABS(
     \item{\code{supplied}}{If the user wants to supply the lambda vector himself}
 }}
 
+\item{w.adaptive}{vector of size equal to the number of covariates where each entry indicates the weight in the adaptive Lasso. By default, each covariate is given the same weight (Lasso).}
+
+\item{eps}{step size in the FABS algorithm. Default value is 0.005.}
+
+\item{iter}{maximum number of iterations. Default value is 10^4.}
+
 \item{lambda.min}{lower bound of the penalty parameter. Only used if \code{lambda="Shi"}.}
-
-\item{gamma}{value of the Lagrange multiplier in the loss function}
-
-\item{kernel}{integer indicating what kernel function to use. The value 1 is the default and implies the use of an Epanechnikov kernel while the value of 2 implies the use of a biweight kernel.}
 }
 \value{
 A list with several components:
@@ -78,7 +78,7 @@ Shi, X., Y. Huang, J. Huang, and S. Ma (2018). A Forward and Backward Stagewise 
 data(Data.Incomes)
 y <- Data.Incomes[,1]
 x <- as.matrix(Data.Incomes[,-c(1,2)])
-Lorenz.FABS(y, x, h = nrow(Data.Incomes)^(-1/5.5), eps = 0.005)
+Lorenz.FABS(y, x)
 
 }
 \seealso{
