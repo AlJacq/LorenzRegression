@@ -79,6 +79,9 @@
 #' ## Traceplot of the penalized coefficients
 #' plot(PLR,type="traceplot")
 #'
+#' @importFrom stats model.response model.weights is.empty.model model.matrix .getXlevels setNames
+#'
+#'
 #' @export
 
 Lorenz.Reg <- function(formula,

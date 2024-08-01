@@ -27,6 +27,8 @@
 Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).}
 
 \item{bias.corr}{A logical determining whether bias correction should be performed. Only used if \code{type="norm"}. Default is \code{TRUE}.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 The desired confidence interval.

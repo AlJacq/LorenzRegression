@@ -6,6 +6,8 @@
 #'
 #' @return A matrix of re-normalized coefficients.
 #'
+#' @importFrom stats setNames
+#'
 #' @seealso \code{\link{Lorenz.Reg}}
 #' @keywords internal
 

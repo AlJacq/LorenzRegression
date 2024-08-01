@@ -12,7 +12,8 @@
 #' @examples
 #' ## For examples see example(Lorenz.Reg)
 #'
-#' @import ggplot2
+#' @importFrom ggplot2 ggtitle
+#' @importFrom stats update.formula
 #'
 #' @method plot LR
 #' @export

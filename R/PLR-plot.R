@@ -19,7 +19,8 @@
 #' @examples
 #' ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 #'
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot aes geom_line ggtitle scale_color_hue labs theme_minimal facet_wrap labeller theme
+#' @importFrom stats as.formula na.omit
 #'
 #' @method plot PLR
 #' @export
@@ -92,7 +93,7 @@ plot.PLR <- function(x, type = c("explained","traceplot","diagnostic"), traceplo
       "minloglambda" = rep(-log(path["lambda",]),each=length(var_names))
     )
 
-    g <- ggplot2::ggplot(df.long) +
+    g <- ggplot(df.long) +
       aes(x = minloglambda, y = theta, colour = Variable) +
       geom_line(linewidth = 1L) +
       scale_color_hue() +
@@ -137,6 +138,8 @@ plot.PLR <- function(x, type = c("explained","traceplot","diagnostic"), traceplo
       custom_labels <- ""
       names(custom_labels) <- 1
     }
+
+    lambda <- score <- method <- NULL
 
     g <- ggplot(df.long, aes(x = lambda, y = score, color = method)) +
       geom_line() +

@@ -9,6 +9,7 @@
 #' In PLR, one must exclude the intercept and use one-hot encoding for all variables, except when binary
 #'
 #' @importFrom parsnip contr_one_hot
+#' @importFrom stats model.matrix setNames
 #'
 #' @return The design matrix
 #' @keywords internal

@@ -23,7 +23,7 @@ print.PLR <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
   cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
       "\n\n", sep = "")
 
-  coef_x <- coef(x)
+  coef_x <- coef.PLR(x)
 
   if(inherits(x,c("PLR_cv","PLR_boot"))){
 
@@ -40,7 +40,7 @@ print.PLR <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
 
     cat("Explained Gini coefficient:", sprintf(paste0("%.", digits, "f"), x$Gi.expl), "\n")
     cat("\nCoefficients:\n")
-    print.default(format(coef(x), digits = digits), print.gap = 2L,
+    print.default(format(coef.PLR(x), digits = digits), print.gap = 2L,
                   quote = FALSE)
 
   }

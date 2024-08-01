@@ -24,7 +24,7 @@ print.LR <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
       "\n\n", sep = "")
   cat("Explained Gini coefficient:", sprintf(paste0("%.", digits, "f"), x$Gi.expl), "\n")
   cat("\nCoefficients:\n")
-  print.default(format(coef(x), digits = digits), print.gap = 2L,
+  print.default(format(coef.LR(x), digits = digits), print.gap = 2L,
                 quote = FALSE)
 
 }

@@ -14,6 +14,8 @@
 #' @examples
 #' ## For examples see example(Lorenz.Reg) and example(Lorenz.boot)
 #'
+#' @importFrom stats printCoefmat
+#'
 #' @method print summary.LR
 #' @export
 

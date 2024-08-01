@@ -18,6 +18,8 @@
 #' @examples
 #' ## For examples see example(Lorenz.Reg) and example(Lorenz.boot)
 #'
+#' @importFrom stats terms delete.response model.frame model.matrix
+#'
 #' @method predict LR
 #' @export
 

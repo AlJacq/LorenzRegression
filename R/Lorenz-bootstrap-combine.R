@@ -46,6 +46,7 @@
 #' summary(PLR_boot)
 #'
 #' @importFrom boot boot
+#' @importFrom stats setNames
 #'
 #' @export
 

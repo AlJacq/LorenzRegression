@@ -44,9 +44,9 @@ utils::example(Lorenz.boot, echo = FALSE)
 # Continuing the  Lorenz.boot(.) example:
 # The out-of-bag score seems to remain relatively flat when lambda is small enough
 plot(PLR_boot, type = "diagnostic")
-# What is the best couple (grid parameter, penalty parameter) that is close enough to the highest OOB score
+# What is the best pair (grid,penalty) parameter that is close enough to the highest OOB score
 diagnostic.PLR(PLR_boot, tol = 0.99, method = "Boot")
-# Say we want the solution to be "close enough" from the best, both in terms of BIC-score and in terms of OOB-score.
+# We want the solution to be close to the best, for both the BIC and OOB scores.
 diagnostic.PLR(PLR_boot, method = "intersect")
 
 }

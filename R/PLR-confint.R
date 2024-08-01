@@ -9,6 +9,7 @@
 #' @param pars.idx A vector of size 2 specifying the index of the grid parameter (first element) and the index of the penalty parameter (second element) that should be selected.
 #' Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).
 #' @param bias.corr A logical determining whether bias correction should be performed. Only used if \code{type="norm"}. Default is \code{TRUE}.
+#' @param ... Additional arguments.
 #'
 #' @return The desired confidence interval.
 #' If \code{pars.idx=NULL}, the output is a matrix where each row corresponds to a selection method.

@@ -6,6 +6,7 @@
 #' @param k An integer indicating the number of folds in the k-fold cross-validation
 #' @param data.orig A data frame corresponding to the original dataset, used in the \code{\link{Lorenz.Reg}} call.
 #' @param seed.CV An optional seed that is used internally for the creation of the folds. Default is \code{NULL}, in which case no seed is imposed.
+#' @param parallel Whether parallel computing should be used to distribute the cross-validation computations. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
 #' @param ... Additional parameters corresponding to arguments passed to the function \code{\link{vfold_cv}} from the \emph{rsample} library.
 #'
 #' @return An object of class \code{c("PLR_cv", "PLR")}. The object contains:
@@ -32,7 +33,8 @@
 #' }
 #' # Continuing the  Lorenz.Reg(.) example:
 #' PLR_CV <- PLR.CV(PLR, k = 5, data.orig = data, seed.CV = 123)
-#' # Because the object inherits from the class "PLR_CV", the methods (also) display the results obtained by cross-validation.
+#' # The object now inherits from the class "PLR_CV".
+#' # Hence the methods (also) display the results obtained by cross-validation.
 #' print(PLR_CV)
 #' summary(PLR_CV)
 #' coef(PLR_CV)
@@ -44,6 +46,7 @@
 #' @importFrom doParallel registerDoParallel stopImplicitCluster
 #' @importFrom parallel detectCores
 #' @importFrom foreach foreach '%do%' '%dopar%'
+#' @importFrom stats setNames
 #'
 #' @export
 
@@ -104,6 +107,8 @@ PLR.CV<-function(object,
   cv_folds <- vfold_cv(data.orig, v = k, ...)
 
   # 3. cv computations ----
+
+  j <- NULL
 
   if(parallel){
     if(is.numeric(parallel)){

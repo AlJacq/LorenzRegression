@@ -20,7 +20,9 @@
 #' Lorenz.graphs(Income ~ Age + Work.Hours, data = Data.Incomes)
 #' # Expressing now the vertical axis as the deviation from perfect equality
 #' Lorenz.graphs(Income ~ Age + Work.Hours, data = Data.Incomes, difference = TRUE)
-#' @import ggplot2
+#'
+#' @importFrom stats model.response model.weights model.matrix
+#' @importFrom ggplot2 ggplot aes scale_color_manual geom_hline stat_function labs
 #'
 #' @export
 
@@ -45,7 +47,7 @@ Lorenz.graphs <- function(formula, data, difference = FALSE, ...){
 
   p <- NULL
 
-  graph <- ggplot2::ggplot(data.frame(p=c(0,1)),aes(p)) +
+  graph <- ggplot(data.frame(p=c(0,1)),aes(p)) +
     scale_color_manual(values = 2:(ncol(mf)+1),
                        breaks = colnames(mf))
 

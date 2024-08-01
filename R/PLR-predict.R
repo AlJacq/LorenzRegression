@@ -21,6 +21,8 @@
 #' @examples
 #' ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 #'
+#' @importFrom stats terms delete.response model.frame
+#'
 #' @method predict PLR
 #' @export
 

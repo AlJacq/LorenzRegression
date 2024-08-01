@@ -33,14 +33,6 @@ and returns the index of the optimal column by optimizing an information criteri
 Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
 }
 
-\examples{
-data(Data.Incomes)
-y <- Data.Incomes[,1]
-x <- as.matrix(Data.Incomes[,-c(1,2)])
-PLR <- Lorenz.FABS(y, x, h = nrow(x)^(-1/5.5), eps = 0.005)
-PLR.BIC(y, x, PLR$theta)
-
-}
 \seealso{
 \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.SCADFABS}}
 }

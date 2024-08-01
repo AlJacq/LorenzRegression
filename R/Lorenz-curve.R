@@ -24,7 +24,7 @@
 #' X <- Data.Incomes$Age
 #' Lorenz.curve(y = Y, x = X, graph = TRUE)
 #'
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot aes stat_function labs
 #'
 #' @export
 

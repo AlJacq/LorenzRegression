@@ -15,6 +15,8 @@ PLR.CV(object, k, data.orig, seed.CV = NULL, parallel = FALSE, ...)
 
 \item{seed.CV}{An optional seed that is used internally for the creation of the folds. Default is \code{NULL}, in which case no seed is imposed.}
 
+\item{parallel}{Whether parallel computing should be used to distribute the cross-validation computations. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.}
+
 \item{...}{Additional parameters corresponding to arguments passed to the function \code{\link{vfold_cv}} from the \emph{rsample} library.}
 }
 \value{
@@ -45,7 +47,8 @@ utils::example(Lorenz.Reg, echo = FALSE)
 }
 # Continuing the  Lorenz.Reg(.) example:
 PLR_CV <- PLR.CV(PLR, k = 5, data.orig = data, seed.CV = 123)
-# Because the object inherits from the class "PLR_CV", the methods (also) display the results obtained by cross-validation.
+# The object now inherits from the class "PLR_CV".
+# Hence the methods (also) display the results obtained by cross-validation.
 print(PLR_CV)
 summary(PLR_CV)
 coef(PLR_CV)
