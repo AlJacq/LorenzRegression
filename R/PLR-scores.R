@@ -5,9 +5,9 @@
 #' @param y the vector of responses
 #' @param x the design matrix (after data management steps, i.e. standardization and transformations of the categorical covariates into binaries)
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
-#' @param theta.list list of matrices. Each element of the list correspond to a value of the tuning parameter. The columns of the matrices correspond to values of the penalty parameters. The rows correspond to the different covariates.
+#' @param theta.list list of matrices. Each element of the list correspond to a value of the grid parameter. The columns of the matrices correspond to values of the penalty parameters. The rows correspond to the different covariates.
 #'
-#' @return A list of vectors gathering the Gini scores. Each element of the list corresponds to a value of the tuning parameter and each element of the vector corresponds to a value of the penalization parameter.
+#' @return A list of vectors gathering the Gini scores. Each element of the list corresponds to a value of the grid parameter and each element of the vector corresponds to a value of the penalization parameter.
 
 PLR.scores <- function(y, x, weights, theta.list){
 

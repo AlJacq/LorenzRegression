@@ -24,8 +24,8 @@
 #' For the Penalized Lorenz Regression, the list also contains the following elements.
 #' \describe{
 #'    \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the original path. To this path is added the out-of-bag (OOB) score.}
-#'    \item{\code{which.lambda}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
-#'    \item{\code{which.tuning}}{A vector indicating the index of the optimal tuning parameter obtained by each selection method.}
+#'    \item{\code{lambda.idx}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
+#'    \item{\code{grid.idx}}{A vector indicating the index of the optimal grid parameter obtained by each selection method.}
 #' }
 #' Note: in the penalized case, the returned object may have additional classes such as \code{"PLR_cv"} if cross-validation was performed and used as a selection method.
 #'
@@ -65,7 +65,7 @@
 #' coef(PLR_boot)
 #' predict(PLR_boot)
 #' plot(PLR_boot)
-#' # Plot of the scores for each selection method depending on the tuning and penalty parameters
+#' # Plot of the scores for each selection method depending on the grid and penalty parameters
 #' plot(PLR_boot, type = "diagnostic")
 #' # The method confint() is available to objects of class "PLR_boot".
 #' confint(PLR_boot)
@@ -171,7 +171,7 @@ Lorenz.boot <- function(object, R, data.orig, boot_out_only = FALSE, ...){
                                   object$path[[i]][(lth-lth.theta+1):lth,])
       }
       lth <- lth + 1
-      # Best pair (tuning,lambda) in terms of OOB score
+      # Best pair (grid,lambda) in terms of OOB score
       path.wl <- unlist(sapply(path.sizes,function(x)1:x))
       path.wt <- rep(1:lth.path,times=path.sizes)
       wl <- path.wl[which.max(OOB_total)]
@@ -179,8 +179,8 @@ Lorenz.boot <- function(object, R, data.orig, boot_out_only = FALSE, ...){
       if(length(class(object))==1){
         names(object$Gi.expl) <-
           names(object$LR2) <-
-          names(object$which.lambda) <-
-          names(object$which.tuning) <-
+          names(object$lambda.idx) <-
+          names(object$grid.idx) <-
           "BIC"
         object$theta <- t(as.matrix(object$theta))
         rownames(object$theta) <- "BIC"
@@ -188,8 +188,8 @@ Lorenz.boot <- function(object, R, data.orig, boot_out_only = FALSE, ...){
         rownames(object$index) <- "BIC"
         object$MRS <- list("BIC" = object$MRS)
       }
-      object$which.tuning <- c(object$which.tuning,"Boot"=wt)
-      object$which.lambda <- c(object$which.lambda,"Boot"=wl)
+      object$grid.idx <- c(object$grid.idx,"Boot"=wt)
+      object$lambda.idx <- c(object$lambda.idx,"Boot"=wl)
       object$Gi.expl <- setNames(c(object$Gi.expl, object$path[[wt]]["Explained Gini", wl]), c(names(object$Gi.expl), "Boot"))
       object$LR2 <- setNames(c(object$LR2, object$path[[wt]]["Lorenz-R2", wl]), c(names(object$LR2), "Boot"))
       theta.boot <- object$path[[wt]][(lth-lth.theta+1):lth, wl]

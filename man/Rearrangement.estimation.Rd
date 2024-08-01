@@ -29,7 +29,7 @@ A list with the following components
 }
 \details{
 A first estimator of the link function, neglecting the assumption of monotonicity, is obtained with function \code{\link[locpol]{locpol}} from the \emph{locpol} package.
-The final estimator is obtained through the rearrangement operation explained in Chernozhukov et al (2009). This operation is carried out with function \code{\link[Rearrangement]{rearrangement}} from package \code{Rearrangement}.
+The final estimator is obtained through the rearrangement operation explained in Chernozhukov et al (2009). This operation is carried out with function \code{\link[Rearrangement]{rearrangement}} from package \emph{Rearrangement}.
 }
 \section{References}{
 

@@ -4,7 +4,7 @@
 #'
 #' @param object An object of class \code{"PLR"}.
 #' @param renormalize A logical value determining whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE
-#' @param which.pars A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
+#' @param pars.idx A vector of size 2 specifying the index of the grid parameter (first element) and the index of the penalty parameter (second element) that should be selected.
 #' Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).
 #' @param ... Additional arguments
 #'
@@ -23,16 +23,16 @@
 #' @method summary PLR
 #' @export
 
-summary.PLR <- function(object, renormalize=TRUE, which.pars=NULL, ...){
+summary.PLR <- function(object, renormalize=TRUE, pars.idx=NULL, ...){
 
   if (!inherits(object, "PLR")) stop("The object must be of class 'PLR'")
 
-  if(!is.null(which.pars)){
+  if(!is.null(pars.idx)){
     l <- ncol(object$x)
-    pth <- object$path[[which.pars[1]]][,which.pars[2]]
+    pth <- object$path[[pars.idx[1]]][,pars.idx[2]]
     object$theta <- pth[(length(pth)-l+1):length(pth)]
-    object$Gi.expl <- object$path[[which.pars[1]]]["Explained Gini",which.pars[2]]
-    object$LR2 <- object$path[[which.pars[1]]]["Lorenz-R2",which.pars[2]]
+    object$Gi.expl <- object$path[[pars.idx[1]]]["Explained Gini",pars.idx[2]]
+    object$LR2 <- object$path[[pars.idx[1]]]["Lorenz-R2",pars.idx[2]]
     class(object) <- "PLR"
   }
 

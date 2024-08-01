@@ -17,9 +17,13 @@
 \item{type}{A character string indicating the type of plot. Possible values are \code{"explained"}, \code{"traceplot"} and \code{"diagnostic"}.
 If \code{"explained"} is selected, the graph displays the Lorenz curve of the response and concentration curve(s) of the response with respect to the estimated index. More specifically, there is one concentration curve per selection method available.
 If \code{"traceplot"} is selected, the graph displays a traceplot, where the horizontal axis is -log(lambda), lambda being the value of the penalty parameter. The vertical axis gives the value of the estimated coefficient attached to each covariate.
-If \code{"diagnostic"} is selected, the graph displays a faceted plot, where each facet corresponds to a different value of the tuning parameter. Each plot shows the evolution of the scores of each available selection method. For comparability reasons, the scores are normalized such that the larger the better and the optimum is attained in 1.}
+If \code{"diagnostic"} is selected, the graph displays a faceted plot, where each facet corresponds to a different value of the grid parameter. Each plot shows the evolution of the scores of each available selection method. For comparability reasons, the scores are normalized such that the larger the better and the optimum is attained in 1.}
 
-\item{...}{Additional arguments.}
+\item{traceplot.which}{This argument indicates the value of the grid parameter for which the traceplot should be produced (see arguments \code{grid.value} and \code{grid.arg} in function \code{\link{Lorenz.Reg}}).
+It can be an integer indicating the index in the grid determined via \code{grid.value}.
+Alternatively, it can be a character string indicating the selection method. In this case the index corresponds to the optimal value according to that selection method.}
+
+\item{...}{Additional arguments passed to function \code{\link{Lorenz.graphs}}}
 }
 \value{
 The graph, as an object of class \code{"ggplot"}.

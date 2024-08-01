@@ -26,13 +26,13 @@ An object of class \code{c("PLR_cv", "PLR")}. The object contains:
    \item{\code{MRS}}{The matrix of estimated marginal rates of substitution. It is a list where each element corresponds to a different selection method.}
    \item{\code{index}}{The estimated index. It is a matrix where each row corresponds to a different selection method.}
    \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the documentation of the original path. To this path is added the CV-score.}
-   \item{\code{which.lambda}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
-   \item{\code{which.tuning}}{A vector indicating the index of the optimal tuning parameter obtained by each selection method.}
+   \item{\code{lambda.idx}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
+   \item{\code{grid.idx}}{A vector indicating the index of the optimal grid parameter obtained by each selection method.}
 }
 Note: The returned object may have additional classes such as \code{"PLR_boot"} if bootstrap was performed.
 }
 \description{
-\code{PLR.CV} selects the tuning and penalization parameters of the penalized Lorenz regression by cross-validation.
+\code{PLR.CV} selects the grid and penalization parameters of the penalized Lorenz regression by cross-validation.
 }
 \section{References}{
 
@@ -51,7 +51,7 @@ summary(PLR_CV)
 coef(PLR_CV)
 predict(PLR_CV)
 plot(PLR_CV)
-plot(PLR_CV, type = "diagnostic") # Plot of the scores depending on the tuning and penalty parameters
+plot(PLR_CV, type = "diagnostic") # Plot of the scores depending on the grid and penalty parameters
 
 }
 \seealso{

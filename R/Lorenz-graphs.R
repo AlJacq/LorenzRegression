@@ -4,6 +4,7 @@
 #'
 #' @param formula A formula object of the form \emph{response} ~ \emph{other_variables}.
 #' @param data A dataframe containing the variables of interest
+#' @param difference A logical determining whether the vertical axis should be expressed in terms of deviation from perfect equality. Default is \code{FALSE}.
 #' @param ... Further arguments (see Section 'Arguments' in \code{\link{Lorenz.curve}}).
 #'
 #' @return A plot comprising
@@ -22,7 +23,7 @@
 #'
 #' @export
 
-Lorenz.graphs <- function(formula, data, ...){
+Lorenz.graphs <- function(formula, data, difference = FALSE, ...){
 
   # 0 > Calls ----
   cl <- match.call()
@@ -45,16 +46,31 @@ Lorenz.graphs <- function(formula, data, ...){
 
   graph <- ggplot2::ggplot(data.frame(p=c(0,1)),aes(p)) +
     scale_color_manual(values = 2:(ncol(mf)+1),
-                       breaks = colnames(mf)) +
-    stat_function(fun=function(p)p, geom="line", color=1) +
+                       breaks = colnames(mf))
+
+  if(difference){
+    graph <- graph + geom_hline(yintercept = 0,color=1) +
+      stat_function(fun=function(p)Lorenz.curve(y, ...)(p)-p, geom="line",aes(color=colnames(mf)[1])) +
+      labs(x = "Cumulative share of the population",y = "Deviation from perfect equality", color= "Ranking:")
+  }else{
+    graph <- graph + stat_function(fun=function(p)p, geom="line", color=1) +
     stat_function(fun=function(p)Lorenz.curve(y, ...)(p), geom="line",aes(color=colnames(mf)[1])) +
     labs(x = "Cumulative share of the population",y = paste0("Cumulative share of ",colnames(mf)[1]), color= "Ranking:")
+  }
 
   for (i in 1:ncol(x)){
-    graph <- local({
-    j <- i
-    graph + stat_function(fun=function(p)Lorenz.curve(y,x[,j], ...)(p), geom="line", aes(color=colnames(mf)[j+1]))
-    })
+    if(difference){
+      graph <- local({
+        j <- i
+        graph + stat_function(fun=function(p)Lorenz.curve(y,x[,j], ...)(p)-p, geom="line", aes(color=colnames(mf)[j+1]))
+      })
+    }else{
+      graph <- local({
+        j <- i
+        graph + stat_function(fun=function(p)Lorenz.curve(y,x[,j], ...)(p), geom="line", aes(color=colnames(mf)[j+1]))
+      })
+    }
+
   }
   graph
 }

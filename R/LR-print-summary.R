@@ -5,7 +5,7 @@
 #' @param x An object of class \code{"summary.LR"}.
 #' @param digits Number of significant digits to be passed.
 #' @param signif.stars Logical determining whether p-values should be also encoded visually. See the help of the function \code{\link{printCoefmat}} for more information.
-#' @param ... Additional arguments passed to the function \code{\link{printCoefmat}}.
+#' @param ... Additional arguments passed to the function \code{\link{print}}.
 #'
 #' @return No return value, called for printing an object of class \code{"LR"} to the console.
 #'
@@ -28,9 +28,9 @@ print.summary.LR <- function(x, digits = max(3L, getOption("digits") - 3L), sign
 
     cat("Explained Inequality Table\n\n")
 
-    printCoefmat(x$ineq, digits = digits, na.print = "NA", ...)
+    print(x$ineq, digits = digits,...)
 
-    cat("\n (Explained inequality is measured by the explained Gini coefficient. Total inequality is the Gini coefficient of the response. The Lorenz-R2 is the proportion of inequality explained by the model.")
+    cat("\n (Explained inequality is measured by the explained Gini coefficient. Total inequality is the Gini coefficient of the response. The Lorenz-R2 is the proportion of inequality explained by the model.)")
 
     cat("\n\nCoefficients Table for the Single-Index Model\n")
 

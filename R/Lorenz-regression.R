@@ -1,6 +1,6 @@
 #' Fits a Lorenz regression
 #'
-#' \code{Lorenz.Reg} fits a Lorenz regression of a response with respect to several covariates.
+#' \code{Lorenz.Reg} fits the Lorenz regression of a response with respect to several covariates.
 #'
 #' @param formula An object of class "\code{\link{formula}}" (or one that can be coerced to that class): a symbolic description of the model to be fitted.
 #' @param data An optional data frame, list or environment (or object coercible by \code{\link{as.data.frame}} to a data frame) containing the variables in the model. If not found in \code{data}, the variables are taken from \code{environment(formula)}, typically the environment from which \code{Lorenz.Reg} is called.
@@ -9,6 +9,9 @@
 #' @param penalty A character string specifying the type of penalty on the size of the estimated coefficients of the single-index model.
 #' The default value is \code{"none"}, in which case a non-penalized Lorenz regression is fitted using \code{\link{Lorenz.GA}}.
 #' Other possible values are \code{"LASSO"} and \code{"SCAD"}, in which case a penalized Lorenz regression is fitted using \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}} respectively.
+#' @param grid.arg A character string specifying the tuning parameter for which a grid is to be constructed, see Details.
+#' @param grid.value A numeric vector specifying the grid values, see Details.
+#' @param lambda.list Technical argument used inside the function \code{\link{Lorenz.boot}}.
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}}, \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}}, depending on the argument chosen in \code{penalty}.
 #'
 #' @return An object of class \code{"LR"} for the non-penalized Lorenz regression or of class \code{"PLR"} for a penalized Lorenz regression.
@@ -27,20 +30,18 @@
 #'    we should look for row corresponding to \eqn{X_1} and column corresponding to \eqn{X_2}.}
 #'    \item{\code{index}}{A vector gathering the estimated index.}
 #' }
-#' For the Penalized Lorenz Regression, the tuning parameter (i.e. the value on the grid \code{grid.value}) and the penalization parameter (lambda) are chosen optimally via the BIC method.
+#' For the Penalized Lorenz Regression, the grid parameter (i.e. the value on the grid \code{grid.value}) and the penalization parameter (lambda) are chosen optimally via the BIC method.
 #' The object of class \code{"PLR"} is a list containing the same components as previously, and in addition :
 #' \describe{
-#'    \item{\code{path}}{A list where the different elements correspond to the values of the tuning parameter. Each element is a matrix where the first line displays the vector of lambda values. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that vector. The next lines display the evolution of the BIC score. The remaining lines display the evolution of the estimated coefficients of the single-index model.}
-#'    \item{\code{which.lambda}}{the index of the optimal lambda obtained by the BIC method}
-#'    \item{\code{which.tuning}}{the index of the optimal tuning parameter obtained by the BIC method.}
+#'    \item{\code{path}}{A list where the different elements correspond to the values of the grid parameter. Each element is a matrix where the first line displays the vector of lambda values. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that vector. The next lines display the evolution of the BIC score. The remaining lines display the evolution of the estimated coefficients of the single-index model.}
+#'    \item{\code{lambda.idx}}{the index of the optimal lambda obtained by the BIC method}
+#'    \item{\code{grid.idx}}{the index of the optimal grid parameter obtained by the BIC method.}
 #' }
 #' In both cases, the list also provides technical information, such as the specified \code{formula}, \code{weights} and \code{call}, as well as the design matrix \code{x} and the response vector \code{y}.
 #'
-#' @details In the penalized case, the model is fitted for a grid of values of two parameters : the penalty parameter (lambda) and a tuning parameter.
-#' By default, the tuning parameter is the bandwidth of the kernel (argument \code{h} in \code{\link{Lorenz.FABS}} and \code{\link{Lorenz.SCADFABS}}). Its grid is defined by the user via the argument \code{h.grid}.
-#' Alternatively, and only if the SCAD penalty is used, the tuning parameter can also be the \eqn{n_{fwd}} parameter described in Jacquemain et al. (argument \code{SCAD.nfwd} in \code{\link{Lorenz.SCADFABS}}). Its grid is defined by the user via the argument \code{SCAD.nfwd.grid}.
-#' To avoid too large computation time, the user must choose between providing a grid for \code{h} or for \code{SCAD.nfwd}. If \code{SCAD.nfwd.grid} is supplied, only the first value of \code{h.grid} is used for the bandwidth.
-#' The optimal values of the parameters are selected using the BIC criterion. Other selections methods include bootstrap (obtained with \code{\link{Lorenz.boot}}) and cross-validation (obtained with \code{\link{PLR.CV}}).
+#' @details In the penalized case, the model is fitted for a grid of values of two parameters : the penalty parameter (lambda) and one tuning parameter specified by the arguments \code{grid.arg} and \code{grid.value}.
+#' The possibles values for \code{grid.arg} are tuning parameters of the functions \code{\link{Lorenz.FABS}} and \code{\link{Lorenz.SCADFABS}} : \code{''h''} (the default), \code{''SCAD.nfwd''},\code{''eps''}, \code{''kernel''}, \code{''a''} and \code{''gamma''}.
+#' The values for the grid are specified with \code{grid.value}. The default is \code{NULL}, in which case no grid is constructed
 #'
 #' @seealso \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, code{\link{Lorenz.boot}}
 #'
@@ -192,16 +193,17 @@ Lorenz.Reg <- function(formula,
       rownames(Path[[i]])[(lth+1):nrow(Path[[i]])] <- colnames(x)
     }
     return.list$path <- Path
-    # Optimum tuning params for BIC
-    # tuning refers either to h or to SCAD.nfwd
-    which.tuning <- which.max(sapply(1:lth.path,function(i)max(val.BIC[[i]])))
-    which.lambda <- best.BIC[[which.tuning]]
-    return.list$which.tuning <- which.tuning
-    return.list$which.lambda <- which.lambda
+    # Optimum grid params for BIC
+    # grid refers either to h or to SCAD.nfwd
+    grid.idx <- which.max(sapply(1:lth.path,function(i)max(val.BIC[[i]])))
+    lambda.idx <- best.BIC[[grid.idx]]
+    return.list$grid.idx <- grid.idx
+    return.list$lambda.idx <- lambda.idx
+    return.list$grid.value <- grid.value
 
-    theta <- LR[[which.tuning]]$theta[,which.lambda]
-    Gi.expl <- LR[[which.tuning]]$Gi.expl[which.lambda]
-    LR2 <- LR[[which.tuning]]$LR2[which.lambda]
+    theta <- LR[[grid.idx]]$theta[,lambda.idx]
+    Gi.expl <- LR[[grid.idx]]$Gi.expl[lambda.idx]
+    LR2 <- LR[[grid.idx]]$LR2[lambda.idx]
     class(return.list) <- "PLR"
   }
 

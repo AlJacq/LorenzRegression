@@ -20,8 +20,8 @@
 #' For the Penalized Lorenz Regression, the list also contains the following elements.
 #' \describe{
 #'    \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the original path. To this path is added the out-of-bag (OOB) score.}
-#'    \item{\code{which.lambda}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
-#'    \item{\code{which.tuning}}{A vector indicating the index of the optimal tuning parameter obtained by each selection method.}
+#'    \item{\code{lambda.idx}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
+#'    \item{\code{grid.idx}}{A vector indicating the index of the optimal grid parameter obtained by each selection method.}
 #' }
 #' Note: The returned object may have additional classes such as \code{"PLR_cv"} if cross-validation was performed and used as a selection method in the penalized case.
 #'
@@ -88,7 +88,7 @@ Lorenz.boot.combine <- function(boot_list){
                                 object$path[[i]][(lth-lth.theta+1):lth,])
     }
     lth <- lth + 1
-    # Best pair (tuning,lambda) in terms of OOB score
+    # Best pair (grid,lambda) in terms of OOB score
     path.wl <- unlist(sapply(path.sizes,function(x)1:x))
     path.wt <- rep(1:lth.path,times=path.sizes)
     wl <- path.wl[which.max(OOB_total)]
@@ -96,8 +96,8 @@ Lorenz.boot.combine <- function(boot_list){
     if(length(class(object))==1){
       names(object$Gi.expl) <-
         names(object$LR2) <-
-        names(object$which.lambda) <-
-        names(object$which.tuning) <-
+        names(object$lambda.idx) <-
+        names(object$grid.idx) <-
         "BIC"
       object$theta <- t(as.matrix(object$theta))
       rownames(object$theta) <- "BIC"
@@ -105,8 +105,8 @@ Lorenz.boot.combine <- function(boot_list){
       rownames(object$index) <- "BIC"
       object$MRS <- list("BIC" = object$MRS)
     }
-    object$which.tuning <- c(object$which.tuning,"Boot"=wt)
-    object$which.lambda <- c(object$which.lambda,"Boot"=wl)
+    object$grid.idx <- c(object$grid.idx,"Boot"=wt)
+    object$lambda.idx <- c(object$lambda.idx,"Boot"=wl)
     object$Gi.expl <- setNames(c(object$Gi.expl, object$path[[wt]]["Explained Gini", wl]), c(names(object$Gi.expl), "Boot"))
     object$LR2 <- setNames(c(object$LR2, object$path[[wt]]["Lorenz-R2", wl]), c(names(object$LR2), "Boot"))
     theta.boot <- object$path[[wt]][(lth-lth.theta+1):lth, wl]

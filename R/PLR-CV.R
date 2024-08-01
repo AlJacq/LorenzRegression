@@ -1,6 +1,6 @@
 #' Cross-validation for penalized Lorenz regression
 #'
-#' \code{PLR.CV} selects the tuning and penalization parameters of the penalized Lorenz regression by cross-validation.
+#' \code{PLR.CV} selects the grid and penalization parameters of the penalized Lorenz regression by cross-validation.
 #'
 #' @param object An object with S3 class \code{"PLR"}, i.e. the return of a call to the \code{\link{Lorenz.Reg}} function where \code{penalty=="SCAD"} or \code{penalty=="LASSO"}.
 #' @param k An integer indicating the number of folds in the k-fold cross-validation
@@ -16,8 +16,8 @@
 #'    \item{\code{MRS}}{The matrix of estimated marginal rates of substitution. It is a list where each element corresponds to a different selection method.}
 #'    \item{\code{index}}{The estimated index. It is a matrix where each row corresponds to a different selection method.}
 #'    \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the documentation of the original path. To this path is added the CV-score.}
-#'    \item{\code{which.lambda}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
-#'    \item{\code{which.tuning}}{A vector indicating the index of the optimal tuning parameter obtained by each selection method.}
+#'    \item{\code{lambda.idx}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
+#'    \item{\code{grid.idx}}{A vector indicating the index of the optimal grid parameter obtained by each selection method.}
 #' }
 #' Note: The returned object may have additional classes such as \code{"PLR_boot"} if bootstrap was performed.
 #'
@@ -38,7 +38,7 @@
 #' coef(PLR_CV)
 #' predict(PLR_CV)
 #' plot(PLR_CV)
-#' plot(PLR_CV, type = "diagnostic") # Plot of the scores depending on the tuning and penalty parameters
+#' plot(PLR_CV, type = "diagnostic") # Plot of the scores depending on the grid and penalty parameters
 #'
 #' @importFrom rsample vfold_cv analysis
 #' @importFrom doParallel registerDoParallel stopImplicitCluster
@@ -142,7 +142,7 @@ PLR.CV<-function(object,
                               object$path[[i]][(lth-lth.theta+1):lth,])
   }
   lth <- lth + 1
-  # Best pair (tuning,lambda) in terms of CV score
+  # Best pair (grid,lambda) in terms of CV score
   path.wl <- unlist(sapply(path.sizes,function(x)1:x))
   path.wt <- rep(1:lth.path,times=path.sizes)
   wl <- path.wl[which.max(cv_total)]
@@ -150,15 +150,15 @@ PLR.CV<-function(object,
   if(length(class(object))==1){
     names(object$Gi.expl) <-
       names(object$LR2) <-
-      names(object$which.lambda) <-
-      names(object$which.tuning) <-
+      names(object$lambda.idx) <-
+      names(object$grid.idx) <-
       "BIC"
     object$theta <- t(as.matrix(object$theta))
     rownames(object$theta) <- "BIC"
     object$MRS <- list("BIC" = object$MRS)
   }
-  object$which.tuning <- c(object$which.tuning,"CV"=wt)
-  object$which.lambda <- c(object$which.lambda,"CV"=wl)
+  object$grid.idx <- c(object$grid.idx,"CV"=wt)
+  object$lambda.idx <- c(object$lambda.idx,"CV"=wl)
   object$Gi.expl <- setNames(c(object$Gi.expl, object$path[[wt]]["Explained Gini", wl]), c(names(object$Gi.expl), "CV"))
   object$LR2 <- setNames(c(object$LR2, object$path[[wt]]["Lorenz-R2", wl]), c(names(object$LR2), "CV"))
   theta.cv <- object$path[[wt]][(lth-lth.theta+1):lth, wl]

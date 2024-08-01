@@ -11,7 +11,7 @@
 
 \item{digits}{Number of significant digits to be passed.}
 
-\item{...}{Additional arguments passed to the function \code{\link{printCoefmat}}.}
+\item{...}{Additional arguments passed to the function \code{\link{print}}.}
 }
 \value{
 No return value, called for printing an object of class \code{"summary.PLR"} to the console.

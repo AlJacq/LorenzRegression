@@ -27,7 +27,7 @@ print.PLR <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
 
   if(inherits(x,c("PLR_cv","PLR_boot"))){
 
-    cat("\nSelection methods for tuning and penalty parameter:\n",paste0(names(coef_x),collapse=","),"\n")
+    cat("\nSelection methods for grid and penalty parameter:\n",paste0(names(coef_x),collapse=","),"\n")
     cat("\nExplained Gini coefficient:\n")
     print.default(format(x$Gi.expl, digits = digits), print.gap = 2L,
                   quote = FALSE)

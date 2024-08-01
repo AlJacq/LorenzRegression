@@ -7,7 +7,7 @@
 #' @param type A character string indicating the type of prediction. Possible values are \code{"response"} and \code{"index"} (the default).
 #' In the first case, the prediction estimates the conditional expectation of the response given the covariates.
 #' In the second case, the prediction estimates only the index of the single-index model.
-#' @param which.pars A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
+#' @param pars.idx A vector of size 2 specifying the index of the grid parameter (first element) and the index of the penalty parameter (second element) that should be selected.
 #' Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).
 #' @param ... Additional arguments passed to the function \code{\link{Rearrangement.estimation}}.
 #'
@@ -24,7 +24,7 @@
 #' @method predict PLR
 #' @export
 
-predict.PLR <- function(object, newdata, type=c("index","response"), which.pars = NULL, ...){
+predict.PLR <- function(object, newdata, type=c("index","response"), pars.idx = NULL, ...){
 
   tt <- terms(object)
   if (!inherits(object, "PLR")) stop("The object must be of class 'PLR'")
@@ -37,9 +37,9 @@ predict.PLR <- function(object, newdata, type=c("index","response"), which.pars 
     m <- model.frame(Terms, newdata, xlev = object$xlevels)
     x <- model_matrix_PLR(Terms,m)
   }
-  if(!is.null(which.pars)){
+  if(!is.null(pars.idx)){
     l <- ncol(object$x)
-    pth <- object$path[[which.pars[1]]][,which.pars[2]]
+    pth <- object$path[[pars.idx[1]]][,pars.idx[2]]
     object$theta <- pth[(length(pth)-l+1):length(pth)]
     object$index <- as.vector(object$theta%*%t(object$x))
     class(object) <- "PLR"

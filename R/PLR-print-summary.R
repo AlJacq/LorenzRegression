@@ -4,7 +4,7 @@
 #'
 #' @param x An object of class \code{"summary.PLR"}.
 #' @param digits Number of significant digits to be passed.
-#' @param ... Additional arguments passed to the function \code{\link{printCoefmat}}.
+#' @param ... Additional arguments passed to the function \code{\link{print}}.
 #'
 #' @return No return value, called for printing an object of class \code{"summary.PLR"} to the console.
 #'
@@ -25,12 +25,12 @@ print.summary.PLR <- function(x, digits = max(3L, getOption("digits") - 3L), ...
 
   cat("Explained Inequality Table\n\n")
 
-  printCoefmat(x$ineq, digits = digits, na.print = "NA", ...)
+  print(x$ineq, digits = digits)
 
-  cat("\n (Explained inequality is measured by the explained Gini coefficient. Total inequality is the Gini coefficient of the response. The Lorenz-R2 is the proportion of inequality explained by the model.")
+  cat("\n (Explained inequality is measured by the explained Gini coefficient. Total inequality is the Gini coefficient of the response. The Lorenz-R2 is the proportion of inequality explained by the model.)")
 
   cat("\n\nEstimated Coefficients Table for the Single-Index Model\n")
 
-  printCoefmat(x$coefficients, digits = digits, na.print = "NA", ...)
+  print(x$coefficients, digits = digits)
 
 }

@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{An object of class \code{"LR"}.}
 
-\item{...}{Additional arguments}
+\item{...}{Additional arguments passed to function \code{\link{Lorenz.graphs}}.}
 }
 \value{
 The Lorenz curve of the response and concentration curve of the response with respect to the estimated index. The graph is as an object of class \code{"ggplot"}.

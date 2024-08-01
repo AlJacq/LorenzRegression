@@ -34,8 +34,8 @@ The object returned is a list that contains the following components:
 For the Penalized Lorenz Regression, the list also contains the following elements.
 \describe{
    \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the original path. To this path is added the out-of-bag (OOB) score.}
-   \item{\code{which.lambda}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
-   \item{\code{which.tuning}}{A vector indicating the index of the optimal tuning parameter obtained by each selection method.}
+   \item{\code{lambda.idx}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
+   \item{\code{grid.idx}}{A vector indicating the index of the optimal grid parameter obtained by each selection method.}
 }
 Note: in the penalized case, the returned object may have additional classes such as \code{"PLR_cv"} if cross-validation was performed and used as a selection method.
 }
@@ -78,7 +78,7 @@ summary(PLR_boot)
 coef(PLR_boot)
 predict(PLR_boot)
 plot(PLR_boot)
-# Plot of the scores for each selection method depending on the tuning and penalty parameters
+# Plot of the scores for each selection method depending on the grid and penalty parameters
 plot(PLR_boot, type = "diagnostic")
 # The method confint() is available to objects of class "PLR_boot".
 confint(PLR_boot)

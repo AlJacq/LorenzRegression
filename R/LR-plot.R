@@ -3,7 +3,7 @@
 #' \code{plot.LR} provides plots for an object of class \code{"LR"}.
 #'
 #' @param x An object of class \code{"LR"}.
-#' @param ... Additional arguments
+#' @param ... Additional arguments passed to function \code{\link{Lorenz.graphs}}.
 #'
 #' @return The Lorenz curve of the response and concentration curve of the response with respect to the estimated index. The graph is as an object of class \code{"ggplot"}.
 #'
@@ -26,7 +26,7 @@ plot.LR <- function(x, ...){
   data <- data.frame(x$y,x$index)
   names(data) <- all.vars(formula)
 
-  g <- Lorenz.graphs(formula, data, weights = x$weights)
+  g <- Lorenz.graphs(formula, data, weights = x$weights, ...)
   g <- g + ggtitle("Observed and explained inequality")
 
   g

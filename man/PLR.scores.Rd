@@ -13,10 +13,10 @@ PLR.scores(y, x, weights, theta.list)
 
 \item{weights}{vector of sample weights. By default, each observation is given the same weight.}
 
-\item{theta.list}{list of matrices. Each element of the list correspond to a value of the tuning parameter. The columns of the matrices correspond to values of the penalty parameters. The rows correspond to the different covariates.}
+\item{theta.list}{list of matrices. Each element of the list correspond to a value of the grid parameter. The columns of the matrices correspond to values of the penalty parameters. The rows correspond to the different covariates.}
 }
 \value{
-A list of vectors gathering the Gini scores. Each element of the list corresponds to a value of the tuning parameter and each element of the vector corresponds to a value of the penalization parameter.
+A list of vectors gathering the Gini scores. Each element of the list corresponds to a value of the grid parameter and each element of the vector corresponds to a value of the penalization parameter.
 }
 \description{
 \code{PLR.scores} computes the Gini scores (either OOB-scores or CV-scores) obtained for a specific validation sample and associated to a list of parameters obtained by the Penalized Lorenz Regression.

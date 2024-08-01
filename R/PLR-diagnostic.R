@@ -1,10 +1,10 @@
 #' Diagnostic for the Penalized Lorenz Regression
 #'
 #' \code{diagnostic.PLR} provides diagnostic information for an object of class \code{"PLR"}
-#' It restricts the path of the PLR to pairs of parameters (tuning, lambda) that satisfy a threshold criterion.
+#' It restricts the path of the PLR to pairs of parameters (grid, lambda) that satisfy a threshold criterion.
 #'
 #' @param object An object of class \code{"PLR"}.
-#' @param tol A numeric threshold value used to restrict the PLR path. More specifically, we restrict to pairs (tuning,lambda) whose normalized score exceeds \code{tol}. Default value is 0.95.
+#' @param tol A numeric threshold value used to restrict the PLR path. More specifically, we restrict to pairs (grid,lambda) whose normalized score exceeds \code{tol}. Default value is 0.95.
 #' @param method A character string specifying the method used to evaluate the scores.
 #'        Options are \code{"union"}, \code{"intersect"}, \code{"BIC"}, \code{"Boot"}, and \code{"CV"}.
 #'        \describe{
@@ -16,8 +16,8 @@
 #'        }
 #' @return A list with two elements:
 #' \describe{
-#'   \item{\code{path}}{The restricted model path, containing only the values of the pair (tuning, lambda) that satisfy the threshold criterion.}
-#'   \item{\code{best}}{The best model. It is obtained by considering the pair (tuning, lambda) in the restricted path that leads to the sparsest model.
+#'   \item{\code{path}}{The restricted model path, containing only the values of the pair (grid, lambda) that satisfy the threshold criterion.}
+#'   \item{\code{best}}{The best model. It is obtained by considering the pair (grid, lambda) in the restricted path that leads to the sparsest model.
 #'    If several pairs yield the same level of sparsity, we consider the pair that maximizes the minimum score across all selection methods available.}
 #' }
 #'
@@ -30,7 +30,7 @@
 #' # Continuing the  Lorenz.boot(.) example:
 #' # The out-of-bag score seems to remain relatively flat when lambda is small enough
 #' plot(PLR_boot, type = "diagnostic")
-#' # What is the best couple (tuning parameter, penalty parameter) that is close enough to the highest OOB score
+#' # What is the best couple (grid parameter, penalty parameter) that is close enough to the highest OOB score
 #' diagnostic.PLR(PLR_boot, tol = 0.99, method = "Boot")
 #' # Say we want the solution to be "close enough" from the best, both in terms of BIC-score and in terms of OOB-score.
 #' diagnostic.PLR(PLR_boot, method = "intersect")
@@ -45,8 +45,8 @@ diagnostic.PLR <- function(object, tol = 0.99, method = c("union","intersect","B
 
   df.wide <- do.call(rbind, lapply(1:length(object$path), function(i) {
     data.frame(
-      which.tuning = i,
-      which.lambda = 1:ncol(object$path[[i]]),
+      grid.idx = i,
+      lambda.idx = 1:ncol(object$path[[i]]),
       minloglambda = -log(object$path[[i]]["lambda",]),
       nnzeroes = object$path[[i]]["Number of nonzeroes",],
       score.BIC = object$path[[i]]["BIC score",],
@@ -85,7 +85,7 @@ diagnostic.PLR <- function(object, tol = 0.99, method = c("union","intersect","B
   path.keep <- df.wide[to_keep,]
 
   if(nrow(path.keep)==0){
-    warning("No value of (tuning,lambda) meets the required scores. Consider switching 'method' to another value than 'intersect' or lower the value of 'tol'.")
+    warning("No value of (grid,lambda) meets the required scores. Consider switching 'method' to another value than 'intersect' or lower the value of 'tol'.")
   }else{
     path.keep2 <- path.keep[path.keep$nnzeroes == min(path.keep$nnzeroes),,drop=FALSE]
     best.keep <- path.keep2[which.max(apply(path.keep2[,grep("score",names(path.keep2),value=T)],1,min)),]

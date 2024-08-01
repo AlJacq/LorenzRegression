@@ -4,13 +4,13 @@
 #'
 #' @param object An object of S3 class \code{"PLR"}.
 #' @param renormalize A logical value determining whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE
-#' @param which.pars A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
+#' @param pars.idx A vector of size 2 specifying the index of the grid parameter (first element) and the index of the penalty parameter (second element) that should be selected.
 #' Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).
 #' @param ... Additional arguments
 #'
 #' @return a vector gathering the estimated coefficients.
 #' If the object has also class \code{"PLR_boot"} and/or \code{"PLR_cv"}, the output is a matrix, where each column corresponds to a selection method.
-#' If the argument \code{which.pars} is specified, the output is a vector and the estimated coefficients correspond to the specified tuning and penalty parameters.
+#' If the argument \code{pars.idx} is specified, the output is a vector and the estimated coefficients correspond to the specified grid and penalty parameters.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
@@ -20,13 +20,13 @@
 #' @method coef PLR
 #' @export
 
-coef.PLR <- function(object, renormalize=TRUE, which.pars=NULL, ...){
+coef.PLR <- function(object, renormalize=TRUE, pars.idx=NULL, ...){
 
   if (!inherits(object, "PLR")) stop("The object must be of class 'PLR'")
 
-  if(!is.null(which.pars)){
+  if(!is.null(pars.idx)){
     l <- ncol(object$x)
-    pth <- object$path[[which.pars[1]]][,which.pars[2]]
+    pth <- object$path[[pars.idx[1]]][,pars.idx[2]]
     object$theta <- pth[(length(pth)-l+1):length(pth)]
   }
 

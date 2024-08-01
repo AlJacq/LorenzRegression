@@ -4,14 +4,14 @@
 \alias{summary.PLR}
 \title{Summary for the Penalized Lorenz Regression}
 \usage{
-\method{summary}{PLR}(object, renormalize = TRUE, which.pars = NULL, ...)
+\method{summary}{PLR}(object, renormalize = TRUE, pars.idx = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \code{"PLR"}.}
 
 \item{renormalize}{A logical value determining whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE}
 
-\item{which.pars}{A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
+\item{pars.idx}{A vector of size 2 specifying the index of the grid parameter (first element) and the index of the penalty parameter (second element) that should be selected.
 Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).}
 
 \item{...}{Additional arguments}

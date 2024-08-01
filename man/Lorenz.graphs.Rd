@@ -4,12 +4,14 @@
 \alias{Lorenz.graphs}
 \title{Graphs of concentration curves}
 \usage{
-Lorenz.graphs(formula, data, ...)
+Lorenz.graphs(formula, data, difference = FALSE, ...)
 }
 \arguments{
 \item{formula}{A formula object of the form \emph{response} ~ \emph{other_variables}.}
 
 \item{data}{A dataframe containing the variables of interest}
+
+\item{difference}{A logical determining whether the vertical axis should be expressed in terms of deviation from perfect equality. Default is FALSE.}
 
 \item{...}{Further arguments (see Section 'Arguments' in \code{\link{Lorenz.curve}}).}
 }

@@ -4,7 +4,7 @@
 \alias{predict.PLR}
 \title{Prediction for the Penalized Lorenz regression}
 \usage{
-\method{predict}{PLR}(object, newdata, type = c("index", "response"), which.pars = NULL, ...)
+\method{predict}{PLR}(object, newdata, type = c("index", "response"), pars.idx = NULL, ...)
 }
 \arguments{
 \item{object}{An object of S3 class \code{"PLR"}.}
@@ -15,7 +15,7 @@
 In the first case, the prediction estimates the conditional expectation of the response given the covariates.
 In the second case, the prediction estimates only the index of the single-index model.}
 
-\item{which.pars}{A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
+\item{pars.idx}{A vector of size 2 specifying the index of the grid parameter (first element) and the index of the penalty parameter (second element) that should be selected.
 Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).}
 
 \item{...}{Additional arguments passed to the function \code{\link{Rearrangement.estimation}}.}

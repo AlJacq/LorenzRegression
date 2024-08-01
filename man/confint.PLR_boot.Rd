@@ -9,7 +9,7 @@
   parm = c("Gini", "LR2"),
   level = 0.95,
   type = c("norm", "basic", "perc"),
-  which.pars = NULL,
+  pars.idx = NULL,
   bias.corr = TRUE,
   ...
 )
@@ -23,15 +23,15 @@
 
 \item{type}{A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link{boot.ci}} from the \emph{boot} library.}
 
-\item{which.pars}{A vector of size 2 specifying the index of the tuning parameter (first element) and the index of the penalty parameter (second element) that should be selected.
+\item{pars.idx}{A vector of size 2 specifying the index of the grid parameter (first element) and the index of the penalty parameter (second element) that should be selected.
 Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).}
 
 \item{bias.corr}{A logical determining whether bias correction should be performed. Only used if \code{type="norm"}. Default is \code{TRUE}.}
 }
 \value{
 The desired confidence interval.
-If \code{which.pars=NULL}, the output is a matrix where each row corresponds to a selection method.
-Otherwise, the tuning and penalty parameters are specified by the vector \code{which.pars} and the output is a vector.
+If \code{pars.idx=NULL}, the output is a matrix where each row corresponds to a selection method.
+Otherwise, the grid and penalty parameters are specified by the vector \code{pars.idx} and the output is a vector.
 }
 \description{
 \code{confint.PLR_boot} provides bootstrap confidence intervals for the explained Gini coefficient and Lorenz-R2 for an object of class \code{"PLR_boot"}.
