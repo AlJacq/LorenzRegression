@@ -16,7 +16,7 @@
 #' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Rearrangement.estimation}}
 #'
 #' @examples
-#' ## For examples see example(Lorenz.Reg)
+#' ## For examples see example(Lorenz.Reg) and example(Lorenz.boot)
 #'
 #' @method predict LR
 #' @export

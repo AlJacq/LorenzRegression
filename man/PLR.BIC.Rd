@@ -44,3 +44,4 @@ PLR.BIC(y, x, PLR$theta)
 \seealso{
 \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.SCADFABS}}
 }
+\keyword{internal}

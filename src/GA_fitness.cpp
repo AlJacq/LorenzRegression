@@ -27,6 +27,7 @@ uvec arma_sort(arma::vec y, arma::vec z) {
 //' @param Z vector of size n gathering iid repetitions of a U[0,1]
 //' @param pi vector of size n gathering the observation weights (notice that sum(pi)=1)
 //' @return Fitness of candidate x
+//' @keywords internal
 // [[Rcpp::export(.Fitness_cpp)]]
 double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z, arma::vec pi) {
   // 0. Let us define some basic objects

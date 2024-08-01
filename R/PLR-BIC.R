@@ -27,7 +27,7 @@
 #' PLR <- Lorenz.FABS(y, x, h = nrow(x)^(-1/5.5), eps = 0.005)
 #' PLR.BIC(y, x, PLR$theta)
 #'
-#' @export
+#' @keywords internal
 
 PLR.BIC <- function(y, x, theta, weights=NULL, IC=c("BIC","AIC")){
 

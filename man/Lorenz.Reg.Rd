@@ -86,7 +86,8 @@ data <- Data.Incomes[sample(1:200,50),]
 NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none", popSize = 30)
 # 2. Penalized regression
 PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
-                  eps = 0.02, h.grid=c(0.2,1,2)*nrow(Data.Incomes)^(-1/5.5))
+                  eps = 0.02, grid.arg = "h",
+                  grid.value=c(0.5,1,2)*nrow(Data.Incomes)^(-1/5.5))
 # Print method
 print(NPLR)
 print(PLR)

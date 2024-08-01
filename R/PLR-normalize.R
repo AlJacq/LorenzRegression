@@ -7,6 +7,7 @@
 #' @return A matrix of re-normalized coefficients.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}
+#' @keywords internal
 
 PLR.normalize <- function(object){
 

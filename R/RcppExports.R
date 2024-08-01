@@ -9,6 +9,7 @@
 #' @param Z vector of size n gathering iid repetitions of a U[0,1]
 #' @param pi vector of size n gathering the observation weights (notice that sum(pi)=1)
 #' @return Fitness of candidate x
+#' @keywords internal
 .Fitness_cpp <- function(x, Y, X, Z, pi) {
     .Call('_LorenzRegression_Fitness_cpp', PACKAGE = 'LorenzRegression', x, Y, X, Z, pi)
 }

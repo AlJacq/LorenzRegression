@@ -11,7 +11,7 @@ Lorenz.graphs(formula, data, difference = FALSE, ...)
 
 \item{data}{A dataframe containing the variables of interest}
 
-\item{difference}{A logical determining whether the vertical axis should be expressed in terms of deviation from perfect equality. Default is FALSE.}
+\item{difference}{A logical determining whether the vertical axis should be expressed in terms of deviation from perfect equality. Default is \code{FALSE}.}
 
 \item{...}{Further arguments (see Section 'Arguments' in \code{\link{Lorenz.curve}}).}
 }
@@ -28,7 +28,8 @@ A plot comprising
 \examples{
 data(Data.Incomes)
 Lorenz.graphs(Income ~ Age + Work.Hours, data = Data.Incomes)
-
+# Expressing now the vertical axis as the deviation from perfect equality
+Lorenz.graphs(Income ~ Age + Work.Hours, data = Data.Incomes, difference = TRUE)
 }
 \seealso{
 \code{\link{Lorenz.curve}}, \code{\link{Gini.coef}}

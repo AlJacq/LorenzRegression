@@ -18,7 +18,8 @@
 #' @examples
 #' data(Data.Incomes)
 #' Lorenz.graphs(Income ~ Age + Work.Hours, data = Data.Incomes)
-#'
+#' # Expressing now the vertical axis as the deviation from perfect equality
+#' Lorenz.graphs(Income ~ Age + Work.Hours, data = Data.Incomes, difference = TRUE)
 #' @import ggplot2
 #'
 #' @export

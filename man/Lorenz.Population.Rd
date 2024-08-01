@@ -21,3 +21,4 @@ Note that this population produces an initial solution ensuring a unit norm.
 \seealso{
 \code{\link{Lorenz.GA}}
 }
+\keyword{internal}

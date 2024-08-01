@@ -8,6 +8,7 @@
 #' @param theta.list list of matrices. Each element of the list correspond to a value of the grid parameter. The columns of the matrices correspond to values of the penalty parameters. The rows correspond to the different covariates.
 #'
 #' @return A list of vectors gathering the Gini scores. Each element of the list corresponds to a value of the grid parameter and each element of the vector corresponds to a value of the penalization parameter.
+#' @keywords internal
 
 PLR.scores <- function(y, x, weights, theta.list){
 

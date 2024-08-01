@@ -21,3 +21,4 @@ The design matrix
 This function ensures that the design matrix is constructed according to the requirements of the PLR.
 In PLR, one must exclude the intercept and use one-hot encoding for all variables, except when binary
 }
+\keyword{internal}

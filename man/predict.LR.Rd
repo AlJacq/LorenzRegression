@@ -27,7 +27,7 @@ a vector gathering the predictions
 If \code{type="Response"}, the link function of the single-index model must be estimated. This is done via the function \code{\link{Rearrangement.estimation}}.
 }
 \examples{
-## For examples see example(Lorenz.Reg)
+## For examples see example(Lorenz.Reg) and example(Lorenz.boot)
 
 }
 \seealso{

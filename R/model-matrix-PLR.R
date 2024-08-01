@@ -11,6 +11,7 @@
 #' @importFrom parsnip contr_one_hot
 #'
 #' @return The design matrix
+#' @keywords internal
 
 model_matrix_PLR <- function(mt,mf){
 

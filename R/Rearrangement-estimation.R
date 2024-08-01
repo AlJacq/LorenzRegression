@@ -24,8 +24,8 @@
 #'
 #' @examples
 #' data(Data.Incomes)
-#' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
-#'                   h.grid = nrow(Data.Incomes)^(-1/5.5), eps = 0.01)
+#' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes,
+#'                   penalty = "SCAD", eps = 0.01)
 #' Y <- PLR$y
 #' Index <- PLR$index
 #' Rearrangement.estimation(Y = Y, Index = Index)

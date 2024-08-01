@@ -18,3 +18,4 @@ A matrix of re-normalized coefficients.
 \seealso{
 \code{\link{Lorenz.Reg}}
 }
+\keyword{internal}

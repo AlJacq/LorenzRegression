@@ -9,6 +9,7 @@
 #' @seealso \code{\link{Lorenz.GA}}
 #'
 #' @return A matrix of dimension \code{object@popSize} times the number of explanatory variables minus one, gathering the initial population.
+#' @keywords internal
 
 Lorenz.Population<-function (object){
   min <- object@lower

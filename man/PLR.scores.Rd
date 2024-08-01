@@ -21,3 +21,4 @@ A list of vectors gathering the Gini scores. Each element of the list correspond
 \description{
 \code{PLR.scores} computes the Gini scores (either OOB-scores or CV-scores) obtained for a specific validation sample and associated to a list of parameters obtained by the Penalized Lorenz Regression.
 }
+\keyword{internal}
