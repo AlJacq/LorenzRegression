@@ -36,6 +36,11 @@ A function corresponding to the estimated Lorenz or concentration curve. If \cod
 \code{Lorenz.curve} computes the concentration curve index of a vector \emph{y} with respect to another vector \emph{x}.
 If \emph{y} and \emph{x} are identical, the obtained concentration curve boils down to the Lorenz curve.
 }
+\details{
+The parameter \code{seed} allows for local seed setting to control randomness in the generation of the uniform random variables.
+The specified seed is applied to the respective part of the computation, and the seed is reverted to its previous state after the operation.
+This ensures that the seed settings do not interfere with the global random state or other parts of the code.
+}
 \examples{
 data(Data.Incomes)
 # We first compute the Lorenz curve of Income

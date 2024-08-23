@@ -26,10 +26,12 @@ uvec arma_sort(arma::vec y, arma::vec z) {
 //' @param X matrix of dimension (n*p) gathering the covariates
 //' @param Z vector of size n gathering iid repetitions of a U[0,1]
 //' @param pi vector of size n gathering the observation weights (notice that sum(pi)=1)
+//' @param tolerance A small positive number used to determine the threshold for considering two floating-point numbers as equal. This is primarily used to
+//' address issues with floating-point precision when comparing values that should theoretically be identical but may differ slightly due to numerical inaccuracies.
 //' @return Fitness of candidate x
 //' @keywords internal
 // [[Rcpp::export(.Fitness_cpp)]]
-double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z, arma::vec pi) {
+double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z, arma::vec pi, double tolerance) {
   // 0. Let us define some basic objects
   int nx = x.n_rows;
   // 1. We must acknowledge the fact that the last coefficient is constrained
@@ -46,6 +48,8 @@ double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z, arma::vec
   }
   vec index1 = X*theta1;
   vec index2 = X*theta2;
+  index1 = round(index1 / tolerance) * tolerance;
+  index2 = round(index2 / tolerance) * tolerance;
   // 2. We need to sort the Y's first in terms of index (a) and then in terms of a unif(0,1) (b)
   uvec sort1 = arma_sort(index1,Z);
   uvec sort2 = arma_sort(index2,Z);

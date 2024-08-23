@@ -22,6 +22,10 @@
 #' }
 #' Note: The returned object may have additional classes such as \code{"PLR_boot"} if bootstrap was performed.
 #'
+#' @details The parameter \code{seed.CV} allows for local seed setting to control randomness in the generation of the folds.
+#' The specified seed is applied to the respective part of the computation, and the seed is reverted to its previous state after the operation.
+#' This ensures that the seed settings do not interfere with the global random state or other parts of the code.
+#'
 #' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.boot}}
 #'
 #' @section References:
@@ -100,8 +104,13 @@ PLR.CV<-function(object,
     data.orig$weights_CV <- object$weights
   }
   if (!is.null(seed.CV)) {
-    old_seed <- .Random.seed
-    on.exit(.Random.seed <<- old_seed)
+    if(exists(".Random.seed")){
+      old <- .Random.seed
+    }else{
+      runif(1)
+      old <- .Random.seed
+    }
+    on.exit( { .Random.seed <<- old } )
     set.seed(seed.CV)
   }
   cv_folds <- vfold_cv(data.orig, v = k, ...)

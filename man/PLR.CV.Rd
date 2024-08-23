@@ -36,6 +36,11 @@ Note: The returned object may have additional classes such as \code{"PLR_boot"} 
 \description{
 \code{PLR.CV} selects the grid and penalization parameters of the penalized Lorenz regression by cross-validation.
 }
+\details{
+The parameter \code{seed.CV} allows for local seed setting to control randomness in the generation of the folds.
+The specified seed is applied to the respective part of the computation, and the seed is reverted to its previous state after the operation.
+This ensures that the seed settings do not interfere with the global random state or other parts of the code.
+}
 \section{References}{
 
 Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.

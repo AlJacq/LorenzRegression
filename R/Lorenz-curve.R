@@ -13,6 +13,10 @@
 #'
 #' @return A function corresponding to the estimated Lorenz or concentration curve. If \code{graph} is TRUE, the curve is also plotted.
 #'
+#' @details The parameter \code{seed} allows for local seed setting to control randomness in the generation of the uniform random variables.
+#' The specified seed is applied to the respective part of the computation, and the seed is reverted to its previous state after the operation.
+#' This ensures that the seed settings do not interfere with the global random state or other parts of the code.
+#'
 #' @seealso \code{\link{Lorenz.graphs}}, \code{\link{Gini.coef}}
 #'
 #' @examples
@@ -60,8 +64,7 @@ Lorenz.curve <- function(y, x=y, graph=FALSE, na.rm=TRUE, ties.method=c("mean","
 
   if (ties.method == "random"){
 
-    if(!is.null(seed)) set.seed(seed)
-    V<-stats::runif(n)
+    V <- runif_seed(n,seed = seed)
 
     y <- y[order(x,V)]
     pi <- pi[order(x,V)]

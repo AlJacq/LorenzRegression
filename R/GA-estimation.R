@@ -15,7 +15,9 @@
 #' @param run Number of iterations without improvement in the best fitness necessary for the algorithm to stop. Default value is 150.
 #' @param ties.method What method should be used to break the ties in optimization program. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.
 #' @param ties.Gini what method should be used to break the ties in the computation of the Gini coefficient at the end of the algorithm. Possible values and default choice are the same as above.
-#' @param seed.random seed.random imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed.random is imposed.
+#' @param seed.random An optional seed for generating the vector of uniform random variables used to break ties in the genetic algorithm. Defaults to \code{NULL}, which means no specific seed is set.
+#' @param seed.Gini An optional seed for generating the vector of uniform random variables used to break ties in the computation of the Gini coefficient. Defaults to \code{NULL}, meaning no specific seed is applied.
+#' @param seed.GA An optional seed for \code{\link[GA]{ga}}, used during the fitting of the genetic algorithm. Defaults to \code{NULL}, implying that no specific seed is set.
 #' @param parallel.GA Whether parallel computing should be used to distribute the computations in the genetic algorithm. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
 #'
 #' @return A list with several components:
@@ -26,6 +28,10 @@
 #'    \item{\code{niter}}{number of iterations attained by the genetic algorithm.}
 #'    \item{\code{fit}}{value attained by the fitness function at the optimum.}
 #' }
+#'
+#' @details The parameters \code{seed.random}, \code{seed.Gini}, and \code{seed.GA} allow for local seed setting to control randomness in specific parts of the function.
+#' Each seed is applied to the respective part of the computation, and the seed is reverted to its previous state after the operation.
+#' This ensures that the seed settings do not interfere with the global random state or other parts of the code.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}, \code{\link[GA]{ga}}
 #'
@@ -38,12 +44,10 @@
 #' x <- cbind(Data.Incomes$Age, Data.Incomes$Work.Hours)
 #' Lorenz.GA(y, x, popSize = 40)
 #'
-#' @import GA
-#'
 #' @export
 
 # unit-norm normalization ----
-Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, parallel.GA = FALSE){
+Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, seed.Gini=NULL, seed.GA=NULL, parallel.GA = FALSE){
 
   # PRE-GA ----
 
@@ -76,51 +80,29 @@ Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=15
     # GA ----
 
     if (ties.method == "random"){
-
-      if(!is.null(seed.random)) set.seed(seed.random)
-      V<-stats::runif(n)
-
-      GA <- GA::ga(type = "real-valued",
-                   population = Lorenz.Population,
-                   fitness =  function(u).Fitness_cpp(u,as.vector(y),as.matrix(x),V,pi),
-                   lower = rep(-1,p-1), upper = rep(1,p-1),
-                   popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
-                   parallel = parallel.GA)
-
-      # We need to take care of the fact that the first coefficient for theta may be positive or negative
-      theta1<-c(GA@solution[1,],1-sum(abs(GA@solution[1,]))) #The theta solution if the last coeff is positive
-      theta2<-c(GA@solution[1,],-(1-sum(abs(GA@solution[1,])))) #The theta solution if the last coeff is negative
-      theta<-rbind(theta1,theta2)
-      Index_1<-theta1%*%t(x)
-      Y_1<-y[order(Index_1,V)]
-      pi_1<-pi[order(Index_1,V)]
-      rank_1<-cumsum(pi_1)-pi_1/2
-      Index_2<-theta2%*%t(x)
-      Y_2<-y[order(Index_2,V)]
-      pi_2<-pi[order(Index_2,V)]
-      rank_2<-cumsum(pi_2)-pi_2/2
-      theta.argmax<-theta[which.max(c((Y_1*pi_1)%*%rank_1,(Y_2*pi_2)%*%rank_2)),]
-
-      # We compute the Lorenz-Rsquared
-      Index.sol<-x%*%theta.argmax
-
+      V <- runif_seed(n,seed=seed.random)
+    }else{
+      V <- NULL
     }
 
-    if (ties.method == "mean"){
+    GA <- Lorenz.ga.call(ties.method, y, x, pi, V, popSize, maxiter, run, parallel.GA, seed = seed.GA)
 
-      GA <- GA::ga(type = "real-valued",
-                   population = Lorenz.Population,
-                   fitness =  function(u).Fitness_meanrank(u,as.vector(y),as.matrix(x),pi),
-                   lower = rep(-1,p-1), upper = rep(1,p-1),
-                   popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
-                   parallel = parallel.GA)
-
-      # We need to take care of the fact that the first coefficient for theta may be positive or negative
-      theta1<-c(GA@solution[1,],1-sum(abs(GA@solution[1,]))) #The theta solution if the last coeff is positive
-      theta2<-c(GA@solution[1,],-(1-sum(abs(GA@solution[1,])))) #The theta solution if the last coeff is negative
-      theta<-rbind(theta1,theta2)
-      index1<-theta1%*%t(x)
-      index2<-theta2%*%t(x)
+    # We need to take care of the fact that the first coefficient for theta may be positive or negative
+    theta1<-c(GA@solution[1,],1-sum(abs(GA@solution[1,]))) #The theta solution if the last coeff is positive
+    theta2<-c(GA@solution[1,],-(1-sum(abs(GA@solution[1,])))) #The theta solution if the last coeff is negative
+    theta<-rbind(theta1,theta2)
+    index1<-theta1%*%t(x)
+    index2<-theta2%*%t(x)
+    if(ties.method == "random"){
+      Y_1<-y[order(index1,V)]
+      pi_1<-pi[order(index1,V)]
+      rank_1<-cumsum(pi_1)-pi_1/2
+      Y_2<-y[order(index2,V)]
+      pi_2<-pi[order(index2,V)]
+      rank_2<-cumsum(pi_2)-pi_2/2
+      theta.argmax<-theta[which.max(c((Y_1*pi_1)%*%rank_1,(Y_2*pi_2)%*%rank_2)),]
+    }
+    if(ties.method == "mean"){
       index1_k <- sort(unique(index1))
       pi1_k <- sapply(1:length(index1_k),function(k)sum(pi[index1==index1_k[k]]))
       F1_k <- cumsum(pi1_k) - 0.5*pi1_k
@@ -130,29 +112,15 @@ Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=15
       F2_k <- cumsum(pi2_k) - 0.5*pi2_k
       F2_i <- sapply(1:length(index2),function(i)sum(F2_k[index2_k==index2[i]])) # Ensures that sum(F_i*pi) = 0.5
       theta.argmax<-theta[which.max(c((pi*y)%*%F1_i,(pi*y)%*%F2_i)),]
-
-      # We compute the Lorenz-Rsquared
-      Index.sol<-x%*%theta.argmax
-
     }
+    Index.sol<-x%*%theta.argmax
 
     # POST-LR ----
 
-    if(ties.Gini == "random"){
-
-      LR2.num<-Gini.coef(y, x=Index.sol, na.rm=TRUE, ties.method="random", seed=seed.random, weights=weights)
-      LR2.denom<-Gini.coef(y, na.rm=TRUE, ties.method="random", seed=seed.random, weights=weights)
-      LR2<-as.numeric(LR2.num/LR2.denom)
-      Gi.expl<-as.numeric(LR2.num)
-
-    }else{
-
-      LR2.num<-Gini.coef(y, x=Index.sol, na.rm=TRUE, ties.method="mean", seed=seed.random, weights=weights)
-      LR2.denom<-Gini.coef(y, na.rm=TRUE, ties.method="mean", seed=seed.random, weights=weights)
-      LR2<-as.numeric(LR2.num/LR2.denom)
-      Gi.expl<-as.numeric(LR2.num)
-
-    }
+    LR2.num<-Gini.coef(y, x=Index.sol, na.rm=TRUE, ties.method=ties.Gini, seed=seed.Gini, weights=weights)
+    LR2.denom<-Gini.coef(y, na.rm=TRUE, ties.method=ties.Gini, seed=seed.Gini, weights=weights)
+    LR2<-as.numeric(LR2.num/LR2.denom)
+    Gi.expl<-as.numeric(LR2.num)
 
     if (standardize) theta.argmax <- theta.argmax/x.scale # Need to put back on the original scale
     theta <- theta.argmax/sqrt(sum(theta.argmax^2))
@@ -170,22 +138,10 @@ Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=15
     # Only one covariate
     }else{
 
-      if(ties.Gini == "random"){
-
-        CI<-Gini.coef(y, x=x[,1], na.rm=TRUE, ties.method="random", seed=seed.random, weights=weights)
-        LR2.denom<-Gini.coef(y, na.rm=TRUE, ties.method="random", seed=seed.random, weights=weights)
-        Gi.expl<-as.numeric(abs(CI))
-        LR2<-as.numeric(Gi.expl/LR2.denom)
-
-
-      }else{
-
-        CI<-Gini.coef(y, x=x[,1], na.rm=TRUE, ties.method="mean", seed=seed.random, weights=weights)
-        LR2.denom<-Gini.coef(y, na.rm=TRUE, ties.method="mean", seed=seed.random, weights=weights)
-        Gi.expl<-as.numeric(abs(CI))
-        LR2<-as.numeric(Gi.expl/LR2.denom)
-
-      }
+      CI<-Gini.coef(y, x=x[,1], na.rm=TRUE, ties.method=ties.Gini, seed=seed.Gini, weights=weights)
+      LR2.denom<-Gini.coef(y, na.rm=TRUE, ties.method=ties.Gini, seed=seed.Gini, weights=weights)
+      Gi.expl<-as.numeric(abs(CI))
+      LR2<-as.numeric(Gi.expl/LR2.denom)
 
       niter <- fit <- NULL
       theta <- sign(CI)
@@ -200,6 +156,7 @@ Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=15
   Return.list$Gi.expl <- Gi.expl
   Return.list$niter <- niter
   Return.list$fit <- fit
+  Return.list$GA <- GA
 
   return(Return.list)
 

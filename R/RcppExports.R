@@ -8,14 +8,16 @@
 #' @param X matrix of dimension (n*p) gathering the covariates
 #' @param Z vector of size n gathering iid repetitions of a U[0,1]
 #' @param pi vector of size n gathering the observation weights (notice that sum(pi)=1)
+#' @param tolerance A small positive number used to determine the threshold for considering two floating-point numbers as equal. This is primarily used to
+#' address issues with floating-point precision when comparing values that should theoretically be identical but may differ slightly due to numerical inaccuracies.
 #' @return Fitness of candidate x
 #' @keywords internal
-.Fitness_cpp <- function(x, Y, X, Z, pi) {
-    .Call('_LorenzRegression_Fitness_cpp', PACKAGE = 'LorenzRegression', x, Y, X, Z, pi)
+.Fitness_cpp <- function(x, Y, X, Z, pi, tolerance) {
+    .Call('_LorenzRegression_Fitness_cpp', PACKAGE = 'LorenzRegression', x, Y, X, Z, pi, tolerance)
 }
 
-.Fitness_meanrank <- function(x, Y, X, pi) {
-    .Call('_LorenzRegression_Fitness_meanrank', PACKAGE = 'LorenzRegression', x, Y, X, pi)
+.Fitness_meanrank <- function(x, Y, X, pi, tolerance) {
+    .Call('_LorenzRegression_Fitness_meanrank', PACKAGE = 'LorenzRegression', x, Y, X, pi, tolerance)
 }
 
 .PLR_derivative_cpp <- function(y, X, pi, theta, h, gamma, kernel) {

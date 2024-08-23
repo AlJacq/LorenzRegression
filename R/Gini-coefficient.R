@@ -13,6 +13,10 @@
 #'
 #' @return The value of the concentration index (or Gini coefficient)
 #'
+#' @details The parameter \code{seed} allows for local seed setting to control randomness in the generation of the uniform random variables.
+#' The specified seed is applied to the respective part of the computation, and the seed is reverted to its previous state after the operation.
+#' This ensures that the seed settings do not interfere with the global random state or other parts of the code.
+#'
 #' @seealso \code{\link{Lorenz.curve}}, \code{\link{Lorenz.graphs}}
 #'
 #' @examples
@@ -55,9 +59,7 @@ Gini.coef <- function(y, x=y, na.rm=TRUE, ties.method=c("mean","random"), seed=N
 
   if (ties.method == "random"){
 
-    if(!is.null(seed)) set.seed(seed)
-    V<-stats::runif(n)
-
+    V <- runif_seed(n,seed = seed)
     y <- y[order(x,V)]
     pi <- pi[order(x,V)]
     F_i <- cumsum(pi) - 0.5*pi # Ensures that sum(F_i*pi) = 0.5

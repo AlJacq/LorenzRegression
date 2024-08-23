@@ -15,6 +15,8 @@ Lorenz.GA(
   ties.method = c("random", "mean"),
   ties.Gini = c("random", "mean"),
   seed.random = NULL,
+  seed.Gini = NULL,
+  seed.GA = NULL,
   parallel.GA = FALSE
 )
 }
@@ -37,7 +39,11 @@ Lorenz.GA(
 
 \item{ties.Gini}{what method should be used to break the ties in the computation of the Gini coefficient at the end of the algorithm. Possible values and default choice are the same as above.}
 
-\item{seed.random}{seed.random imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed.random is imposed.}
+\item{seed.random}{An optional seed for generating the vector of uniform random variables used to break ties in the genetic algorithm. Defaults to \code{NULL}, which means no specific seed is set.}
+
+\item{seed.Gini}{An optional seed for generating the vector of uniform random variables used to break ties in the computation of the Gini coefficient. Defaults to \code{NULL}, meaning no specific seed is applied.}
+
+\item{seed.GA}{An optional seed for \code{\link[GA]{ga}}, used during the fitting of the genetic algorithm. Defaults to \code{NULL}, implying that no specific seed is set.}
 
 \item{parallel.GA}{Whether parallel computing should be used to distribute the computations in the genetic algorithm. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.}
 }
@@ -58,6 +64,10 @@ It also returns the Lorenz-\eqn{R^2} of the regression as well as the estimated 
 \details{
 The genetic algorithm is solved using function \code{\link[GA]{ga}} from the \emph{GA} package. The fitness function is coded in Rcpp to speed up computation time.
 When discrete covariates are introduced and ties occur in the index, the default option randomly breaks them, as advised in Section 3 of Heuchenne and Jacquemain (2022)
+
+The parameters \code{seed.random}, \code{seed.Gini}, and \code{seed.GA} allow for local seed setting to control randomness in specific parts of the function.
+Each seed is applied to the respective part of the computation, and the seed is reverted to its previous state after the operation.
+This ensures that the seed settings do not interfere with the global random state or other parts of the code.
 }
 \section{References}{
 

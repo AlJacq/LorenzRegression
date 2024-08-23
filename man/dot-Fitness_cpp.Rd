@@ -4,7 +4,7 @@
 \alias{.Fitness_cpp}
 \title{Computes the fitness used in the GA}
 \usage{
-.Fitness_cpp(x, Y, X, Z, pi)
+.Fitness_cpp(x, Y, X, Z, pi, tolerance)
 }
 \arguments{
 \item{x}{vector of size (p-1) giving the proposed candidate, where p is the number of covariates}
@@ -16,6 +16,9 @@
 \item{Z}{vector of size n gathering iid repetitions of a U[0,1]}
 
 \item{pi}{vector of size n gathering the observation weights (notice that sum(pi)=1)}
+
+\item{tolerance}{A small positive number used to determine the threshold for considering two floating-point numbers as equal. This is primarily used to
+address issues with floating-point precision when comparing values that should theoretically be identical but may differ slightly due to numerical inaccuracies.}
 }
 \value{
 Fitness of candidate x

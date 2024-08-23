@@ -5,7 +5,7 @@ using namespace arma;
 
 // [[Rcpp::export(.Fitness_meanrank)]]
 
-double Fitness_meanrank(arma::vec x, arma::vec Y, arma::mat X, arma::vec pi) {
+double Fitness_meanrank(arma::vec x, arma::vec Y, arma::mat X, arma::vec pi, double tolerance) {
   // 0. Let us define some basic objects
   int nx = x.n_rows;
   int n = Y.n_rows;
@@ -23,35 +23,50 @@ double Fitness_meanrank(arma::vec x, arma::vec Y, arma::mat X, arma::vec pi) {
   }
   vec index1 = X*theta1;
   vec index2 = X*theta2;
+  index1 = round(index1 / tolerance) * tolerance;
+  index2 = round(index2 / tolerance) * tolerance;
   // 2. Computation of fractional rank
   vec index1u = index1(arma::find_unique(index1));
   vec index2u = index2(arma::find_unique(index2));
   vec index1k = index1u(arma::sort_index(index1u));
   vec index2k = index2u(arma::sort_index(index2u));
-  int nk = index1k.n_rows;
-  vec pi1k(nk);
-  vec pi2k(nk);
-  vec F1k(nk);
-  vec F2k(nk);
-  for (int k=0; k<nk;k++){
+  int n1k = index1k.n_rows;
+  int n2k = index2k.n_rows;
+  vec pi1k(n1k);
+  vec pi2k(n2k);
+  vec F1k(n1k);
+  vec F2k(n2k);
+  for (int k=0; k<n1k;k++){
     for (int j=0; j<n; j++){
      if (index1(j) == index1k(k)) pi1k(k) = pi1k(k) + pi(j);
-     if (index2(j) == index2k(k)) pi2k(k) = pi2k(k) + pi(j);
     }
-    for (int l=k; l<nk; l++){
+    for (int l=k; l<n1k; l++){
       F1k(l) = F1k(l) + pi1k(k);
-      F2k(l) = F2k(l) + pi2k(k);
       if (l == k){
         F1k(l) = F1k(l) - pi1k(l)/2;
+      }
+    }
+  }
+  for (int k=0; k<n2k;k++){
+    for (int j=0; j<n; j++){
+      if (index2(j) == index2k(k)) pi2k(k) = pi2k(k) + pi(j);
+    }
+    for (int l=k; l<n2k; l++){
+      F2k(l) = F2k(l) + pi2k(k);
+      if (l == k){
         F2k(l) = F2k(l) - pi2k(l)/2;
       }
     }
   }
   vec Fi1(n);
   vec Fi2(n);
-  for (int k=0; k<nk;k++){
+  for (int k=0; k<n1k;k++){
     for (int j=0; j<n; j++){
       if (index1(j) == index1k(k)) Fi1(j) = Fi1(j) + F1k(k);
+    }
+  }
+  for (int k=0; k<n2k;k++){
+    for (int j=0; j<n; j++){
       if (index2(j) == index2k(k)) Fi2(j) = Fi2(j) + F2k(k);
     }
   }
