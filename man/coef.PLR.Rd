@@ -2,9 +2,15 @@
 % Please edit documentation in R/PLR-coef.R
 \name{coef.PLR}
 \alias{coef.PLR}
+\alias{coef.PLR_boot}
+\alias{coef.PLR_cv}
 \title{Estimated coefficients for the Penalized Lorenz Regression}
 \usage{
 \method{coef}{PLR}(object, renormalize = TRUE, pars.idx = NULL, ...)
+
+\method{coef}{PLR_boot}(object, renormalize = TRUE, pars.idx = NULL, ...)
+
+\method{coef}{PLR_cv}(object, renormalize = TRUE, pars.idx = NULL, ...)
 }
 \arguments{
 \item{object}{An object of S3 class \code{"PLR"}.}

@@ -18,8 +18,6 @@
 
 print.LR <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
 
-  if (!inherits(x, "LR")) stop("x must be of class 'LR'")
-
   cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
       "\n\n", sep = "")
   cat("Explained Gini coefficient:", sprintf(paste0("%.", digits, "f"), x$Gi.expl), "\n")
@@ -27,4 +25,11 @@ print.LR <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
   print.default(format(coef.LR(x), digits = digits), print.gap = 2L,
                 quote = FALSE)
 
+}
+
+#' @method print LR_boot
+#' @export
+
+print.LR_boot <- function(object, ...){
+  NextMethod("print")
 }
