@@ -20,3 +20,11 @@ coef.LR <- function(object, ...){
   object$theta
 
 }
+
+#' @method coef LR_boot
+#' @export
+
+coef.LR_boot <- function(object, ...){
+  NextMethod("coef")
+}
+
