@@ -164,8 +164,6 @@ PLR.CV<-function(object,
   if(length(class(object))==1){
     names(object$Gi.expl) <-
       names(object$LR2) <-
-      names(object$lambda.idx) <-
-      names(object$grid.idx) <-
       "BIC"
     object$theta <- t(as.matrix(object$theta))
     rownames(object$theta) <- "BIC"
@@ -183,7 +181,7 @@ PLR.CV<-function(object,
   object$index <- rbind(object$index, "CV" = index.cv)
   object$splits <- cv_folds$splits
 
-  class(object) <- c(class(object),"PLR_cv")
+  class(object) <- c("PLR_cv",class(object))
 
   return(object)
 

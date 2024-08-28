@@ -181,8 +181,6 @@ Lorenz.boot <- function(object, R, data.orig, boot_out_only = FALSE, ...){
       if(length(class(object))==1){
         names(object$Gi.expl) <-
           names(object$LR2) <-
-          names(object$lambda.idx) <-
-          names(object$grid.idx) <-
           "BIC"
         object$theta <- t(as.matrix(object$theta))
         rownames(object$theta) <- "BIC"
@@ -204,9 +202,9 @@ Lorenz.boot <- function(object, R, data.orig, boot_out_only = FALSE, ...){
 
     # 5. Class ----
     if(method == "LR"){
-      class(object) <- c(class(object),"LR_boot")
+      class(object) <- c("LR_boot",class(object))
     }else{
-      class(object) <- c(class(object),"PLR_boot")
+      class(object) <- c("PLR_boot",class(object))
     }
 
   }

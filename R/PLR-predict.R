@@ -2,13 +2,14 @@
 #'
 #' \code{predict.PLR} provides predictions for an object of class \code{"PLR"}.
 #'
+#' @aliases predict.PLR_boot predict.PLR_cv
 #' @param object An object of S3 class \code{"PLR"}.
 #' @param newdata An optional data frame in which to look for variables with which to predict. If omitted, the original data are used.
 #' @param type A character string indicating the type of prediction. Possible values are \code{"response"} and \code{"index"} (the default).
 #' In the first case, the prediction estimates the conditional expectation of the response given the covariates.
 #' In the second case, the prediction estimates only the index of the single-index model.
 #' @param pars.idx A vector of size 2 specifying the index of the grid parameter (first element) and the index of the penalty parameter (second element) that should be selected.
-#' Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).
+#' Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{"PLR_boot"} class) and cross-validation (if \code{object} inherits from the \code{"PLR_cv"} class).
 #' @param ... Additional arguments passed to the function \code{\link{Rearrangement.estimation}}.
 #'
 #' @return a vector gathering the predictions.
@@ -28,9 +29,81 @@
 
 predict.PLR <- function(object, newdata, type=c("index","response"), pars.idx = NULL, ...){
 
-  tt <- terms(object)
-  if (!inherits(object, "PLR")) stop("The object must be of class 'PLR'")
   type <- match.arg(type)
+  if(is.null(pars.idx)) pars.idx <- c(object$grid.idx["BIC"],object$lambda.idx["BIC"])
+
+  predict_PLR(object, newdata, type, pars.idx)
+
+}
+
+#' @method predict PLR_boot
+#' @rdname predict.PLR
+#' @export
+
+predict.PLR_boot <- function(object, newdata, type=c("index","response"), pars.idx = NULL, ...){
+
+  type <- match.arg(type)
+  pred_0 <- NextMethod("predict")
+
+  if(is.null(pars.idx)){
+
+    pars.idx <- c(object$grid.idx["Boot"],object$lambda.idx["Boot"])
+    pred_1 <- predict_PLR(object, newdata, type, pars.idx)
+
+    predictor <- cbind(pred_0,pred_1)
+    if(is.vector(pred_0)){
+      colnames(predictor) <- c("BIC","Boot")
+    }else{
+      colnames(predictor)[ncol(pred_0)+1] <- "Boot"
+    }
+
+  }else{
+
+    predictor <- pred_0
+
+  }
+
+  return(predictor)
+
+
+}
+
+#' @method predict PLR_cv
+#' @rdname predict.PLR
+#' @export
+
+predict.PLR_cv <- function(object, newdata, type=c("index","response"), pars.idx = NULL, ...){
+
+  type <- match.arg(type)
+  pred_0 <- NextMethod("predict")
+
+  if(is.null(pars.idx)){
+
+    pars.idx <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
+    pred_1 <- predict_PLR(object, newdata, type, pars.idx)
+
+    predictor <- cbind(pred_0,pred_1)
+    if(is.vector(pred_0)){
+      colnames(predictor) <- c("BIC","CV")
+    }else{
+      colnames(predictor)[ncol(pred_0)+1] <- "CV"
+    }
+
+  }else{
+
+    predictor <- pred_0
+
+  }
+
+  return(predictor)
+
+
+}
+
+predict_PLR <- function(object, newdata, type, pars.idx, ...){
+
+  # Data (re)-construction
+  tt <- terms(object)
   noData <- (missing(newdata) || is.null(newdata))
   if(noData){
     x <- object$x
@@ -39,31 +112,23 @@ predict.PLR <- function(object, newdata, type=c("index","response"), pars.idx = 
     m <- model.frame(Terms, newdata, xlev = object$xlevels)
     x <- model_matrix_PLR(Terms,m)
   }
-  if(!is.null(pars.idx)){
-    l <- ncol(object$x)
-    pth <- object$path[[pars.idx[1]]][,pars.idx[2]]
-    object$theta <- pth[(length(pth)-l+1):length(pth)]
-    object$index <- as.vector(object$theta%*%t(object$x))
-    class(object) <- "PLR"
-  }
-  index <- object$theta%*%t(x)
-  if (inherits(object,c("PLR_boot","PLR_cv"))){
-    if(type=="index"){
-      predictor <- t(index)
-    }else{
-      predictor <- sapply(1:nrow(index),function(i)Rearrangement.estimation(object$y, object$index[i,], t=index[i,], weights=object$weights, ...)$H)
-      colnames(predictor) <- rownames(index)
-      rownames(predictor) <- NULL
-    }
+
+  # Retrieving theta and index
+  l <- ncol(object$x)
+  pth <- object$path[[pars.idx[1]]][,pars.idx[2]]
+  object$theta <- pth[(length(pth)-l+1):length(pth)]
+  object$index <- as.vector(object$theta%*%t(object$x)) # Necessarily on the original x
+  index <- object$theta%*%t(x) # on the x used for predictions
+
+  # Defining the predictor
+  if(type=="index"){
+    predictor <- as.vector(index)
   }else{
-    if(type=="index"){
-      predictor <- as.vector(index)
-    }else{
-      predictor <- Rearrangement.estimation(object$y, object$index, t=as.vector(index), weights=object$weights, ...)$H
-      names(predictor) <- NULL
-    }
+    predictor <- Rearrangement.estimation(object$y, object$index, t=as.vector(index), weights=object$weights, ...)$H
+    names(predictor) <- NULL
   }
 
   return(predictor)
 
 }
+

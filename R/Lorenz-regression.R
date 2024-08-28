@@ -201,6 +201,7 @@ Lorenz.Reg <- function(formula,
     # grid refers either to h or to SCAD.nfwd
     grid.idx <- which.max(sapply(1:lth.path,function(i)max(val.BIC[[i]])))
     lambda.idx <- best.BIC[[grid.idx]]
+    names(grid.idx) <- names(lambda.idx) <- "BIC"
     return.list$grid.idx <- grid.idx
     return.list$lambda.idx <- lambda.idx
     return.list$grid.value <- grid.value
