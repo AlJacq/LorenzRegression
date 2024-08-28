@@ -26,7 +26,6 @@
 predict.LR <- function(object, newdata, type=c("index","response"), ...){
 
   tt <- terms(object)
-  if (!inherits(object, "LR")) stop("The object must be of class 'LR'.")
   if (is.null(object$theta)) stop("No prediction is available for an empty model.")
   type <- match.arg(type)
   noData <- (missing(newdata) || is.null(newdata))
@@ -37,7 +36,8 @@ predict.LR <- function(object, newdata, type=c("index","response"), ...){
     m <- model.frame(Terms, newdata, xlev = object$xlevels)
     x <- model.matrix(Terms, m)[,-1,drop=FALSE]
   }
-  index <- as.vector(object$theta%*%t(x))
+  object$index <- as.vector(object$theta%*%t(object$x)) # Necessarily on original data
+  index <- as.vector(object$theta%*%t(x)) # Not necessarily on original data
   if(type=="index"){
     predictor <- index
   }else{
@@ -47,4 +47,11 @@ predict.LR <- function(object, newdata, type=c("index","response"), ...){
 
   return(predictor)
 
+}
+
+#' @method predict LR_boot
+#' @export
+
+predict.LR_boot <- function(object, newdata, type=c("index","response"), ...){
+  NextMethod("predict")
 }
