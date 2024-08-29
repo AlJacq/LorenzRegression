@@ -20,7 +20,7 @@ print.LR <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
 
   cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
       "\n\n", sep = "")
-  cat("Explained Gini coefficient:", sprintf(paste0("%.", digits, "f"), x$Gi.expl), "\n")
+  cat("Explained Gini coefficient:", sprintf(paste0("%.", digits, "f"), ineqExplained.LR(x)), "\n")
   cat("\nCoefficients:\n")
   print.default(format(coef.LR(x), digits = digits), print.gap = 2L,
                 quote = FALSE)
