@@ -6,14 +6,14 @@
 \alias{predict.PLR_cv}
 \title{Prediction for the Penalized Lorenz regression}
 \usage{
-\method{predict}{PLR}(object, newdata, type = c("index", "response"), pars.idx = NULL, ...)
+\method{predict}{PLR}(object, newdata, type = c("index", "response"), pars.idx = "BIC", ...)
 
-\method{predict}{PLR_boot}(object, newdata, type = c("index", "response"), pars.idx = NULL, ...)
+\method{predict}{PLR_boot}(object, newdata, type = c("index", "response"), pars.idx = "BIC", ...)
 
-\method{predict}{PLR_cv}(object, newdata, type = c("index", "response"), pars.idx = NULL, ...)
+\method{predict}{PLR_cv}(object, newdata, type = c("index", "response"), pars.idx = "BIC", ...)
 }
 \arguments{
-\item{object}{An object of S3 class \code{"PLR"}.}
+\item{object}{An object of S3 class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})}
 
 \item{newdata}{An optional data frame in which to look for variables with which to predict. If omitted, the original data are used.}
 
@@ -21,14 +21,18 @@
 In the first case, the prediction estimates the conditional expectation of the response given the covariates.
 In the second case, the prediction estimates only the index of the single-index model.}
 
-\item{pars.idx}{A vector of size 2 specifying the index of the grid parameter (first element) and the index of the penalty parameter (second element) that should be selected.
-Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{"PLR_boot"} class) and cross-validation (if \code{object} inherits from the \code{"PLR_cv"} class).}
+\item{pars.idx}{What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
+\itemize{
+   \item \code{"BIC"} (default) - Always available.
+   \item \code{"Boot"} - Available if \code{object} inherits from \code{"PLR_boot"}.
+   \item \code{"CV"} - Available if \code{object} inherits from \code{"PLR_cv"}.
+}
+Or a numeric vector of length 2, where the first element is the index of the grid parameter and the second is the index of the penalty parameter.}
 
 \item{...}{Additional arguments passed to the function \code{\link{Rearrangement.estimation}}.}
 }
 \value{
 a vector gathering the predictions.
-If the object has also class \code{"PLR_boot"} and/or \code{"PLR_cv"}, the output is a matrix, where each column corresponds to a selection method.
 }
 \description{
 \code{predict.PLR} provides predictions for an object of class \code{"PLR"}.

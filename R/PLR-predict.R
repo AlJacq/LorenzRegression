@@ -3,17 +3,21 @@
 #' \code{predict.PLR} provides predictions for an object of class \code{"PLR"}.
 #'
 #' @aliases predict.PLR_boot predict.PLR_cv
-#' @param object An object of S3 class \code{"PLR"}.
+#' @param object An object of S3 class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})
 #' @param newdata An optional data frame in which to look for variables with which to predict. If omitted, the original data are used.
 #' @param type A character string indicating the type of prediction. Possible values are \code{"response"} and \code{"index"} (the default).
 #' In the first case, the prediction estimates the conditional expectation of the response given the covariates.
 #' In the second case, the prediction estimates only the index of the single-index model.
-#' @param pars.idx A vector of size 2 specifying the index of the grid parameter (first element) and the index of the penalty parameter (second element) that should be selected.
-#' Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{"PLR_boot"} class) and cross-validation (if \code{object} inherits from the \code{"PLR_cv"} class).
+#' @param pars.idx What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
+#' \itemize{
+#'    \item \code{"BIC"} (default) - Always available.
+#'    \item \code{"Boot"} - Available if \code{object} inherits from \code{"PLR_boot"}.
+#'    \item \code{"CV"} - Available if \code{object} inherits from \code{"PLR_cv"}.
+#' }
+#' Or a numeric vector of length 2, where the first element is the index of the grid parameter and the second is the index of the penalty parameter.
 #' @param ... Additional arguments passed to the function \code{\link{Rearrangement.estimation}}.
 #'
 #' @return a vector gathering the predictions.
-#' If the object has also class \code{"PLR_boot"} and/or \code{"PLR_cv"}, the output is a matrix, where each column corresponds to a selection method.
 #'
 #' @details If \code{type="response"}, the link function of the single-index model must be estimated. This is done via the function \code{\link{Rearrangement.estimation}}.
 #'
@@ -27,12 +31,25 @@
 #' @method predict PLR
 #' @export
 
-predict.PLR <- function(object, newdata, type=c("index","response"), pars.idx = NULL, ...){
+predict.PLR <- function(object, newdata, type=c("index","response"), pars.idx = "BIC", ...){
 
   type <- match.arg(type)
-  if(is.null(pars.idx)) pars.idx <- c(object$grid.idx["BIC"],object$lambda.idx["BIC"])
 
-  predict_PLR(object, newdata, type, pars.idx)
+  if((is.numeric(pars.idx) & length(pars.idx)==2)){
+    lth1 <- length(object$path)
+    lth2 <- ncol(object$path[[lth1]])
+    if(pars.idx[1] > lth1 | pars.idx[2] > lth2) stop("Indices in pars.idx are out of bounds.")
+  }else if(pars.idx == "BIC"){
+    pars.idx <- c(object$grid.idx["BIC"],object$lambda.idx["BIC"])
+  }else if(pars.idx == "Boot"){
+    stop("object is not of class 'PLR_boot'. Therefore pars.idx cannot be set to 'Boot'.")
+  }else if(pars.idx == "CV"){
+    stop("object is not of class 'PLR_cv'. Therefore pars.idx cannot be set to 'CV'.")
+  }else{
+    stop("pars.idx does not have the correct format")
+  }
+
+  predict_PLR(object, newdata, type, pars.idx, ...)
 
 }
 
@@ -40,31 +57,16 @@ predict.PLR <- function(object, newdata, type=c("index","response"), pars.idx = 
 #' @rdname predict.PLR
 #' @export
 
-predict.PLR_boot <- function(object, newdata, type=c("index","response"), pars.idx = NULL, ...){
+predict.PLR_boot <- function(object, newdata, type=c("index","response"), pars.idx = "BIC", ...){
 
   type <- match.arg(type)
-  pred_0 <- NextMethod("predict")
 
-  if(is.null(pars.idx)){
-
+  if(pars.idx == "Boot"){
     pars.idx <- c(object$grid.idx["Boot"],object$lambda.idx["Boot"])
-    pred_1 <- predict_PLR(object, newdata, type, pars.idx)
-
-    predictor <- cbind(pred_0,pred_1)
-    if(is.vector(pred_0)){
-      colnames(predictor) <- c("BIC","Boot")
-    }else{
-      colnames(predictor)[ncol(pred_0)+1] <- "Boot"
-    }
-
+    predict_PLR(object, newdata, type, pars.idx, ...)
   }else{
-
-    predictor <- pred_0
-
+    NextMethod("predict")
   }
-
-  return(predictor)
-
 
 }
 
@@ -72,31 +74,16 @@ predict.PLR_boot <- function(object, newdata, type=c("index","response"), pars.i
 #' @rdname predict.PLR
 #' @export
 
-predict.PLR_cv <- function(object, newdata, type=c("index","response"), pars.idx = NULL, ...){
+predict.PLR_cv <- function(object, newdata, type=c("index","response"), pars.idx = "BIC", ...){
 
   type <- match.arg(type)
-  pred_0 <- NextMethod("predict")
 
-  if(is.null(pars.idx)){
-
+  if(pars.idx == "CV"){
     pars.idx <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
-    pred_1 <- predict_PLR(object, newdata, type, pars.idx)
-
-    predictor <- cbind(pred_0,pred_1)
-    if(is.vector(pred_0)){
-      colnames(predictor) <- c("BIC","CV")
-    }else{
-      colnames(predictor)[ncol(pred_0)+1] <- "CV"
-    }
-
+    predict_PLR(object, newdata, type, pars.idx, ...)
   }else{
-
-    predictor <- pred_0
-
+    NextMethod("predict")
   }
-
-  return(predictor)
-
 
 }
 
