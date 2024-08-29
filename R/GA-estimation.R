@@ -156,7 +156,6 @@ Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=15
   Return.list$Gi.expl <- Gi.expl
   Return.list$niter <- niter
   Return.list$fit <- fit
-  Return.list$GA <- GA
 
   return(Return.list)
 

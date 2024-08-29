@@ -117,7 +117,7 @@ Lorenz.Reg <- function(formula,
   if (!is.null(w) && !is.numeric(w))
     stop("'weights' must be a numeric vector")
 
-  if (is.empty.model(mt)) {
+  if (length(all.vars(mt))==1) {
     x <- as.matrix(rep(1,length(y)))
   } else {
     # We need to distinguish between LR and PLR because specific treatment of categorical in PLR
