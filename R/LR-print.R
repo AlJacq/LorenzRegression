@@ -30,6 +30,6 @@ print.LR <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
 #' @method print LR_boot
 #' @export
 
-print.LR_boot <- function(object, ...){
+print.LR_boot <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
   NextMethod("print")
 }

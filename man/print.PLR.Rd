@@ -2,12 +2,18 @@
 % Please edit documentation in R/PLR-print.R
 \name{print.PLR}
 \alias{print.PLR}
+\alias{print.PLR_boot}
+\alias{print.PLR_cv}
 \title{Printing method for the Penalized Lorenz Regression}
 \usage{
 \method{print}{PLR}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+\method{print}{PLR_boot}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+\method{print}{PLR_cv}(x, digits = max(3L, getOption("digits") - 3L), ...)
 }
 \arguments{
-\item{x}{An object of class \code{"PLR"}.}
+\item{x}{An object of S3 class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})}
 
 \item{digits}{The number of significant digits to be passed.}
 
@@ -18,6 +24,9 @@ No return value, called for printing an object of class \code{"PLR"} to the cons
 }
 \description{
 \code{print.PLR} prints the arguments, explained Gini coefficient and estimated coefficients of an object of class \code{"PLR"}.
+}
+\details{
+The explained Gini coefficient and estimated coefficients are returned for each available selection method, depending on the class of \code{x}.
 }
 \examples{
 ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
