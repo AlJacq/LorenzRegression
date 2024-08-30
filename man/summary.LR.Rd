@@ -2,12 +2,15 @@
 % Please edit documentation in R/LR-summary.R
 \name{summary.LR}
 \alias{summary.LR}
+\alias{summary.LR_boot}
 \title{Summary for the Lorenz Regression}
 \usage{
 \method{summary}{LR}(object, ...)
+
+\method{summary}{LR_boot}(object, ...)
 }
 \arguments{
-\item{object}{An object of class \code{"LR"}.}
+\item{object}{An object of class \code{"LR"}. The object might also have S3 class \code{"LR_boot"} (which inherits from class \code{"PLR"}).}
 
 \item{...}{Additional arguments.}
 }
@@ -17,7 +20,8 @@ An object of class \code{"summary.LR"}, containing the following elements:
    \item{\code{call}}{The matched call.}
    \item{\code{ineq}}{A matrix with one row and three columns providing information on explained inequality. The first column gives the explained Gini coefficient, the second column gives the Gini coefficient of the response. The third column gives the Lorenz-R2.}
    \item{\code{coefficients}}{A matrix providing information on the estimated coefficients. The first column gives the estimates.
-   If the class of \code{object} contains \code{LR_boot}, bootstrap inference was performed and the matrix contains further information. The second column is the boostrap standard error. The third column is the z-value. Finally, the last column is the p-value.}
+   If \code{object} inherits from \code{"LR_boot"}, bootstrap inference was performed and the matrix contains further information. The second column is the boostrap standard error. The third column is the z-value. Finally, the last column is the p-value.
+   In this case, the class \code{"summary.LR_boot"} is added to the output.}
 }
 }
 \description{

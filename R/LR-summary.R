@@ -2,7 +2,8 @@
 #'
 #' \code{summary.LR} provides a summary for an object of class \code{"LR"}.
 #'
-#' @param object An object of class \code{"LR"}.
+#' @aliases summary.LR_boot
+#' @param object An object of class \code{"LR"}. The object might also have S3 class \code{"LR_boot"} (which inherits from class \code{"PLR"}).
 #' @param ... Additional arguments.
 #'
 #' @return An object of class \code{"summary.LR"}, containing the following elements:
@@ -10,7 +11,8 @@
 #'    \item{\code{call}}{The matched call.}
 #'    \item{\code{ineq}}{A matrix with one row and three columns providing information on explained inequality. The first column gives the explained Gini coefficient, the second column gives the Gini coefficient of the response. The third column gives the Lorenz-R2.}
 #'    \item{\code{coefficients}}{A matrix providing information on the estimated coefficients. The first column gives the estimates.
-#'    If the class of \code{object} contains \code{LR_boot}, bootstrap inference was performed and the matrix contains further information. The second column is the boostrap standard error. The third column is the z-value. Finally, the last column is the p-value.}
+#'    If \code{object} inherits from \code{"LR_boot"}, bootstrap inference was performed and the matrix contains further information. The second column is the boostrap standard error. The third column is the z-value. Finally, the last column is the p-value.
+#'    In this case, the class \code{"summary.LR_boot"} is added to the output.}
 #' }
 #'
 #' @details
@@ -26,31 +28,18 @@
 
 summary.LR <- function(object, ...){
 
-  if (!inherits(object, "LR")) stop("The object must be of class 'LR'")
-
   ans <- list()
   ans$call <- object$call
 
-  if(!is.null(object$theta)){
+  if(length(all.vars(object$terms))>1){
 
-    ans$ineq <- matrix(c(object$Gi.expl,object$Gi.expl/object$LR2,object$LR2),
+    ans$ineq <- matrix(c(ineqExplained.LR(object,type="Gini.explained"),
+                         ineqExplained.LR(object,type="Gini.explained")/ineqExplained.LR(object,type="Lorenz-R2"),
+                         ineqExplained.LR(object,type="Lorenz-R2")),
                        nrow = 1, ncol = 3,
                        dimnames = list("", c("Explained","Total","Lorenz-R2")))
-    ans$coefficients <- as.matrix(object$theta)
+    ans$coefficients <- as.matrix(coef.LR(object))
     colnames(ans$coefficients) <- "Estimate"
-    if (inherits(object, "LR_boot")){
-      n <- nrow(object$x)
-      p <- ncol(object$x)
-      theta.boot <- object$boot_out$t[,3:ncol(object$boot_out$t)]
-      Sigma.star <- n*stats::var(theta.boot)
-      c.std <- sqrt(diag(Sigma.star)/n)
-      ans$coefficients <- cbind(ans$coefficients, c.std)
-      c.z <- object$theta/c.std
-      ans$coefficients <- cbind(ans$coefficients, c.z)
-      c.p <- sapply(1:p,function(k)2*stats::pnorm(abs(c.z[k]),lower.tail=FALSE))
-      ans$coefficients <- cbind(ans$coefficients, c.p)
-      colnames(ans$coefficients) <- c("Estimate", "Std. Error", "z value", "Pr(>|z|)")
-    }
 
   }else{
 
@@ -59,9 +48,36 @@ summary.LR <- function(object, ...){
 
   }
 
-
-
   class(ans) <- "summary.LR"
+
+  return(ans)
+
+}
+
+#' @method summary LR_boot
+#' @rdname summary.LR
+#' @export
+
+summary.LR_boot <- function(object, ...){
+
+  ans <- NextMethod("summary")
+
+  if(length(all.vars(object$terms))>1){
+    n <- nrow(object$x)
+    p <- ncol(object$x)
+    theta.boot <- object$boot_out$t[,3:ncol(object$boot_out$t)]
+    Sigma.star <- n*stats::var(theta.boot)
+    c.std <- sqrt(diag(Sigma.star)/n)
+    ans$coefficients <- cbind(ans$coefficients, c.std)
+    c.z <- coef.LR(object)/c.std
+    ans$coefficients <- cbind(ans$coefficients, c.z)
+    c.p <- sapply(1:p,function(k)2*stats::pnorm(abs(c.z[k]),lower.tail=FALSE))
+    ans$coefficients <- cbind(ans$coefficients, c.p)
+    colnames(ans$coefficients) <- c("Estimate", "Std. Error", "z value", "Pr(>|z|)")
+
+    class(ans) <- c("summary.LR_boot",class(ans))
+
+  }
 
   return(ans)
 

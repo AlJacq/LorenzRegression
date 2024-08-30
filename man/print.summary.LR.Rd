@@ -2,9 +2,12 @@
 % Please edit documentation in R/LR-print-summary.R
 \name{print.summary.LR}
 \alias{print.summary.LR}
+\alias{print.summary.LR_boot}
 \title{Printing method for the summary of a Lorenz Regression}
 \usage{
-\method{print}{summary.LR}(
+\method{print}{summary.LR}(x, digits = max(3L, getOption("digits") - 3L), ...)
+
+\method{print}{summary.LR_boot}(
   x,
   digits = max(3L, getOption("digits") - 3L),
   signif.stars = getOption("show.signif.stars"),
@@ -12,13 +15,13 @@
 )
 }
 \arguments{
-\item{x}{An object of class \code{"summary.LR"}.}
+\item{x}{An object of class \code{"summary.LR"}. The object might also have S3 class \code{"summary.LR_boot"} (which inherits from class \code{"summary.LR"})}
 
 \item{digits}{Number of significant digits to be passed.}
 
-\item{signif.stars}{Logical determining whether p-values should be also encoded visually. See the help of the function \code{\link{printCoefmat}} for more information.}
-
 \item{...}{Additional arguments passed to the function \code{\link{print}}.}
+
+\item{signif.stars}{Logical determining whether p-values should be also encoded visually. See the help of the function \code{\link{printCoefmat}} for more information.}
 }
 \value{
 No return value, called for printing an object of class \code{"LR"} to the console.
