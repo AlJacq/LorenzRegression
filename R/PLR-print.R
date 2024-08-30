@@ -38,7 +38,6 @@ print.PLR_boot <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
 
   NextMethod("print")
 
-
   cat("\nExplained Gini coefficient (Bootstrap selection method):", sprintf(paste0("%.", digits, "f"), ineqExplained.PLR_boot(x,pars.idx="Boot")), "\n")
   cat("\nCoefficients (Bootstrap selection method):\n")
   print.default(format(coef.PLR_boot(x,pars.idx="Boot"), digits = digits), print.gap = 2L,
