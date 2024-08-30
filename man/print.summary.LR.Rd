@@ -21,7 +21,8 @@
 
 \item{...}{Additional arguments passed to the function \code{\link{print}}.}
 
-\item{signif.stars}{Logical determining whether p-values should be also encoded visually. See the help of the function \code{\link{printCoefmat}} for more information.}
+\item{signif.stars}{Logical determining whether p-values should be also encoded visually. See the help of the function \code{\link{printCoefmat}} for more information.
+This is only relevant if \code{x} inherits from \code{"summary.LR_boot"}.}
 }
 \value{
 No return value, called for printing an object of class \code{"LR"} to the console.

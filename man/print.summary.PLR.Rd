@@ -2,12 +2,14 @@
 % Please edit documentation in R/PLR-print-summary.R
 \name{print.summary.PLR}
 \alias{print.summary.PLR}
+\alias{print.summary.PLR_boot}
+\alias{print.summary.PLR_cv}
 \title{Printing method for the summary of a Penalized Lorenz Regression}
 \usage{
 \method{print}{summary.PLR}(x, digits = max(3L, getOption("digits") - 3L), ...)
 }
 \arguments{
-\item{x}{An object of class \code{"summary.PLR"}.}
+\item{x}{An object of class \code{"summary.PLR"}. The object might also have S3 class \code{"summary.PLR_boot"} and/or \code{"summary.PLR_cv"} (both inherit from class \code{"summary.LR"})}
 
 \item{digits}{Number of significant digits to be passed.}
 

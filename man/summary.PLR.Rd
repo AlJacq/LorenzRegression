@@ -2,27 +2,32 @@
 % Please edit documentation in R/PLR-summary.R
 \name{summary.PLR}
 \alias{summary.PLR}
+\alias{summary.PLR_boot}
+\alias{summary.PLR_cv}
 \title{Summary for the Penalized Lorenz Regression}
 \usage{
-\method{summary}{PLR}(object, renormalize = TRUE, pars.idx = NULL, ...)
+\method{summary}{PLR}(object, renormalize = TRUE, ...)
+
+\method{summary}{PLR_boot}(object, renormalize = TRUE, ...)
+
+\method{summary}{PLR_cv}(object, renormalize = TRUE, ...)
 }
 \arguments{
-\item{object}{An object of class \code{"PLR"}.}
+\item{object}{An object of class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})}
 
 \item{renormalize}{A logical value determining whether the coefficient vector should be re-normalized to match the representation where the first category of each categorical variable is omitted. Default value is TRUE}
-
-\item{pars.idx}{A vector of size 2 specifying the index of the grid parameter (first element) and the index of the penalty parameter (second element) that should be selected.
-Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).}
 
 \item{...}{Additional arguments}
 }
 \value{
-An object of class \code{"summary.PLR"}, containing the following elements:
+An object of class \code{"summary.PLR"}, which contains:
 \describe{
    \item{\code{call}}{The matched call.}
-   \item{\code{ineq}}{The table of explained inequality. The first column displays the explained Gini coefficient, the second displays the Gini coefficient of the response and the last column displays the Lorenz-R2. Each row corresponds to a different selection method.}
-   \item{\code{coefficients}}{A matrix providing information on the estimated coefficients. Each column corresponds to a different selection method}
+   \item{\code{ineq}}{A table of explained inequality metrics. The columns display the explained Gini coefficient, the Gini coefficient of the response, and the Lorenz-R2. The first row contains the results obtained by BIC.}
+   \item{\code{coefficients}}{A matrix with estimated coefficients, each row corresponding to a specific coefficient. The first column contains the results obtained by BIC.}
 }
+If the object inherits from \code{"PLR_boot"}, \code{ineq} and \code{coefficients} also include results from bootstrap, and the class \code{"summary.PLR_boot"} is added to the output.
+Similarly, if the object inherits from \code{"PLR_cv"}, \code{ineq} and \code{coefficients} also include results from cross-validation, and the class \code{"summary.PLR_cv"} is added to the output.
 }
 \description{
 \code{summary.PLR} provides a summary for an object of class \code{"PLR"}.
@@ -32,5 +37,5 @@ An object of class \code{"summary.PLR"}, containing the following elements:
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.boot}}
+\code{\link{Lorenz.Reg}}, \code{\link{Lorenz.boot}}, \code{\link{PLR.CV}}
 }
