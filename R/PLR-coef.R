@@ -50,12 +50,8 @@ coef.PLR <- function(object, renormalize=TRUE, pars.idx="BIC", ...){
 
 coef.PLR_boot <- function(object, renormalize=TRUE, pars.idx="BIC", ...){
 
-  if(pars.idx == "Boot"){
-    pars.idx <- c(object$grid.idx["Boot"],object$lambda.idx["Boot"])
-    coef_PLR(object, renormalize, pars.idx)
-  }else{
-    NextMethod("coef")
-  }
+  if(all(pars.idx == "Boot")) pars.idx <- c(object$grid.idx["Boot"],object$lambda.idx["Boot"])
+  NextMethod("coef")
 
 }
 
@@ -65,12 +61,8 @@ coef.PLR_boot <- function(object, renormalize=TRUE, pars.idx="BIC", ...){
 
 coef.PLR_cv <- function(object, renormalize=TRUE, pars.idx="BIC", ...){
 
-  if(pars.idx == "CV"){
-    pars.idx <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
-    coef_PLR(object, renormalize, pars.idx)
-  }else{
-    NextMethod("coef")
-  }
+  if(all(pars.idx == "CV")) pars.idx <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
+  NextMethod("coef")
 
 }
 
