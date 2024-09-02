@@ -2,6 +2,7 @@
 % Please edit documentation in R/PLR-confint.R
 \name{confint.PLR_boot}
 \alias{confint.PLR_boot}
+\alias{confint.PLR_cv}
 \title{Confidence intervals for the Penalized Lorenz Regression}
 \usage{
 \method{confint}{PLR_boot}(
@@ -13,9 +14,19 @@
   bias.corr = TRUE,
   ...
 )
+
+\method{confint}{PLR_cv}(
+  object,
+  parm = c("Gini", "LR2"),
+  level = 0.95,
+  type = c("norm", "basic", "perc"),
+  pars.idx = NULL,
+  bias.corr = TRUE,
+  ...
+)
 }
 \arguments{
-\item{object}{An object of class \code{"PLR_boot"}.}
+\item{object}{An object of class \code{"PLR_boot"}. The object might also have S3 class \code{"PLR_cv"}.}
 
 \item{parm}{A character string determining whether the confidence interval is computed for the explained Gini coefficient or for the Lorenz-R2. Possible values are \code{"Gini"} (default, for the explained Gini) and \code{"LR2"} (for the Lorenz-R2)}
 
@@ -23,17 +34,20 @@
 
 \item{type}{A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link{boot.ci}} from the \emph{boot} library.}
 
-\item{pars.idx}{A vector of size 2 specifying the index of the grid parameter (first element) and the index of the penalty parameter (second element) that should be selected.
-Default is \code{NULL}, in which case the parameters are selected by the available methods : BIC (always), bootstrap (if \code{object} inherits from the \code{PLR_boot} class) and cross-validation (if \code{object} inherits from the \code{PLR_cv} class).}
+\item{pars.idx}{What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
+\itemize{
+   \item \code{"BIC"} (default).
+   \item \code{"Boot"}.
+   \item \code{"CV"} - Available if \code{object} inherits from \code{"PLR_cv"}.
+}
+Or a numeric vector of length 2, where the first element is the index of the grid parameter and the second is the index of the penalty parameter.}
 
 \item{bias.corr}{A logical determining whether bias correction should be performed. Only used if \code{type="norm"}. Default is \code{TRUE}.}
 
 \item{...}{Additional arguments.}
 }
 \value{
-The desired confidence interval.
-If \code{pars.idx=NULL}, the output is a matrix where each row corresponds to a selection method.
-Otherwise, the grid and penalty parameters are specified by the vector \code{pars.idx} and the output is a vector.
+A vector providing the desired confidence interval.
 }
 \description{
 \code{confint.PLR_boot} provides bootstrap confidence intervals for the explained Gini coefficient and Lorenz-R2 for an object of class \code{"PLR_boot"}.

@@ -204,7 +204,13 @@ Lorenz.boot <- function(object, R, data.orig, boot_out_only = FALSE, ...){
     if(method == "LR"){
       class(object) <- c("LR_boot",class(object))
     }else{
-      class(object) <- c("PLR_boot",class(object))
+      lth.class <- length(class(object))
+      if(lth.class==1){
+        class(object) <- c("PLR_boot",class(object))
+      }else{
+        # PLR_boot must come right after "PLR"
+        class(object) <- c(class(object)[-lth.class],"PLR_boot","PLR")
+      }
     }
 
   }
