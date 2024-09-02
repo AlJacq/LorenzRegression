@@ -61,12 +61,8 @@ predict.PLR_boot <- function(object, newdata, type=c("index","response"), pars.i
 
   type <- match.arg(type)
 
-  if(pars.idx == "Boot"){
-    pars.idx <- c(object$grid.idx["Boot"],object$lambda.idx["Boot"])
-    predict_PLR(object, newdata, type, pars.idx, ...)
-  }else{
-    NextMethod("predict")
-  }
+  if(all(pars.idx == "Boot")) pars.idx <- c(object$grid.idx["Boot"],object$lambda.idx["Boot"])
+  NextMethod("predict")
 
 }
 
@@ -78,12 +74,8 @@ predict.PLR_cv <- function(object, newdata, type=c("index","response"), pars.idx
 
   type <- match.arg(type)
 
-  if(pars.idx == "CV"){
-    pars.idx <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
-    predict_PLR(object, newdata, type, pars.idx, ...)
-  }else{
-    NextMethod("predict")
-  }
+  if(all(pars.idx == "CV")) pars.idx <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
+  NextMethod("predict")
 
 }
 
