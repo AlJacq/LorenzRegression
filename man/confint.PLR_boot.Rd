@@ -10,7 +10,7 @@
   parm = c("Gini", "LR2"),
   level = 0.95,
   type = c("norm", "basic", "perc"),
-  pars.idx = NULL,
+  pars.idx = "BIC",
   bias.corr = TRUE,
   ...
 )
@@ -20,7 +20,7 @@
   parm = c("Gini", "LR2"),
   level = 0.95,
   type = c("norm", "basic", "perc"),
-  pars.idx = NULL,
+  pars.idx = "BIC",
   bias.corr = TRUE,
   ...
 )

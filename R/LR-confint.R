@@ -25,10 +25,24 @@
 
 confint.LR_boot <- function(object, parm=c("Gini","LR2","theta"), level=0.95, type=c("norm","basic","perc"), bias.corr=TRUE, ...){
 
-  if (!inherits(object, "LR_boot")) stop("The object must be of class 'LR_boot'")
-
   parm <- match.arg(parm)
   type <- match.arg(type)
+
+  ci_boot_LR(object, parm, level, type, bias.corr)
+
+}
+
+#' @method confint LR
+#' @export
+
+confint.LR <- function(object, parm=c("Gini","LR2","theta"), level=0.95, ...){
+
+  stop("The 'confint' method requires the object to inherit from 'LR_boot'. The current implementation of the Lorenz regression uses bootstrap for confidence interval construction. Please ensure the object is generated using bootstrap (i.e., it should be of class 'LR_boot').")
+
+}
+
+ci_boot_LR <- function(object, parm, level, type, bias.corr){
+
   type2 <- switch(type, "basic" = "basic", "norm" = "normal", "perc" = "percent")
 
   ci.i <- function(i){
@@ -52,3 +66,4 @@ confint.LR_boot <- function(object, parm=c("Gini","LR2","theta"), level=0.95, ty
   return(ci)
 
 }
+
