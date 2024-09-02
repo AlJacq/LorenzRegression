@@ -49,12 +49,8 @@ ineqExplained.PLR_boot <- function(object, type = c("Gini.explained","Lorenz-R2"
 
   type <- match.arg(type)
 
-  if(pars.idx == "Boot"){
-    pars.idx <- c(object$grid.idx["Boot"],object$lambda.idx["Boot"])
-    ineqExplained_PLR(object, type, pars.idx)
-  }else{
-    NextMethod("ineqExplained")
-  }
+  if(all(pars.idx == "Boot")) pars.idx <- c(object$grid.idx["Boot"],object$lambda.idx["Boot"])
+  NextMethod("ineqExplained")
 
 }
 
@@ -66,12 +62,8 @@ ineqExplained.PLR_cv <- function(object, type = c("Gini.explained","Lorenz-R2"),
 
   type <- match.arg(type)
 
-  if(pars.idx == "CV"){
-    pars.idx <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
-    ineqExplained_PLR(object, type, pars.idx)
-  }else{
-    NextMethod("ineqExplained")
-  }
+  if(all(pars.idx == "CV")) pars.idx <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
+  NextMethod("ineqExplained")
 
 }
 
