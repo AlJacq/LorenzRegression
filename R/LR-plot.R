@@ -26,7 +26,7 @@ autoplot.LR <- function(x, ...){
   if (is.null(x$theta)) stop("No plots are available for an empty model.")
 
   formula <- update.formula(x, . ~ index)
-  data <- data.frame(x$y,x$index)
+  data <- data.frame(x$y,predict.LR(x))
   names(data) <- all.vars(formula)
 
   g <- Lorenz.graphs(formula, data, weights = x$weights, ...)

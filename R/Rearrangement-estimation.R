@@ -27,7 +27,7 @@
 #' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes,
 #'                   penalty = "SCAD", eps = 0.01)
 #' Y <- PLR$y
-#' Index <- PLR$index
+#' Index <- predict(PLR)
 #' Rearrangement.estimation(Y = Y, Index = Index)
 #'
 #' @import Rearrangement

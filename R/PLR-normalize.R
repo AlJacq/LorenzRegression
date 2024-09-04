@@ -2,7 +2,7 @@
 #'
 #' \code{PLR.normalize} transforms the estimated coefficients of a penalized Lorenz regression to match the model where the first category of each categorical variable is omitted.
 #'
-#' @param object An object of S3 class \code{"PLR"}.
+#' @param object An object of S3 class \code{"PLR"}. The object must also contain a \code{"theta"} slot with the estimated coefficients
 #'
 #' @return A matrix of re-normalized coefficients.
 #'

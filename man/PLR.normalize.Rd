@@ -7,7 +7,7 @@
 PLR.normalize(object)
 }
 \arguments{
-\item{object}{An object of S3 class \code{"PLR"}.}
+\item{object}{An object of S3 class \code{"PLR"}. The object must also contain a \code{"theta"} slot with the estimated coefficients}
 }
 \value{
 A matrix of re-normalized coefficients.

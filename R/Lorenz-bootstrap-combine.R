@@ -80,7 +80,7 @@ Lorenz.boot.combine <- function(boot_list){
     # Adding OOB score to the path
     idx <- lapply(1:lth.path,function(i)(cumsum(path.sizes)-path.sizes+1)[i]:cumsum(path.sizes)[i])
     val.OOB <- lapply(idx,function(i)OOB_total[i])
-    lth.theta <- ifelse(is.vector(object$theta),length(object$theta),ncol(object$theta))
+    lth.theta <- ncol(object$x)
     lth <- nrow(object$path[[1]]) # Same for all anyway (what changes is ncol)
     for (i in 1:lth.path){
       path.tmp <- rbind(object$path[[i]][1:(lth-lth.theta),],
@@ -94,28 +94,8 @@ Lorenz.boot.combine <- function(boot_list){
     path.wt <- rep(1:lth.path,times=path.sizes)
     wl <- path.wl[which.max(OOB_total)]
     wt <- path.wt[which.max(OOB_total)]
-    if(length(class(object))==1){
-      names(object$Gi.expl) <-
-        names(object$LR2) <-
-        names(object$lambda.idx) <-
-        names(object$grid.idx) <-
-        "BIC"
-      object$theta <- t(as.matrix(object$theta))
-      rownames(object$theta) <- "BIC"
-      object$index <- t(as.matrix(object$index))
-      rownames(object$index) <- "BIC"
-      object$MRS <- list("BIC" = object$MRS)
-    }
     object$grid.idx <- c(object$grid.idx,"Boot"=wt)
     object$lambda.idx <- c(object$lambda.idx,"Boot"=wl)
-    object$Gi.expl <- setNames(c(object$Gi.expl, object$path[[wt]]["Explained Gini", wl]), c(names(object$Gi.expl), "Boot"))
-    object$LR2 <- setNames(c(object$LR2, object$path[[wt]]["Lorenz-R2", wl]), c(names(object$LR2), "Boot"))
-    theta.boot <- object$path[[wt]][(lth-lth.theta+1):lth, wl]
-    object$theta <- rbind(object$theta, "Boot" = theta.boot)
-    theta.boot.nz <- theta.boot[theta.boot!=0]
-    object$MRS$Boot <- outer(theta.boot.nz,theta.boot.nz,"/")
-    index.boot <- as.vector(theta.boot%*%t(object$x))
-    object$index <- rbind(object$index, "Boot" = index.boot)
   }
 
   # Class ----

@@ -42,6 +42,7 @@ An object of class \code{"LR"} for the non-penalized Lorenz regression or of cla
 
 For both classes, several methods are available. The function \code{summary} is used to summarize the model fits.
 Information on the coefficient of the single-index model is obtained via \code{coef}.
+Measures of explained inequality (Gini coefficient and Lorenz-\eqn{R^2}) are extraced with \code{ineqExplained}.
 The method \code{predict} is used to predict either the response or the index of the model.
 A visual representation of explained inequality through Lorenz curves is provided with the method \code{plot}.
 
@@ -50,12 +51,9 @@ The object of class \code{"LR"} is a list containing the following components:
    \item{\code{theta}}{The estimated vector of parameters.}
    \item{\code{Gi.expl}}{The estimated explained Gini coefficient.}
    \item{\code{LR2}}{The Lorenz-\eqn{R^2} of the regression.}
-   \item{\code{MRS}}{The matrix of estimated marginal rates of substitution. More precisely, if we want the MRS of \eqn{X_1} (numerator) with respect to \eqn{X_2} (denominator),
-   we should look for row corresponding to \eqn{X_1} and column corresponding to \eqn{X_2}.}
    \item{\code{index}}{A vector gathering the estimated index.}
 }
-For the Penalized Lorenz Regression, the grid parameter (i.e. the value on the grid \code{grid.value}) and the penalization parameter (lambda) are chosen optimally via the BIC method.
-The object of class \code{"PLR"} is a list containing the same components as previously, and in addition :
+The object of class \code{"PLR"} is a list containing the following components:
 \describe{
    \item{\code{path}}{A list where the different elements correspond to the values of the grid parameter. Each element is a matrix where the first line displays the vector of lambda values. The second and third lines display the evolution of the Lorenz-\eqn{R^2} and explained Gini coefficient along that vector. The next lines display the evolution of the BIC score. The remaining lines display the evolution of the estimated coefficients of the single-index model.}
    \item{\code{lambda.idx}}{the index of the optimal lambda obtained by the BIC method}

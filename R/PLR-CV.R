@@ -90,7 +90,7 @@ PLR.CV<-function(object,
     }else{
       test.weights <- NULL
     }
-    theta.train <- lapply(train.LR$path,function(x)x[(nrow(x)-length(train.LR$theta)+1):nrow(x),])
+    theta.train <- lapply(train.LR$path,function(x)x[(nrow(x)-ncol(object$x)+1):nrow(x),])
     cv.score <- PLR.scores(test.y,test.x,test.weights,theta.train)
     cv.vec <- unlist(cv.score)
 
@@ -147,7 +147,7 @@ PLR.CV<-function(object,
   # Adding cv score to the path
   idx <- lapply(1:lth.path,function(i)(cumsum(path.sizes)-path.sizes+1)[i]:cumsum(path.sizes)[i])
   val.cv <- lapply(idx,function(i)cv_total[i])
-  lth.theta <- ifelse(is.vector(object$theta),length(object$theta),ncol(object$theta))
+  lth.theta <- ncol(object$x)
   lth <- nrow(object$path[[1]]) # Same for all anyway (what changes is ncol)
   for (i in 1:lth.path){
     path.tmp <- rbind(object$path[[i]][1:(lth-lth.theta),],
@@ -161,24 +161,8 @@ PLR.CV<-function(object,
   path.wt <- rep(1:lth.path,times=path.sizes)
   wl <- path.wl[which.max(cv_total)]
   wt <- path.wt[which.max(cv_total)]
-  if(length(class(object))==1){
-    names(object$Gi.expl) <-
-      names(object$LR2) <-
-      "BIC"
-    object$theta <- t(as.matrix(object$theta))
-    rownames(object$theta) <- "BIC"
-    object$MRS <- list("BIC" = object$MRS)
-  }
   object$grid.idx <- c(object$grid.idx,"CV"=wt)
   object$lambda.idx <- c(object$lambda.idx,"CV"=wl)
-  object$Gi.expl <- setNames(c(object$Gi.expl, object$path[[wt]]["Explained Gini", wl]), c(names(object$Gi.expl), "CV"))
-  object$LR2 <- setNames(c(object$LR2, object$path[[wt]]["Lorenz-R2", wl]), c(names(object$LR2), "CV"))
-  theta.cv <- object$path[[wt]][(lth-lth.theta+1):lth, wl]
-  object$theta <- rbind(object$theta, "CV" = theta.cv)
-  theta.cv.nz <- theta.cv[theta.cv!=0]
-  object$MRS$CV <- outer(theta.cv.nz,theta.cv.nz,"/")
-  index.cv <- as.vector(theta.cv%*%t(object$x))
-  object$index <- rbind(object$index, "CV" = index.cv)
   object$splits <- cv_folds$splits
 
   class(object) <- c("PLR_cv",class(object))
