@@ -77,3 +77,30 @@ Lorenz.graphs <- function(formula, data, difference = FALSE, ...){
   }
   graph
 }
+
+#' @importFrom ggplot2 stat_function aes scale_color_manual ggplot
+#' @importFrom scales hue_pal
+#' @keywords internal
+
+Lorenz.graphs_add <- function(g, y, x, difference = FALSE, curve_label, ...) {
+
+  # Determine the new color that will be applied to the new curve
+  color_scale <- g$scales$scales[[1]]
+  existing_colors <- color_scale$palette(length(g$layers) - 1)
+  next_color <- hue_pal()(length(existing_colors) + 1)[length(existing_colors) + 1]
+
+  # Add the new curve to the plot
+  g <- g + stat_function(
+    fun = if (difference) function(p) Lorenz.curve(y, x, ...)(p) - p
+    else function(p) Lorenz.curve(y, x, ...)(p),
+    geom = "line", aes(color = curve_label)
+  )
+
+  # Update the color scale to include the new color
+  new_colors <- c(existing_colors, next_color)
+  names(new_colors) <- c(names(existing_colors), curve_label)
+
+  g <- suppressMessages( g + scale_color_manual(values = new_colors) )
+
+  g
+}

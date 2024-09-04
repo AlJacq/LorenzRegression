@@ -13,6 +13,7 @@ LazyData: true
 Imports:
   stats,
   ggplot2,
+  scales,
   parsnip,
   boot,
   rsample,
