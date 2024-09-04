@@ -24,13 +24,13 @@ print.summary.PLR <- function(x, digits = max(3L, getOption("digits") - 3L), ...
 
   cat("Explained Inequality Table\n\n")
 
-  print(x$ineq, digits = digits)
+  print(x$ineq, digits = digits, ...)
 
   cat("\n (Explained inequality is measured by the explained Gini coefficient. Total inequality is the Gini coefficient of the response. The Lorenz-R2 is the proportion of inequality explained by the model.)")
 
   cat("\n\nEstimated Coefficients Table for the Single-Index Model\n")
 
-  print(x$coefficients, digits = digits)
+  print(x$coefficients, digits = digits, ...)
 
 }
 
