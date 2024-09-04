@@ -1,6 +1,6 @@
 #' Summary for the Lorenz Regression
 #'
-#' \code{summary.LR} provides a summary for an object of class \code{"LR"}.
+#' Provides a summary for an object of class \code{"LR"}.
 #'
 #' @aliases summary.LR_boot
 #' @param object An object of class \code{"LR"}. The object might also have S3 class \code{"LR_boot"} (which inherits from class \code{"PLR"}).
@@ -9,7 +9,7 @@
 #' @return An object of class \code{"summary.LR"}, containing the following elements:
 #' \describe{
 #'    \item{\code{call}}{The matched call.}
-#'    \item{\code{ineq}}{A matrix with one row and three columns providing information on explained inequality. The first column gives the explained Gini coefficient, the second column gives the Gini coefficient of the response. The third column gives the Lorenz-R2.}
+#'    \item{\code{ineq}}{A matrix with one row and three columns providing information on explained inequality. The first column gives the explained Gini coefficient, the second column gives the Gini coefficient of the response. The third column gives the Lorenz-\eqn{R^2}.}
 #'    \item{\code{coefficients}}{A matrix providing information on the estimated coefficients. The first column gives the estimates.
 #'    If \code{object} inherits from \code{"LR_boot"}, bootstrap inference was performed and the matrix contains further information. The second column is the boostrap standard error. The third column is the z-value. Finally, the last column is the p-value.
 #'    In this case, the class \code{"summary.LR_boot"} is added to the output.}
@@ -55,7 +55,6 @@ summary.LR <- function(object, ...){
 }
 
 #' @method summary LR_boot
-#' @rdname summary.LR
 #' @export
 
 summary.LR_boot <- function(object, ...){

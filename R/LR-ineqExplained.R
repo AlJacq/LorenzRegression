@@ -1,9 +1,10 @@
 #' Explained inequality metrics for the Lorenz regression
 #'
-#' \code{ineqExplained.LR} retrieves the explained Gini coefficient or the Lorenz-\eqn{R^2} from an object of class \code{"LR"}.
+#' Retrieves the explained Gini coefficient or the Lorenz-\eqn{R^2} from an object of class \code{"LR"}.
 #'
+#' @aliases ineqExplained.LR_boot
 #' @param object An object of S3 class \code{"LR"}.
-#' @param type Character string specifying the type of inequality metric to retrieve. Options are \code{"Gini.explained"} and \code{"Lorenz-R2"}.
+#' @param type Character string specifying the type of inequality metric to retrieve. Options are \code{"Gini.explained"} (for the explained Gini coefficient) and \code{"Lorenz-R2"} (for the Lorenz-\eqn{R^2}).
 #' @param ... Additional arguments.
 #'
 #' @return A numeric value representing the requested inequality metric.

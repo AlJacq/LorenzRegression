@@ -7,10 +7,6 @@
 \title{Estimated coefficients for the Penalized Lorenz Regression}
 \usage{
 \method{coef}{PLR}(object, renormalize = TRUE, pars.idx = "BIC", ...)
-
-\method{coef}{PLR_boot}(object, renormalize = TRUE, pars.idx = "BIC", ...)
-
-\method{coef}{PLR_cv}(object, renormalize = TRUE, pars.idx = "BIC", ...)
 }
 \arguments{
 \item{object}{An object of S3 class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})}
@@ -31,7 +27,7 @@ Or a numeric vector of length 2, where the first element is the index of the gri
 a vector gathering the estimated coefficients.
 }
 \description{
-\code{coef.PLR} provides the estimated coefficients for an object of class \code{"PLR"}.
+Provides the estimated coefficients for an object of class \code{"PLR"}.
 }
 \examples{
 ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)

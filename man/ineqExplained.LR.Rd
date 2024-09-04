@@ -2,6 +2,7 @@
 % Please edit documentation in R/LR-ineqExplained.R
 \name{ineqExplained.LR}
 \alias{ineqExplained.LR}
+\alias{ineqExplained.LR_boot}
 \title{Explained inequality metrics for the Lorenz regression}
 \usage{
 \method{ineqExplained}{LR}(object, type = c("Gini.explained", "Lorenz-R2"), ...)
@@ -9,7 +10,7 @@
 \arguments{
 \item{object}{An object of S3 class \code{"LR"}.}
 
-\item{type}{Character string specifying the type of inequality metric to retrieve. Options are \code{"Gini.explained"} and \code{"Lorenz-R2"}.}
+\item{type}{Character string specifying the type of inequality metric to retrieve. Options are \code{"Gini.explained"} (for the explained Gini coefficient) and \code{"Lorenz-R2"} (for the Lorenz-\eqn{R^2}).}
 
 \item{...}{Additional arguments.}
 }
@@ -17,5 +18,5 @@
 A numeric value representing the requested inequality metric.
 }
 \description{
-\code{ineqExplained.LR} retrieves the explained Gini coefficient or the Lorenz-\eqn{R^2} from an object of class \code{"LR"}.
+Retrieves the explained Gini coefficient or the Lorenz-\eqn{R^2} from an object of class \code{"LR"}.
 }

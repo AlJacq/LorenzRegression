@@ -28,7 +28,7 @@ This is only relevant if \code{x} inherits from \code{"summary.LR_boot"}.}
 No return value, called for printing an object of class \code{"LR"} to the console.
 }
 \description{
-\code{print.summary.LR} provides a printing method for an object of class \code{"summary.LR"}.
+Provides a printing method for an object of class \code{"summary.LR"}.
 }
 \examples{
 ## For examples see example(Lorenz.Reg) and example(Lorenz.boot)

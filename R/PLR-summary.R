@@ -1,6 +1,6 @@
 #' Summary for the Penalized Lorenz Regression
 #'
-#' \code{summary.PLR} provides a summary for an object of class \code{"PLR"}.
+#' Provides a summary for an object of class \code{"PLR"}.
 #'
 #' @aliases summary.PLR_boot summary.PLR_cv
 #' @param object An object of class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})
@@ -43,7 +43,6 @@ summary.PLR <- function(object, renormalize=TRUE, ...){
 }
 
 #' @method summary PLR_boot
-#' @rdname summary.PLR
 #' @export
 
 summary.PLR_boot <- function(object, renormalize=TRUE, ...){
@@ -69,7 +68,6 @@ summary.PLR_boot <- function(object, renormalize=TRUE, ...){
 }
 
 #' @method summary PLR_cv
-#' @rdname summary.PLR
 #' @export
 
 summary.PLR_cv <- function(object, renormalize=TRUE, ...){

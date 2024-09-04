@@ -2,6 +2,7 @@
 % Please edit documentation in R/LR-confint.R
 \name{confint.LR_boot}
 \alias{confint.LR_boot}
+\alias{confint.LR}
 \title{Confidence intervals for the Lorenz Regression}
 \usage{
 \method{confint}{LR_boot}(
@@ -14,9 +15,9 @@
 )
 }
 \arguments{
-\item{object}{An object of class \code{"LR_boot"}.}
+\item{object}{An object of class \code{"LR_boot"}. The current implementation requires bootstrap to construct confidence intervals. Hence, it is not sufficient that \code{object} inherits from \code{"LR"}.}
 
-\item{parm}{A logical value determining whether the confidence interval is computed for the explained Gini coefficient, for the Lorenz-R2 or for the vector of coefficients of the single-index model. Possible values are \code{"Gini"} (default, for the explained Gini),\code{"LR2"} (for the Lorenz-R2) and \code{"theta"} (for the index coefficients).}
+\item{parm}{A logical value determining whether the confidence interval is computed for the explained Gini coefficient, for the Lorenz-\eqn{R^2} or for the vector of coefficients of the single-index model. Possible values are \code{"Gini"} (default, for the explained Gini),\code{"LR2"} (for the Lorenz-\eqn{R^2}) and \code{"theta"} (for the index coefficients).}
 
 \item{level}{A numeric giving the level of the confidence interval. Default value is 0.95.}
 
@@ -32,7 +33,7 @@ If \code{parm="Gini"} or \code{parm="LR2"}, the output is a vector.
 If \code{parm="theta"}, it is a matrix where each row corresponds to a different coefficient.
 }
 \description{
-\code{confint.LR_boot} provides bootstrap confidence intervals for the explained Gini coefficient, Lorenz-R2 and theta vector for an object of class \code{"LR_boot"}.
+Provides bootstrap confidence intervals for the explained Gini coefficient, Lorenz-R2 and theta vector for an object of class \code{"LR_boot"}.
 }
 \examples{
 ## For examples see example(Lorenz.boot)

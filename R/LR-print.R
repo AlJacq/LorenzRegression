@@ -1,7 +1,8 @@
 #' Printing method for the Lorenz Regression
 #'
-#' \code{print.LR} prints the arguments, explained Gini coefficient and estimated coefficients of an object of class \code{"LR"}.
+#' Prints the arguments, explained Gini coefficient and estimated coefficients of an object of class \code{"LR"}.
 #'
+#' @aliases print.LR_boot
 #' @param x An object of class \code{"LR"}.
 #' @param digits The number of significant digits to be passed.
 #' @param ... Additional arguments.

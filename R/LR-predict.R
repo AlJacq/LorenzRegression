@@ -1,7 +1,8 @@
 #' Prediction for the Lorenz regression
 #'
-#' \code{predict.LR} provides predictions for an object of class \code{"LR"}.
+#' Provides predictions for an object of class \code{"LR"}.
 #'
+#' @aliases predict.LR_boot
 #' @param object An object of class \code{"LR"}.
 #' @param newdata An optional data frame in which to look for variables with which to predict. If omitted, the original data are used.
 #' @param type A character string indicating the type of prediction. Possible values are \code{"response"} and \code{"index"} (the default).

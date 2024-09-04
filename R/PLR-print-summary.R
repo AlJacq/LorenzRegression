@@ -1,6 +1,6 @@
 #' Printing method for the summary of a Penalized Lorenz Regression
 #'
-#' \code{print.summary.PLR} provides a printing method for an object of class \code{"summary.PLR"}.
+#' Provides a printing method for an object of class \code{"summary.PLR"}.
 #'
 #' @aliases print.summary.PLR_boot print.summary.PLR_cv
 #' @param x An object of class \code{"summary.PLR"}. The object might also have S3 class \code{"summary.PLR_boot"} and/or \code{"summary.PLR_cv"} (both inherit from class \code{"summary.LR"})

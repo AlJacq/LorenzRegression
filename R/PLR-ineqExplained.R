@@ -1,10 +1,10 @@
 #' Explained inequality metrics for the penalized Lorenz regression
 #'
-#' \code{ineqExplained.PLR} retrieves the explained Gini coefficient or the Lorenz-\eqn{R^2} from an object of class \code{"PLR"}.
+#' Retrieves the explained Gini coefficient or the Lorenz-\eqn{R^2} from an object of class \code{"PLR"}.
 #'
 #' @aliases ineqExplained.PLR_boot ineqExplained.PLR_cv
 #' @param object An object of S3 class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})
-#' @param type Character string specifying the type of inequality metric to retrieve. Options are \code{"Gini.explained"} and \code{"Lorenz-R2"}.
+#' @param type Character string specifying the type of inequality metric to retrieve. Options are \code{"Gini.explained"} (for the explained Gini coefficient) and \code{"Lorenz-R2"} (for the Lorenz-\eqn{R^2}).
 #' @param pars.idx What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
 #' \itemize{
 #'    \item \code{"BIC"} (default) - Always available.
@@ -42,7 +42,6 @@ ineqExplained.PLR <- function(object, type = c("Gini.explained","Lorenz-R2"), pa
 }
 
 #' @method ineqExplained PLR_boot
-#' @rdname ineqExplained.PLR
 #' @export
 
 ineqExplained.PLR_boot <- function(object, type = c("Gini.explained","Lorenz-R2"), pars.idx = "BIC", ...){
@@ -55,7 +54,6 @@ ineqExplained.PLR_boot <- function(object, type = c("Gini.explained","Lorenz-R2"
 }
 
 #' @method ineqExplained PLR_cv
-#' @rdname ineqExplained.PLR
 #' @export
 
 ineqExplained.PLR_cv <- function(object, type = c("Gini.explained","Lorenz-R2"), pars.idx = "BIC", ...){

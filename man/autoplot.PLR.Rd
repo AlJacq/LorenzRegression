@@ -2,10 +2,10 @@
 % Please edit documentation in R/PLR-plot.R
 \name{autoplot.PLR}
 \alias{autoplot.PLR}
-\alias{autoplot.PLR_boot}
-\alias{autoplot.PLR_cv}
 \alias{plot.PLR}
+\alias{autoplot.PLR_boot}
 \alias{plot.PLR_boot}
+\alias{autoplot.PLR_cv}
 \alias{plot.PLR_cv}
 \title{Plots for the Penalized Lorenz Regression}
 \usage{
@@ -17,27 +17,17 @@
   ...
 )
 
-\method{autoplot}{PLR_cv}(
-  x,
-  type = c("explained", "traceplot", "diagnostic"),
-  traceplot.which = "BIC",
-  score.df = NULL,
-  ...
-)
-
 \method{plot}{PLR}(x, ...)
-
-\method{plot}{PLR_boot}(x, ...)
-
-\method{plot}{PLR_cv}(x, ...)
 }
 \arguments{
 \item{x}{An object of class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})}
 
 \item{type}{A character string indicating the type of plot. Possible values are \code{"explained"}, \code{"traceplot"} and \code{"diagnostic"}.
-If \code{"explained"} is selected, the graph displays the Lorenz curve of the response and concentration curve(s) of the response with respect to the estimated index. More specifically, there is one concentration curve per selection method available.
-If \code{"traceplot"} is selected, the graph displays a traceplot, where the horizontal axis is -log(lambda), lambda being the value of the penalty parameter. The vertical axis gives the value of the estimated coefficient attached to each covariate.
-If \code{"diagnostic"} is selected, the graph displays a faceted plot, where each facet corresponds to a different value of the grid parameter. Each plot shows the evolution of the scores of each available selection method. For comparability reasons, the scores are normalized such that the larger the better and the optimum is attained in 1.}
+\itemize{
+\item If \code{"explained"} is selected, the graph displays the Lorenz curve of the response and concentration curve(s) of the response with respect to the estimated index. More specifically, there is one concentration curve per selection method available.
+\item If \code{"traceplot"} is selected, the graph displays a traceplot, where the horizontal axis is -log(lambda), lambda being the value of the penalty parameter. The vertical axis gives the value of the estimated coefficient attached to each covariate.
+\item If \code{"diagnostic"} is selected, the graph displays a faceted plot, where each facet corresponds to a different value of the grid parameter. Each plot shows the evolution of the scores of each available selection method. For comparability reasons, the scores are normalized such that the larger the better and the optimum is attained in 1.
+}}
 
 \item{traceplot.which}{This argument indicates the value of the grid parameter for which the traceplot should be produced (see arguments \code{grid.value} and \code{grid.arg} in function \code{\link{Lorenz.Reg}}).
 It can be an integer indicating the index in the grid determined via \code{grid.value}.
@@ -56,7 +46,7 @@ The \code{plot} method is a wrapper around \code{autoplot} that directly display
 providing a more familiar interface for users accustomed to base R plotting.
 }
 \details{
-The available selection methods depend on the class of the objects.
+The available selection methods depend on the classes of the object: BIC is always available, bootstrap is available if \code{object} inherits from \code{"PLR_boot"}, cross-validation is available if \code{object} inherits from \code{"PLR_cv"}
 }
 \examples{
 ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)

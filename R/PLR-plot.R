@@ -4,12 +4,14 @@
 #' The \code{plot} method is a wrapper around \code{autoplot} that directly displays the plot,
 #' providing a more familiar interface for users accustomed to base R plotting.
 #'
-#' @aliases autoplot.PLR_boot
+#' @aliases plot.PLR autoplot.PLR_boot plot.PLR_boot autoplot.PLR_cv plot.PLR_cv
 #' @param x An object of class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})
 #' @param type A character string indicating the type of plot. Possible values are \code{"explained"}, \code{"traceplot"} and \code{"diagnostic"}.
-#' If \code{"explained"} is selected, the graph displays the Lorenz curve of the response and concentration curve(s) of the response with respect to the estimated index. More specifically, there is one concentration curve per selection method available.
-#' If \code{"traceplot"} is selected, the graph displays a traceplot, where the horizontal axis is -log(lambda), lambda being the value of the penalty parameter. The vertical axis gives the value of the estimated coefficient attached to each covariate.
-#' If \code{"diagnostic"} is selected, the graph displays a faceted plot, where each facet corresponds to a different value of the grid parameter. Each plot shows the evolution of the scores of each available selection method. For comparability reasons, the scores are normalized such that the larger the better and the optimum is attained in 1.
+#' \itemize{
+#' \item If \code{"explained"} is selected, the graph displays the Lorenz curve of the response and concentration curve(s) of the response with respect to the estimated index. More specifically, there is one concentration curve per selection method available.
+#' \item If \code{"traceplot"} is selected, the graph displays a traceplot, where the horizontal axis is -log(lambda), lambda being the value of the penalty parameter. The vertical axis gives the value of the estimated coefficient attached to each covariate.
+#' \item If \code{"diagnostic"} is selected, the graph displays a faceted plot, where each facet corresponds to a different value of the grid parameter. Each plot shows the evolution of the scores of each available selection method. For comparability reasons, the scores are normalized such that the larger the better and the optimum is attained in 1.
+#' }
 #' @param traceplot.which This argument indicates the value of the grid parameter for which the traceplot should be produced (see arguments \code{grid.value} and \code{grid.arg} in function \code{\link{Lorenz.Reg}}).
 #' It can be an integer indicating the index in the grid determined via \code{grid.value}.
 #' Alternatively, it can be a character string indicating the selection method. In this case the index corresponds to the optimal value according to that selection method.
@@ -18,7 +20,7 @@
 #'
 #' @return \code{autoplot} returns a \code{ggplot} object representing the desired graph. \code{plot} directly displays this plot.
 #'
-#' @details The available selection methods depend on the class of the objects.
+#' @details The available selection methods depend on the classes of the object: BIC is always available, bootstrap is available if \code{object} inherits from \code{"PLR_boot"}, cross-validation is available if \code{object} inherits from \code{"PLR_cv"}
 #'
 #' @seealso \code{\link{Lorenz.Reg}}
 #'
@@ -186,7 +188,6 @@ autoplot.PLR_boot <- function(x, type = c("explained","traceplot","diagnostic"),
 }
 
 #' @method autoplot PLR_cv
-#' @rdname autoplot.PLR
 #' @export
 
 autoplot.PLR_cv <- function(x, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", score.df = NULL, ...){
@@ -246,14 +247,12 @@ plot.PLR <- function(x, ...) {
 }
 
 #' @method plot PLR_boot
-#' @rdname autoplot.PLR
 #' @export
 plot.PLR_boot <- function(x, ...) {
   print(autoplot(x, ...))
 }
 
 #' @method plot PLR_cv
-#' @rdname autoplot.PLR
 #' @export
 plot.PLR_cv <- function(x, ...) {
   print(autoplot(x, ...))

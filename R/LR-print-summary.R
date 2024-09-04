@@ -1,6 +1,6 @@
 #' Printing method for the summary of a Lorenz Regression
 #'
-#' \code{print.summary.LR} provides a printing method for an object of class \code{"summary.LR"}.
+#' Provides a printing method for an object of class \code{"summary.LR"}.
 #'
 #' @aliases print.summary.LR_boot
 #' @param x An object of class \code{"summary.LR"}. The object might also have S3 class \code{"summary.LR_boot"} (which inherits from class \code{"summary.LR"})

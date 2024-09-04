@@ -19,7 +19,7 @@
 No return value, called for printing an object of class \code{"summary.PLR"} to the console.
 }
 \description{
-\code{print.summary.PLR} provides a printing method for an object of class \code{"summary.PLR"}.
+Provides a printing method for an object of class \code{"summary.PLR"}.
 }
 \examples{
 ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)

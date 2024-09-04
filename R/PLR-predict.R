@@ -1,6 +1,6 @@
 #' Prediction for the Penalized Lorenz regression
 #'
-#' \code{predict.PLR} provides predictions for an object of class \code{"PLR"}.
+#' Provides predictions for an object of class \code{"PLR"}.
 #'
 #' @aliases predict.PLR_boot predict.PLR_cv
 #' @param object An object of S3 class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})
@@ -54,7 +54,6 @@ predict.PLR <- function(object, newdata, type=c("index","response"), pars.idx = 
 }
 
 #' @method predict PLR_boot
-#' @rdname predict.PLR
 #' @export
 
 predict.PLR_boot <- function(object, newdata, type=c("index","response"), pars.idx = "BIC", ...){
@@ -67,7 +66,6 @@ predict.PLR_boot <- function(object, newdata, type=c("index","response"), pars.i
 }
 
 #' @method predict PLR_cv
-#' @rdname predict.PLR
 #' @export
 
 predict.PLR_cv <- function(object, newdata, type=c("index","response"), pars.idx = "BIC", ...){

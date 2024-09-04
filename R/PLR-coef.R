@@ -1,6 +1,6 @@
 #' Estimated coefficients for the Penalized Lorenz Regression
 #'
-#' \code{coef.PLR} provides the estimated coefficients for an object of class \code{"PLR"}.
+#' Provides the estimated coefficients for an object of class \code{"PLR"}.
 #'
 #' @aliases coef.PLR_boot coef.PLR_cv
 #' @param object An object of S3 class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})
@@ -45,7 +45,6 @@ coef.PLR <- function(object, renormalize=TRUE, pars.idx="BIC", ...){
 }
 
 #' @method coef PLR_boot
-#' @rdname coef.PLR
 #' @export
 
 coef.PLR_boot <- function(object, renormalize=TRUE, pars.idx="BIC", ...){
@@ -56,7 +55,6 @@ coef.PLR_boot <- function(object, renormalize=TRUE, pars.idx="BIC", ...){
 }
 
 #' @method coef PLR_cv
-#' @rdname coef.PLR
 #' @export
 
 coef.PLR_cv <- function(object, renormalize=TRUE, pars.idx="BIC", ...){

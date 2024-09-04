@@ -1,7 +1,8 @@
 #' Estimated coefficients for the Lorenz Regression
 #'
-#' \code{coef.LR} provides the estimated coefficients for an object of class \code{"LR"}.
+#' Provides the estimated coefficients for an object of class \code{"LR"}.
 #'
+#' @aliases coef.LR_boot
 #' @param object An object of S3 class \code{"LR"}.
 #' @param ... Additional arguments.
 #'

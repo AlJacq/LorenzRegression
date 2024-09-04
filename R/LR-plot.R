@@ -1,14 +1,14 @@
 #' Plots for the Lorenz Regression
 #'
-#' \code{autoplot.LR} generates a plot for an object of class \code{"LR"} and returns it as a \code{ggplot} object.
-#' The \code{plot.LR} method is a wrapper around \code{autoplot.LR} that directly displays the plot,
+#' \code{autoplot} generates a plot for an object of class \code{"LR"} and returns it as a \code{ggplot} object.
+#' The \code{plot} method is a wrapper around \code{autoplot} that directly displays the plot,
 #' providing a more familiar interface for users accustomed to base R plotting.
 #'
-#' @aliases plot.LR
+#' @aliases plot.LR autoplot.LR_boot plot.LR_boot
 #' @param x An object of class \code{"LR"}.
 #' @param ... Additional arguments passed to \code{\link{Lorenz.graphs}}.
 #'
-#' @return \code{autoplot.LR} returns a \code{ggplot} object representing the Lorenz curve of the response and the concentration curve of the response with respect to the estimated index. \code{plot.LR} directly displays this plot.
+#' @return \code{autoplot} returns a \code{ggplot} object representing the Lorenz curve of the response and the concentration curve of the response with respect to the estimated index. \code{plot} directly displays this plot.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}
 #'

@@ -2,6 +2,7 @@
 % Please edit documentation in R/LR-print.R
 \name{print.LR}
 \alias{print.LR}
+\alias{print.LR_boot}
 \title{Printing method for the Lorenz Regression}
 \usage{
 \method{print}{LR}(x, digits = max(3L, getOption("digits") - 3L), ...)
@@ -17,7 +18,7 @@
 No return value, called for printing an object of class \code{"LR"} to the console.
 }
 \description{
-\code{print.LR} prints the arguments, explained Gini coefficient and estimated coefficients of an object of class \code{"LR"}.
+Prints the arguments, explained Gini coefficient and estimated coefficients of an object of class \code{"LR"}.
 }
 \examples{
 ## For examples see example(Lorenz.Reg)

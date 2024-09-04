@@ -7,10 +7,6 @@
 \title{Summary for the Penalized Lorenz Regression}
 \usage{
 \method{summary}{PLR}(object, renormalize = TRUE, ...)
-
-\method{summary}{PLR_boot}(object, renormalize = TRUE, ...)
-
-\method{summary}{PLR_cv}(object, renormalize = TRUE, ...)
 }
 \arguments{
 \item{object}{An object of class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})}
@@ -30,7 +26,7 @@ If the object inherits from \code{"PLR_boot"}, \code{ineq} and \code{coefficient
 Similarly, if the object inherits from \code{"PLR_cv"}, \code{ineq} and \code{coefficients} also include results from cross-validation, and the class \code{"summary.PLR_cv"} is added to the output.
 }
 \description{
-\code{summary.PLR} provides a summary for an object of class \code{"PLR"}.
+Provides a summary for an object of class \code{"PLR"}.
 }
 \examples{
 ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)

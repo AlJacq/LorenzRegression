@@ -7,10 +7,6 @@
 \title{Prediction for the Penalized Lorenz regression}
 \usage{
 \method{predict}{PLR}(object, newdata, type = c("index", "response"), pars.idx = "BIC", ...)
-
-\method{predict}{PLR_boot}(object, newdata, type = c("index", "response"), pars.idx = "BIC", ...)
-
-\method{predict}{PLR_cv}(object, newdata, type = c("index", "response"), pars.idx = "BIC", ...)
 }
 \arguments{
 \item{object}{An object of S3 class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})}
@@ -35,7 +31,7 @@ Or a numeric vector of length 2, where the first element is the index of the gri
 a vector gathering the predictions.
 }
 \description{
-\code{predict.PLR} provides predictions for an object of class \code{"PLR"}.
+Provides predictions for an object of class \code{"PLR"}.
 }
 \details{
 If \code{type="response"}, the link function of the single-index model must be estimated. This is done via the function \code{\link{Rearrangement.estimation}}.

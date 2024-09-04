@@ -2,6 +2,7 @@
 % Please edit documentation in R/LR-coef.R
 \name{coef.LR}
 \alias{coef.LR}
+\alias{coef.LR_boot}
 \title{Estimated coefficients for the Lorenz Regression}
 \usage{
 \method{coef}{LR}(object, ...)
@@ -15,7 +16,7 @@
 a vector gathering the estimated coefficients
 }
 \description{
-\code{coef.LR} provides the estimated coefficients for an object of class \code{"LR"}.
+Provides the estimated coefficients for an object of class \code{"LR"}.
 }
 \examples{
 ## For examples see example(Lorenz.Reg)

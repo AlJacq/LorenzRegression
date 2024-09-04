@@ -12,25 +12,11 @@
   pars.idx = "BIC",
   ...
 )
-
-\method{ineqExplained}{PLR_boot}(
-  object,
-  type = c("Gini.explained", "Lorenz-R2"),
-  pars.idx = "BIC",
-  ...
-)
-
-\method{ineqExplained}{PLR_cv}(
-  object,
-  type = c("Gini.explained", "Lorenz-R2"),
-  pars.idx = "BIC",
-  ...
-)
 }
 \arguments{
 \item{object}{An object of S3 class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})}
 
-\item{type}{Character string specifying the type of inequality metric to retrieve. Options are \code{"Gini.explained"} and \code{"Lorenz-R2"}.}
+\item{type}{Character string specifying the type of inequality metric to retrieve. Options are \code{"Gini.explained"} (for the explained Gini coefficient) and \code{"Lorenz-R2"} (for the Lorenz-\eqn{R^2}).}
 
 \item{pars.idx}{What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
 \itemize{
@@ -46,5 +32,5 @@ Or a numeric vector of length 2, where the first element is the index of the gri
 A numeric value representing the requested inequality metric.
 }
 \description{
-\code{ineqExplained.PLR} retrieves the explained Gini coefficient or the Lorenz-\eqn{R^2} from an object of class \code{"PLR"}.
+Retrieves the explained Gini coefficient or the Lorenz-\eqn{R^2} from an object of class \code{"PLR"}.
 }

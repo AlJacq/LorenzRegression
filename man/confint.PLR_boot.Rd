@@ -2,6 +2,7 @@
 % Please edit documentation in R/PLR-confint.R
 \name{confint.PLR_boot}
 \alias{confint.PLR_boot}
+\alias{confint.PLR}
 \alias{confint.PLR_cv}
 \title{Confidence intervals for the Penalized Lorenz Regression}
 \usage{
@@ -14,21 +15,11 @@
   bias.corr = TRUE,
   ...
 )
-
-\method{confint}{PLR_cv}(
-  object,
-  parm = c("Gini", "LR2"),
-  level = 0.95,
-  type = c("norm", "basic", "perc"),
-  pars.idx = "BIC",
-  bias.corr = TRUE,
-  ...
-)
 }
 \arguments{
-\item{object}{An object of class \code{"PLR_boot"}. The object might also have S3 class \code{"PLR_cv"}.}
+\item{object}{An object of class \code{"PLR_boot"}. The object might also have S3 class \code{"PLR_cv"}. The current implementation requires bootstrap to construct confidence intervals. Hence, it is not sufficient that \code{object} inherits from \code{"PLR"}.}
 
-\item{parm}{A character string determining whether the confidence interval is computed for the explained Gini coefficient or for the Lorenz-R2. Possible values are \code{"Gini"} (default, for the explained Gini) and \code{"LR2"} (for the Lorenz-R2)}
+\item{parm}{A character string determining whether the confidence interval is computed for the explained Gini coefficient or for the Lorenz-\eqn{R^2}. Possible values are \code{"Gini"} (default, for the explained Gini) and \code{"LR2"} (for the Lorenz-\eqn{R^2})}
 
 \item{level}{A numeric giving the level of the confidence interval. Default value is 0.95.}
 
@@ -50,7 +41,7 @@ Or a numeric vector of length 2, where the first element is the index of the gri
 A vector providing the desired confidence interval.
 }
 \description{
-\code{confint.PLR_boot} provides bootstrap confidence intervals for the explained Gini coefficient and Lorenz-R2 for an object of class \code{"PLR_boot"}.
+Provides bootstrap confidence intervals for the explained Gini coefficient and Lorenz-\eqn{R^2} for an object of class \code{"PLR_boot"}.
 }
 \examples{
 ## For examples see example(Lorenz.boot)

@@ -2,6 +2,7 @@
 % Please edit documentation in R/LR-predict.R
 \name{predict.LR}
 \alias{predict.LR}
+\alias{predict.LR_boot}
 \title{Prediction for the Lorenz regression}
 \usage{
 \method{predict}{LR}(object, newdata, type = c("index", "response"), ...)
@@ -21,7 +22,7 @@ In the second case, the prediction estimates only the index of the single-index 
 a vector gathering the predictions
 }
 \description{
-\code{predict.LR} provides predictions for an object of class \code{"LR"}.
+Provides predictions for an object of class \code{"LR"}.
 }
 \details{
 If \code{type="Response"}, the link function of the single-index model must be estimated. This is done via the function \code{\link{Rearrangement.estimation}}.
