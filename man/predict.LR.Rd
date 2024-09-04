@@ -3,29 +3,34 @@
 \name{predict.LR}
 \alias{predict.LR}
 \alias{predict.LR_boot}
-\title{Prediction for the Lorenz regression}
+\alias{fitted.LR}
+\alias{fitted.LR_boot}
+\title{Prediction and fitted values for Lorenz Regression models}
 \usage{
 \method{predict}{LR}(object, newdata, type = c("index", "response"), ...)
+
+\method{fitted}{LR}(object, type = c("index", "response"), ...)
 }
 \arguments{
 \item{object}{An object of class \code{"LR"}.}
 
 \item{newdata}{An optional data frame in which to look for variables with which to predict. If omitted, the original data are used.}
 
-\item{type}{A character string indicating the type of prediction. Possible values are \code{"response"} and \code{"index"} (the default).
+\item{type}{A character string indicating the type of prediction or fitted values. Possible values are \code{"response"} and \code{"index"} (the default).
 In the first case, the prediction estimates the conditional expectation of the response given the covariates.
 In the second case, the prediction estimates only the index of the single-index model.}
 
 \item{...}{Additional arguments passed to the function \code{\link{Rearrangement.estimation}}.}
 }
 \value{
-a vector gathering the predictions
+A vector of predictions for \code{predict}, or a vector of fitted values for \code{fitted}.
 }
 \description{
-Provides predictions for an object of class \code{"LR"}.
+\code{prediction} provides predictions for an object of class \code{"LR"},
+while \code{fitted} extracts the fitted values.
 }
 \details{
-If \code{type="Response"}, the link function of the single-index model must be estimated. This is done via the function \code{\link{Rearrangement.estimation}}.
+If \code{type="response"}, the link function of the single-index model must be estimated. This is done via the function \code{\link{Rearrangement.estimation}}.
 }
 \examples{
 ## For examples see example(Lorenz.Reg) and example(Lorenz.boot)

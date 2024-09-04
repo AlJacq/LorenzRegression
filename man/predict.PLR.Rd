@@ -4,18 +4,23 @@
 \alias{predict.PLR}
 \alias{predict.PLR_boot}
 \alias{predict.PLR_cv}
-\title{Prediction for the Penalized Lorenz regression}
+\alias{fitted.PLR}
+\alias{fitted.PLR_boot}
+\alias{fitted.PLR_cv}
+\title{Prediction and fitted values for Penalized Lorenz Regression models}
 \usage{
 \method{predict}{PLR}(object, newdata, type = c("index", "response"), pars.idx = "BIC", ...)
+
+\method{fitted}{PLR}(object, type = c("index", "response"), pars.idx = "BIC", ...)
 }
 \arguments{
 \item{object}{An object of S3 class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})}
 
 \item{newdata}{An optional data frame in which to look for variables with which to predict. If omitted, the original data are used.}
 
-\item{type}{A character string indicating the type of prediction. Possible values are \code{"response"} and \code{"index"} (the default).
-In the first case, the prediction estimates the conditional expectation of the response given the covariates.
-In the second case, the prediction estimates only the index of the single-index model.}
+\item{type}{A character string indicating the type of prediction or fitted values. Possible values are \code{"response"} and \code{"index"} (the default).
+In the first case, the conditional expectation of the response given the covariates is estimated.
+In the second case, only the index of the single-index model is estimated.}
 
 \item{pars.idx}{What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
 \itemize{
@@ -28,10 +33,11 @@ Or a numeric vector of length 2, where the first element is the index of the gri
 \item{...}{Additional arguments passed to the function \code{\link{Rearrangement.estimation}}.}
 }
 \value{
-a vector gathering the predictions.
+A vector of predictions for \code{predict}, or a vector of fitted values for \code{fitted}.
 }
 \description{
-Provides predictions for an object of class \code{"PLR"}.
+\code{prediction} provides predictions for an object of class \code{"PLR"},
+while \code{fitted} extracts the fitted values.
 }
 \details{
 If \code{type="response"}, the link function of the single-index model must be estimated. This is done via the function \code{\link{Rearrangement.estimation}}.
