@@ -47,13 +47,14 @@ summary.PLR <- function(object, renormalize=TRUE, ...){
 
 summary.PLR_boot <- function(object, renormalize=TRUE, ...){
 
+  pars.boot <- c(object$grid.idx["Boot"],object$lambda.idx["Boot"])
   ans <- NextMethod("summary")
   ans$ineq <- rbind(ans$ineq,
-                    c(ineqExplained.PLR_boot(object, type = "Gini.explained", pars.idx = "Boot"),
-                      ineqExplained.PLR_boot(object, type = "Gini.explained", pars.idx = "Boot")/ineqExplained.PLR_boot(object, type = "Lorenz-R2", pars.idx = "Boot"),
-                      ineqExplained.PLR_boot(object, type = "Lorenz-R2", pars.idx = "Boot")))
+                    c(ineqExplained_PLR(object, type = "Gini.explained", pars.idx = pars.boot),
+                      ineqExplained_PLR(object, type = "Gini.explained", pars.idx = pars.boot)/ineqExplained_PLR(object, type = "Lorenz-R2", pars.idx = pars.boot),
+                      ineqExplained_PLR(object, type = "Lorenz-R2", pars.idx = pars.boot)))
   ans$coefficients <- cbind(ans$coefficients,
-                            coef.PLR_boot(object, renormalize = renormalize, pars.idx = "Boot"))
+                            coef_PLR(object, renormalize = renormalize, pars.idx = pars.boot))
 
   if(ncol(ans$coefficients)==2){
     colnames(ans$coefficients) <- c("BIC","Boot")
@@ -72,13 +73,14 @@ summary.PLR_boot <- function(object, renormalize=TRUE, ...){
 
 summary.PLR_cv <- function(object, renormalize=TRUE, ...){
 
+  pars.cv <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
   ans <- NextMethod("summary")
   ans$ineq <- rbind(ans$ineq,
-                    c(ineqExplained.PLR_cv(object, type = "Gini.explained", pars.idx = "CV"),
-                      ineqExplained.PLR_cv(object, type = "Gini.explained", pars.idx = "CV")/ineqExplained.PLR_cv(object, type = "Lorenz-R2", pars.idx = "CV"),
-                      ineqExplained.PLR_cv(object, type = "Lorenz-R2", pars.idx = "CV")))
+                    c(ineqExplained_PLR(object, type = "Gini.explained", pars.idx = pars.cv),
+                      ineqExplained_PLR(object, type = "Gini.explained", pars.idx = pars.cv)/ineqExplained_PLR(object, type = "Lorenz-R2", pars.idx = pars.cv),
+                      ineqExplained_PLR(object, type = "Lorenz-R2", pars.idx = pars.cv)))
   ans$coefficients <- cbind(ans$coefficients,
-                            coef.PLR_cv(object, renormalize = renormalize, pars.idx = "CV"))
+                            coef_PLR(object, renormalize = renormalize, pars.idx = pars.cv))
 
   if(ncol(ans$coefficients)==2){
     colnames(ans$coefficients) <- c("BIC","CV")

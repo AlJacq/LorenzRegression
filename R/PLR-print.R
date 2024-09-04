@@ -37,9 +37,10 @@ print.PLR_boot <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
 
   NextMethod("print")
 
-  cat("\nExplained Gini coefficient (Bootstrap selection method):", sprintf(paste0("%.", digits, "f"), ineqExplained.PLR_boot(x,pars.idx="Boot")), "\n")
+  pars.boot <- c(x$grid.idx["Boot"],x$lambda.idx["Boot"])
+  cat("\nExplained Gini coefficient (Bootstrap selection method):", sprintf(paste0("%.", digits, "f"), ineqExplained_PLR(x,type="Gini.explained", pars.idx=pars.boot)), "\n")
   cat("\nCoefficients (Bootstrap selection method):\n")
-  print.default(format(coef.PLR_boot(x,pars.idx="Boot"), digits = digits), print.gap = 2L,
+  print.default(format(coef_PLR(x, renormalize=TRUE, pars.idx=pars.boot), digits = digits), print.gap = 2L,
                 quote = FALSE, ...)
 
 }
@@ -51,9 +52,10 @@ print.PLR_cv <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
 
   NextMethod("print")
 
-  cat("\nExplained Gini coefficient (Cross-validation selection method):", sprintf(paste0("%.", digits, "f"), ineqExplained.PLR_cv(x,pars.idx="CV")), "\n")
+  pars.cv <- c(x$grid.idx["CV"],x$lambda.idx["CV"])
+  cat("\nExplained Gini coefficient (Cross-validation selection method):", sprintf(paste0("%.", digits, "f"), ineqExplained_PLR(x, type="Gini.explained", pars.idx=pars.cv)), "\n")
   cat("\nCoefficients (Cross-validation selection method):\n")
-  print.default(format(coef.PLR_cv(x,pars.idx="CV"), digits = digits), print.gap = 2L,
+  print.default(format(coef_PLR(x, renormalize = TRUE, pars.idx=pars.cv), digits = digits), print.gap = 2L,
                 quote = FALSE, ...)
 
 }
