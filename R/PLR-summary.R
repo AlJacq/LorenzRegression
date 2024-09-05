@@ -57,8 +57,10 @@ summary.PLR_boot <- function(object, renormalize=TRUE, ...){
                             coef_PLR(object, renormalize = renormalize, pars.idx = pars.boot))
 
   if(ncol(ans$coefficients)==2){
+    rownames(ans$ineq) <- c("BIC","Boot")
     colnames(ans$coefficients) <- c("BIC","Boot")
   }else{
+    rownames(ans$ineq)[nrow(ans$ineq)] <- "Boot"
     colnames(ans$coefficients)[ncol(ans$coefficients)] <- "Boot"
   }
 
@@ -83,8 +85,10 @@ summary.PLR_cv <- function(object, renormalize=TRUE, ...){
                             coef_PLR(object, renormalize = renormalize, pars.idx = pars.cv))
 
   if(ncol(ans$coefficients)==2){
+    rownames(ans$ineq) <- c("BIC","CV")
     colnames(ans$coefficients) <- c("BIC","CV")
   }else{
+    rownames(ans$ineq)[nrow(ans$ineq)] <- "CV"
     colnames(ans$coefficients)[ncol(ans$coefficients)] <- "CV"
   }
 

@@ -16,18 +16,18 @@
 #'
 #' @return An object of class \code{"LR"} for the non-penalized Lorenz regression or of class \code{"PLR"} for a penalized Lorenz regression.
 #'
-#' For both classes, several methods are available. The function \code{summary} is used to summarize the model fits.
-#' Information on the coefficient of the single-index model is obtained via \code{coef}.
-#' Measures of explained inequality (Gini coefficient and Lorenz-\eqn{R^2}) are extraced with \code{ineqExplained}.
-#' The method \code{predict} is used to predict either the response or the index of the model.
-#' A visual representation of explained inequality through Lorenz curves is provided with the method \code{plot}.
+#' Several methods are available for both classes to facilitate model analysis.
+#' Use \code{\link[=summary.LR]{summary.LR}} or \code{\link[=summary.PLR]{summary.PLR}} to summarize the model fits.
+#' Extract the coefficients of the single-index model using \code{\link[=coef.LR]{coef.LR}} or \code{\link[=coef.PLR]{coef.PLR}}.
+#' Measures of explained inequality (Gini coefficient and Lorenz-\eqn{R^2}) are retrieved using \code{\link[=ineqExplained.LR]{ineqExplained.LR}} or \code{\link[=ineqExplained.PLR]{ineqExplained.PLR}}.
+#' Obtain predictions with \code{\link[=predict.LR]{predict.LR}} or \code{\link[=predict.PLR]{predict.PLR}}, and fitted values with \code{\link[=fitted.LR]{fitted.LR}} or \code{\link[=fitted.PLR]{fitted.PLR}}.
+#' For visual representations of explained inequality, use \code{\link[=autoplot.LR]{autoplot.LR}} and \code{\link[=plot.LR]{plot.LR}}, or \code{\link[=autoplot.PLR]{autoplot.PLR}} and \code{\link[=plot.PLR]{plot.PLR}}.
 #'
 #' The object of class \code{"LR"} is a list containing the following components:
 #' \describe{
 #'    \item{\code{theta}}{The estimated vector of parameters.}
 #'    \item{\code{Gi.expl}}{The estimated explained Gini coefficient.}
 #'    \item{\code{LR2}}{The Lorenz-\eqn{R^2} of the regression.}
-#'    \item{\code{index}}{A vector gathering the estimated index.}
 #' }
 #' The object of class \code{"PLR"} is a list containing the following components:
 #' \describe{
