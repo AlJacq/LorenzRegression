@@ -14,18 +14,16 @@ An object of class \code{c("LR_boot", "LR")} or \code{c("PLR_boot", "PLR")}, dep
 
 The method \code{confint} is used on an object of class \code{"LR_boot"} or \code{"PLR_boot"} to obtain bootstrap inference on the model parameters.
 
-The object returned is a list that contains the following components:
+For the non-penalized Lorenz regression, the returned object is a list containing the following components:
 \describe{
    \item{\code{theta}}{The estimated vector of parameters. In the penalized case, it is a matrix where each row corresponds to a different selection method (e.g., BIC, bootstrap, cross-validation).}
    \item{\code{Gi.expl}}{The estimated explained Gini coefficient. In the penalized case, it is a vector, where each element corresponds to a different selection method.}
    \item{\code{LR2}}{The Lorenz-\eqn{R^2} of the regression. In the penalized case, it is a vector, where each element corresponds to a different selection method.}
-   \item{\code{MRS}}{The matrix of estimated marginal rates of substitution. In the penalized case, it is a list where each element corresponds to a different selection method.}
-   \item{\code{index}}{The estimated index. In the penalized case, it is a matrix where each row corresponds to a different selection method.}
    \item{\code{boot_out}}{An object of class \code{"boot"} containing the output of the bootstrap calculation.}
 }
-For the Penalized Lorenz Regression, the list also contains the following elements.
+For the penalized Lorenz regression, the returned object is a list containing the following components:
 \describe{
-   \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the original path. To this path is added the out-of-bag (OOB) score.}
+   \item{\code{path}}{See \code{\link{Lorenz.Reg}} for the original path. To this path is added the out-of-bag (OOB) score.}
    \item{\code{lambda.idx}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
    \item{\code{grid.idx}}{A vector indicating the index of the optimal grid parameter obtained by each selection method.}
 }

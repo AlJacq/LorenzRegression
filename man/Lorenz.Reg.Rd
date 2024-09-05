@@ -52,7 +52,6 @@ The object of class \code{"LR"} is a list containing the following components:
    \item{\code{theta}}{The estimated vector of parameters.}
    \item{\code{Gi.expl}}{The estimated explained Gini coefficient.}
    \item{\code{LR2}}{The Lorenz-\eqn{R^2} of the regression.}
-   \item{\code{index}}{A vector gathering the estimated index.}
 }
 The object of class \code{"PLR"} is a list containing the following components:
 \describe{

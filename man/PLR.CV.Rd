@@ -20,13 +20,8 @@ PLR.CV(object, k, data.orig, seed.CV = NULL, parallel = FALSE, ...)
 \item{...}{Additional parameters corresponding to arguments passed to the function \code{\link{vfold_cv}} from the \emph{rsample} library.}
 }
 \value{
-An object of class \code{c("PLR_cv", "PLR")}. The object contains:
+An object of class \code{c("PLR_cv", "PLR")}. The object is a list containing the following components:
 \describe{
-   \item{\code{theta}}{The estimated vector of parameters. It is a matrix where each row corresponds to a different selection method (e.g., BIC, bootstrap, cross-validation).}
-   \item{\code{Gi.expl}}{The estimated explained Gini coefficient. It is a vector, where each element corresponds to a different selection method.}
-   \item{\code{LR2}}{The Lorenz-\eqn{R^2} of the regression. It is a vector, where each element corresponds to a different selection method.}
-   \item{\code{MRS}}{The matrix of estimated marginal rates of substitution. It is a list where each element corresponds to a different selection method.}
-   \item{\code{index}}{The estimated index. It is a matrix where each row corresponds to a different selection method.}
    \item{\code{path}}{See the \code{\link{Lorenz.Reg}} function for the documentation of the original path. To this path is added the CV-score.}
    \item{\code{lambda.idx}}{A vector indicating the index of the optimal lambda obtained by each selection method.}
    \item{\code{grid.idx}}{A vector indicating the index of the optimal grid parameter obtained by each selection method.}
