@@ -14,6 +14,7 @@
 #' @param seed An optional integer for setting the seed for random number generation. Default is \code{NULL}.
 #'
 #' @importFrom GA ga
+#' @importFrom stats runif
 #'
 #' @return The fitted genetic algorithm
 #' @keywords internal

@@ -6,6 +6,7 @@
 #'
 #' @aliases plot.LR autoplot.LR_boot plot.LR_boot
 #' @param x An object of class \code{"LR"}.
+#' @param object An object of class \code{"LR"}.
 #' @param ... Additional arguments passed to \code{\link{Lorenz.graphs}}.
 #'
 #' @return \code{autoplot} returns a \code{ggplot} object representing the Lorenz curve of the response and the concentration curve of the response with respect to the estimated index. \code{plot} directly displays this plot.
@@ -21,15 +22,15 @@
 #' @method autoplot LR
 #' @export
 
-autoplot.LR <- function(x, ...){
+autoplot.LR <- function(object, ...){
 
-  if (is.null(x$theta)) stop("No plots are available for an empty model.")
+  if (is.null(object$theta)) stop("No plots are available for an empty model.")
 
-  formula <- update.formula(x, . ~ index)
-  data <- data.frame(x$y,predict.LR(x))
+  formula <- update.formula(object, . ~ index)
+  data <- data.frame(object$y,predict.LR(object))
   names(data) <- all.vars(formula)
 
-  g <- Lorenz.graphs(formula, data, weights = x$weights, ...)
+  g <- Lorenz.graphs(formula, data, weights = object$weights, ...)
   g <- g + ggtitle("Observed and explained inequality")
 
   g
@@ -46,7 +47,7 @@ plot.LR <- function(x, ...) {
 
 #' @method autoplot LR_boot
 #' @export
-autoplot.LR_boot <- function(x, ...){
+autoplot.LR_boot <- function(object, ...){
   NextMethod("autoplot")
 }
 

@@ -7,14 +7,16 @@
 \alias{plot.LR_boot}
 \title{Plots for the Lorenz regression}
 \usage{
-\method{autoplot}{LR}(x, ...)
+\method{autoplot}{LR}(object, ...)
 
 \method{plot}{LR}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{"LR"}.}
+\item{object}{An object of class \code{"LR"}.}
 
 \item{...}{Additional arguments passed to \code{\link{Lorenz.graphs}}.}
+
+\item{x}{An object of class \code{"LR"}.}
 }
 \value{
 \code{autoplot} returns a \code{ggplot} object representing the Lorenz curve of the response and the concentration curve of the response with respect to the estimated index. \code{plot} directly displays this plot.

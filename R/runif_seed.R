@@ -5,6 +5,8 @@
 #' @param n the sample size
 #' @param seed the seed to use
 #'
+#' @importFrom stats runif
+#'
 #' @return A vector with the generated random variables
 #' @keywords internal
 

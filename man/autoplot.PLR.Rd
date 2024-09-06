@@ -10,7 +10,7 @@
 \title{Plots for the penalized Lorenz regression}
 \usage{
 \method{autoplot}{PLR}(
-  x,
+  object,
   type = c("explained", "traceplot", "diagnostic"),
   traceplot.which = "BIC",
   score.df = NULL,
@@ -20,7 +20,7 @@
 \method{plot}{PLR}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})}
+\item{object}{An object of class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})}
 
 \item{type}{A character string indicating the type of plot. Possible values are \code{"explained"}, \code{"traceplot"} and \code{"diagnostic"}.
 \itemize{
@@ -36,6 +36,8 @@ Alternatively, it can be a character string indicating the selection method. In 
 \item{score.df}{A data.frame providing the scores to be displayed if \code{type} is set to \code{"diagnostic"}. For internal use only.}
 
 \item{...}{Additional arguments passed to function \code{\link{Lorenz.graphs}}}
+
+\item{x}{An object of class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})}
 }
 \value{
 \code{autoplot} returns a \code{ggplot} object representing the desired graph. \code{plot} directly displays this plot.

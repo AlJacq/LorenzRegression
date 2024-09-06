@@ -10,7 +10,7 @@
 #'
 #' @return An object of class \code{c("LR_boot", "LR")} or \code{c("PLR_boot", "PLR")}, depending on whether a non-penalized or penalized regression was fitted.
 #'
-#' The method \code{confint} is used on an object of class \code{"LR_boot"} or \code{"PLR_boot"} to construct confidence intervals for the model parameters.
+#' The methods \code{\link{confint.LR}} and \code{\link{confint.PLR}} are used on objects of class \code{"LR_boot"} or \code{"PLR_boot"} to construct confidence intervals for the model parameters.
 #'
 #' For the non-penalized Lorenz regression, the returned object is a list containing the following components:
 #' \describe{
@@ -61,13 +61,14 @@
 #' # Hence the methods (also) display the results obtained by bootstrap.
 #' print(PLR_boot)
 #' summary(PLR_boot)
-#' coef(PLR_boot)
-#' predict(PLR_boot)
+#' coef(PLR_boot, pars.idx = "Boot")
+#' predict(PLR_boot, pars.idx = "Boot")
 #' plot(PLR_boot)
 #' # Plot of the scores for each selection method depending on the grid and penalty parameters
 #' plot(PLR_boot, type = "diagnostic")
 #' # The method confint() is available to objects of class "PLR_boot".
-#' confint(PLR_boot)
+#' confint(PLR_boot, pars.idx = "BIC") # Using the tuning parameters selected by BIC
+#' confint(PLR_boot, pars.idx = "Boot") # Using the tuning parameters selected by bootstrap
 #'
 #' @importFrom boot boot
 #' @importFrom stats setNames

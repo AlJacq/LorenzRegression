@@ -6,6 +6,7 @@
 #'
 #' @aliases plot.PLR autoplot.PLR_boot plot.PLR_boot autoplot.PLR_cv plot.PLR_cv
 #' @param x An object of class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})
+#' @param object An object of class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})
 #' @param type A character string indicating the type of plot. Possible values are \code{"explained"}, \code{"traceplot"} and \code{"diagnostic"}.
 #' \itemize{
 #' \item If \code{"explained"} is selected, the graph displays the Lorenz curve of the response and concentration curve(s) of the response with respect to the estimated index. More specifically, there is one concentration curve per selection method available.
@@ -28,24 +29,24 @@
 #' ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 #'
 #' @importFrom ggplot2 ggplot aes geom_line ggtitle scale_color_hue labs theme_minimal facet_wrap labeller theme autoplot
-#' @importFrom stats as.formula na.omit
+#' @importFrom stats as.formula na.omit predict
 #'
 #' @method autoplot PLR
 #' @export
 
-autoplot.PLR <- function(x, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", score.df = NULL, ...){
+autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", score.df = NULL, ...){
 
   type <- match.arg(type)
 
   if((is.numeric(traceplot.which) & length(traceplot.which)==1)){
-    lth <- length(x$path)
+    lth <- length(object$path)
     if(!(traceplot.which %in% 1:lth)) stop("The index in traceplot.which is out of bounds.")
   }else if(traceplot.which == "BIC"){
-    traceplot.which <- x$grid.idx["BIC"]
+    traceplot.which <- object$grid.idx["BIC"]
   }else if(traceplot.which == "Boot"){
-    stop("x is not of class 'PLR_boot'. Therefore traceplot.which cannot be set to 'Boot'.")
+    stop("object is not of class 'PLR_boot'. Therefore traceplot.which cannot be set to 'Boot'.")
   }else if(traceplot.which == "CV"){
-    stop("x is not of class 'PLR_cv'. Therefore traceplot.which cannot be set to 'CV'.")
+    stop("object is not of class 'PLR_cv'. Therefore traceplot.which cannot be set to 'CV'.")
   }else{
     stop("traceplot.which does not have the correct format")
   }
@@ -54,11 +55,11 @@ autoplot.PLR <- function(x, type = c("explained","traceplot","diagnostic"), trac
 
   if(type == "explained"){
 
-    formula <- as.formula(paste(as.character(x$call$formula[[2]]), "~ ."))
-    data <- data.frame(x$y,predict.PLR(x))
+    formula <- as.formula(paste(as.character(object$call$formula[[2]]), "~ ."))
+    data <- data.frame(object$y,predict.PLR(object))
     names(data) <- c(all.vars(formula)[1],"index (BIC)")
 
-    g <- Lorenz.graphs(formula, data, weights = x$weights, ...)
+    g <- Lorenz.graphs(formula, data, weights = object$weights, ...)
     g <- g + ggtitle("Observed and explained inequality")
 
   }
@@ -67,9 +68,9 @@ autoplot.PLR <- function(x, type = c("explained","traceplot","diagnostic"), trac
 
   if (type == "traceplot"){
 
-    lambda <- x$path[[traceplot.which]]["lambda",]
+    lambda <- object$path[[traceplot.which]]["lambda",]
     n.iter <- length(lambda)
-    path.theta <- sapply(seq_len(n.iter),function(v)coef.PLR(x, renormalize = FALSE, pars.idx = c(traceplot.which,v)))
+    path.theta <- sapply(seq_len(n.iter),function(v)coef.PLR(object, renormalize = FALSE, pars.idx = c(traceplot.which,v)))
 
     df.long <- data.frame(
       "Variable" = rep(rownames(path.theta),n.iter),
@@ -91,15 +92,15 @@ autoplot.PLR <- function(x, type = c("explained","traceplot","diagnostic"), trac
   if (type == "diagnostic"){
 
     if(is.null(score.df)){
-      score.df <- do.call(rbind, lapply(1:length(x$path), function(i) {
+      score.df <- do.call(rbind, lapply(1:length(object$path), function(i) {
         data.frame(
           grid = i,
-          lambda = -log(x$path[[i]]["lambda",]),
-          BIC = x$path[[i]]["BIC score",]
+          lambda = -log(object$path[[i]]["lambda",]),
+          BIC = object$path[[i]]["BIC score",]
         )
       }))
     }else{
-      score.df$BIC <- unlist(sapply(1:length(x$path), function(i) x$path[[i]]["BIC score",]))
+      score.df$BIC <- unlist(sapply(1:length(object$path), function(i) object$path[[i]]["BIC score",]))
     }
     score.df$BIC <- max(score.df$BIC)/score.df$BIC
     scores.only <- score.df[,-(1:2),drop=FALSE]
@@ -111,9 +112,9 @@ autoplot.PLR <- function(x, type = c("explained","traceplot","diagnostic"), trac
       score = unlist(scores.only, use.names = FALSE) # Combine scores
     )
 
-    if(!is.null(x$grid.value)){
-      custom_labels <- paste0(x$call$grid.arg," = ",round(x$grid.value,4))
-      names(custom_labels) <- 1:length(x$grid.value)
+    if(!is.null(object$grid.value)){
+      custom_labels <- paste0(object$call$grid.arg," = ",round(object$grid.value,4))
+      names(custom_labels) <- 1:length(object$grid.value)
     }else{
       custom_labels <- ""
       names(custom_labels) <- 1
@@ -138,7 +139,7 @@ autoplot.PLR <- function(x, type = c("explained","traceplot","diagnostic"), trac
 #' @method autoplot PLR_boot
 #' @export
 
-autoplot.PLR_boot <- function(x, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", score.df = NULL, ...){
+autoplot.PLR_boot <- function(object, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", score.df = NULL, ...){
 
   type <- match.arg(type)
 
@@ -147,8 +148,8 @@ autoplot.PLR_boot <- function(x, type = c("explained","traceplot","diagnostic"),
   if (type == "explained"){
 
     g <- NextMethod("autoplot")
-    y <- x$y
-    x <- predict(x, pars.idx = "Boot")
+    y <- object$y
+    x <- predict(object, pars.idx = "Boot")
     g <- Lorenz.graphs_add(g, y, x, curve_label = "index (Boot)",...)
 
   }
@@ -157,7 +158,7 @@ autoplot.PLR_boot <- function(x, type = c("explained","traceplot","diagnostic"),
 
   if (type == "traceplot"){
 
-    if(traceplot.which == "Boot") traceplot.which <- x$grid.idx["Boot"]
+    if(traceplot.which == "Boot") traceplot.which <- object$grid.idx["Boot"]
     g <- NextMethod("autoplot")
 
   }
@@ -167,15 +168,15 @@ autoplot.PLR_boot <- function(x, type = c("explained","traceplot","diagnostic"),
   if (type == "diagnostic"){
 
     if(is.null(score.df)){
-      score.df <- do.call(rbind, lapply(1:length(x$path), function(i) {
+      score.df <- do.call(rbind, lapply(1:length(object$path), function(i) {
         data.frame(
           grid = i,
-          lambda = -log(x$path[[i]]["lambda",]),
-          OOB = x$path[[i]]["OOB score",]
+          lambda = -log(object$path[[i]]["lambda",]),
+          OOB = object$path[[i]]["OOB score",]
         )
       }))
     }else{
-      score.df$OOB <- unlist(sapply(1:length(x$path), function(i) x$path[[i]]["OOB score",]))
+      score.df$OOB <- unlist(sapply(1:length(object$path), function(i) object$path[[i]]["OOB score",]))
     }
     score.df$OOB <- score.df$OOB/max(score.df$OOB)
 
@@ -190,7 +191,7 @@ autoplot.PLR_boot <- function(x, type = c("explained","traceplot","diagnostic"),
 #' @method autoplot PLR_cv
 #' @export
 
-autoplot.PLR_cv <- function(x, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", score.df = NULL, ...){
+autoplot.PLR_cv <- function(object, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", score.df = NULL, ...){
 
   type <- match.arg(type)
 
@@ -199,8 +200,8 @@ autoplot.PLR_cv <- function(x, type = c("explained","traceplot","diagnostic"), t
   if (type == "explained"){
 
     g <- NextMethod("autoplot")
-    y <- x$y
-    x <- predict(x, pars.idx = "CV")
+    y <- object$y
+    x <- predict(object, pars.idx = "CV")
     g <- Lorenz.graphs_add(g, y, x, curve_label = "index (CV)",...)
 
   }
@@ -209,7 +210,7 @@ autoplot.PLR_cv <- function(x, type = c("explained","traceplot","diagnostic"), t
 
   if (type == "traceplot"){
 
-    if(traceplot.which == "CV") traceplot.which <- x$grid.idx["CV"]
+    if(traceplot.which == "CV") traceplot.which <- object$grid.idx["CV"]
     g <- NextMethod("autoplot")
 
   }
@@ -219,15 +220,15 @@ autoplot.PLR_cv <- function(x, type = c("explained","traceplot","diagnostic"), t
   if (type == "diagnostic"){
 
     if(is.null(score.df)){
-      score.df <- do.call(rbind, lapply(1:length(x$path), function(i) {
+      score.df <- do.call(rbind, lapply(1:length(object$path), function(i) {
         data.frame(
           grid = i,
-          lambda = -log(x$path[[i]]["lambda",]),
-          CV = x$path[[i]]["CV score",]
+          lambda = -log(object$path[[i]]["lambda",]),
+          CV = object$path[[i]]["CV score",]
         )
       }))
     }else{
-      score.df$CV <- unlist(sapply(1:length(x$path), function(i) x$path[[i]]["CV score",]))
+      score.df$CV <- unlist(sapply(1:length(object$path), function(i) object$path[[i]]["CV score",]))
     }
     score.df$CV <- score.df$CV/max(score.df$CV)
 

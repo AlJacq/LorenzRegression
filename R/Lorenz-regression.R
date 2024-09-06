@@ -41,7 +41,7 @@
 #' The possibles values for \code{grid.arg} are tuning parameters of the functions \code{\link{Lorenz.FABS}} and \code{\link{Lorenz.SCADFABS}} : \code{''h''} (the default), \code{''SCAD.nfwd''},\code{''eps''}, \code{''kernel''}, \code{''a''} and \code{''gamma''}.
 #' The values for the grid are specified with \code{grid.value}. The default is \code{NULL}, in which case no grid is constructed
 #'
-#' @seealso \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, code{\link{Lorenz.boot}}
+#' @seealso \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.boot}}
 #'
 #' @section References:
 #' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
@@ -67,6 +67,9 @@
 #' # Coef method
 #' coef(NPLR)
 #' coef(PLR)
+#' # ineqExplained method
+#' ineqExplained(NPLR)
+#' ineqExplained(PLR)
 #' # Predict method
 #' ## One can predict either the index or the response
 #' predict(NPLR,type="response")

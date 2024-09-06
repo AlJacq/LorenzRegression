@@ -51,8 +51,8 @@ PLR_CV <- PLR.CV(PLR, k = 5, data.orig = data, seed.CV = 123)
 # Hence the methods (also) display the results obtained by cross-validation.
 print(PLR_CV)
 summary(PLR_CV)
-coef(PLR_CV)
-predict(PLR_CV)
+coef(PLR_CV, pars.idx = "CV")
+predict(PLR_CV, pars.idx = "CV")
 plot(PLR_CV)
 plot(PLR_CV, type = "diagnostic") # Plot of the scores depending on the grid and penalty parameters
 

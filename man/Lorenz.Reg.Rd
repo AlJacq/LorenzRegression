@@ -95,6 +95,9 @@ summary(PLR)
 # Coef method
 coef(NPLR)
 coef(PLR)
+# ineqExplained method
+ineqExplained(NPLR)
+ineqExplained(PLR)
 # Predict method
 ## One can predict either the index or the response
 predict(NPLR,type="response")
@@ -107,5 +110,5 @@ plot(PLR,type="traceplot")
 
 }
 \seealso{
-\code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, code{\link{Lorenz.boot}}
+\code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.boot}}
 }
