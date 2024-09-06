@@ -1,4 +1,4 @@
-#' Confidence intervals for the Lorenz Regression
+#' Confidence intervals for the Lorenz regression
 #'
 #' Provides bootstrap confidence intervals for the explained Gini coefficient, Lorenz-R2 and theta vector for an object of class \code{"LR_boot"}.
 #'

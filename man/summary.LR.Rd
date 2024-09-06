@@ -3,7 +3,7 @@
 \name{summary.LR}
 \alias{summary.LR}
 \alias{summary.LR_boot}
-\title{Summary for the Lorenz Regression}
+\title{Summary for the Lorenz regression}
 \usage{
 \method{summary}{LR}(object, ...)
 }

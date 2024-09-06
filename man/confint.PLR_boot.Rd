@@ -4,7 +4,7 @@
 \alias{confint.PLR_boot}
 \alias{confint.PLR}
 \alias{confint.PLR_cv}
-\title{Confidence intervals for the Penalized Lorenz Regression}
+\title{Confidence intervals for the penalized Lorenz regression}
 \usage{
 \method{confint}{PLR_boot}(
   object,

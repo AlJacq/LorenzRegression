@@ -1,4 +1,4 @@
-#' Plots for the Penalized Lorenz Regression
+#' Plots for the penalized Lorenz regression
 #'
 #' \code{autoplot} generates summary plots for an object of class \code{"PLR"} and returns them as \code{ggplot} objects.
 #' The \code{plot} method is a wrapper around \code{autoplot} that directly displays the plot,

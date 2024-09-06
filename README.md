@@ -66,3 +66,22 @@ devtools::install_github("AlJacq/LorenzRegression")
     BIC, bootstrap and cross-validation).
   - `diagnostic.PLR` provides diagnostic information for penalized
     Lorenz regression.
+
+### Version 2.1.0 (2024-09-05)
+
+- **Important changes**:
+  - Methods were introduced for classes `"LR_boot"`, `"PLR_boot"` and
+    `"PLR_cv"`. This induced modifications in the internal structure of
+    those methods in order to align better with standard practices.
+  - The output of methods for the class `"PLR"` were modified to align
+    better with user experience.
+  - Modifications occurred in `Lorenz.GA` (and the underlying Rcpp
+    functions) in order to ensure full reproducibility of results.
+  - Functions implying randomness have a `seed` argument. This argument
+    sets a local seed, used for the generation of random objects within
+    the function. the seed is reverted to its previous state after the
+    operation. This ensures that the seed settings do not interfere with
+    the global random state or other parts of the code.
+- **New Features**:
+  - Methods `ineqExplained`, `fitted` and `autoplot` for classes `"LR"`
+    and `"PLR"`

@@ -1,4 +1,4 @@
-#' Prediction and fitted values for Penalized Lorenz Regression models
+#' Prediction and fitted values for the penalized Lorenz regression
 #'
 #' \code{prediction} provides predictions for an object of class \code{"PLR"},
 #' while \code{fitted} extracts the fitted values.

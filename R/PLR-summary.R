@@ -1,4 +1,4 @@
-#' Summary for the Penalized Lorenz Regression
+#' Summary for the penalized Lorenz regression
 #'
 #' Provides a summary for an object of class \code{"PLR"}.
 #'

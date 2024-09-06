@@ -3,7 +3,7 @@
 \name{print.LR}
 \alias{print.LR}
 \alias{print.LR_boot}
-\title{Printing method for the Lorenz Regression}
+\title{Printing method for the Lorenz regression}
 \usage{
 \method{print}{LR}(x, digits = max(3L, getOption("digits") - 3L), ...)
 }

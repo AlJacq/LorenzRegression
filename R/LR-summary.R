@@ -1,4 +1,4 @@
-#' Summary for the Lorenz Regression
+#' Summary for the Lorenz regression
 #'
 #' Provides a summary for an object of class \code{"LR"}.
 #'

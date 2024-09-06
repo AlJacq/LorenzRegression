@@ -1,4 +1,4 @@
-#' Printing method for the summary of a Lorenz Regression
+#' Printing method for the summary of a Lorenz regression
 #'
 #' Provides a printing method for an object of class \code{"summary.LR"}.
 #'

@@ -7,7 +7,7 @@
 \alias{fitted.PLR}
 \alias{fitted.PLR_boot}
 \alias{fitted.PLR_cv}
-\title{Prediction and fitted values for Penalized Lorenz Regression models}
+\title{Prediction and fitted values for the penalized Lorenz regression}
 \usage{
 \method{predict}{PLR}(object, newdata, type = c("index", "response"), pars.idx = "BIC", ...)
 

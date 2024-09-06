@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCADFABS-estimation.R
 \name{Lorenz.SCADFABS}
 \alias{Lorenz.SCADFABS}
-\title{Solves the Penalized Lorenz Regression with SCAD penalty}
+\title{Estimates the parameter vector in a penalized Lorenz regression with SCAD penalty}
 \usage{
 Lorenz.SCADFABS(
   y,

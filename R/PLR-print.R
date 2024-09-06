@@ -1,4 +1,4 @@
-#' Printing method for the Penalized Lorenz Regression
+#' Printing method for the penalized Lorenz regression
 #'
 #' Prints the arguments, explained Gini coefficient and estimated coefficients of an object of class \code{"PLR"}.
 #'

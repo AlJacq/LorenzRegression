@@ -2,7 +2,7 @@
 % Please edit documentation in R/Gini-coefficient.R
 \name{Gini.coef}
 \alias{Gini.coef}
-\title{Concentration index of \emph{y} wrt \emph{x}}
+\title{Concentration index of \emph{y} with respect to \emph{x}}
 \usage{
 Gini.coef(
   y,

@@ -5,7 +5,7 @@
 \alias{predict.LR_boot}
 \alias{fitted.LR}
 \alias{fitted.LR_boot}
-\title{Prediction and fitted values for Lorenz Regression models}
+\title{Prediction and fitted values for the Lorenz regression}
 \usage{
 \method{predict}{LR}(object, newdata, type = c("index", "response"), ...)
 

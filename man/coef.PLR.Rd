@@ -4,7 +4,7 @@
 \alias{coef.PLR}
 \alias{coef.PLR_boot}
 \alias{coef.PLR_cv}
-\title{Estimated coefficients for the Penalized Lorenz Regression}
+\title{Estimated coefficients for the penalized Lorenz regression}
 \usage{
 \method{coef}{PLR}(object, renormalize = TRUE, pars.idx = "BIC", ...)
 }

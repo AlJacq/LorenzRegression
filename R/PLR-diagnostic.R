@@ -1,4 +1,4 @@
-#' Diagnostic for the Penalized Lorenz Regression
+#' Diagnostic for the penalized Lorenz regression
 #'
 #' \code{diagnostic.PLR} provides diagnostic information for an object of class \code{"PLR"}
 #' It restricts the path of the PLR to pairs of parameters (grid, lambda) that satisfy a threshold criterion.

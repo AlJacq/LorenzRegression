@@ -1,4 +1,4 @@
-#' Estimated coefficients for the Lorenz Regression
+#' Estimated coefficients for the Lorenz regression
 #'
 #' Provides the estimated coefficients for an object of class \code{"LR"}.
 #'

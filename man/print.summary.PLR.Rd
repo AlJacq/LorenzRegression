@@ -4,7 +4,7 @@
 \alias{print.summary.PLR}
 \alias{print.summary.PLR_boot}
 \alias{print.summary.PLR_cv}
-\title{Printing method for the summary of a Penalized Lorenz Regression}
+\title{Printing method for the summary of a penalized Lorenz regression}
 \usage{
 \method{print}{summary.PLR}(x, digits = max(3L, getOption("digits") - 3L), ...)
 }

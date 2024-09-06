@@ -5,7 +5,7 @@
 \alias{plot.LR}
 \alias{autoplot.LR_boot}
 \alias{plot.LR_boot}
-\title{Plots for the Lorenz Regression}
+\title{Plots for the Lorenz regression}
 \usage{
 \method{autoplot}{LR}(x, ...)
 

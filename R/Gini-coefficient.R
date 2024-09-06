@@ -1,4 +1,4 @@
-#' Concentration index of \emph{y} wrt \emph{x}
+#' Concentration index of \emph{y} with respect to \emph{x}
 #'
 #' \code{Gini.coef} computes the concentration index of a vector \emph{y} with respect to another vector \emph{x}.
 #' If \emph{y} and \emph{x} are identical, the obtained concentration index boils down to the Gini coefficient.

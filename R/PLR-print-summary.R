@@ -1,4 +1,4 @@
-#' Printing method for the summary of a Penalized Lorenz Regression
+#' Printing method for the summary of a penalized Lorenz regression
 #'
 #' Provides a printing method for an object of class \code{"summary.PLR"}.
 #'

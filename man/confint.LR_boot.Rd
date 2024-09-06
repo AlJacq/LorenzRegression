@@ -3,7 +3,7 @@
 \name{confint.LR_boot}
 \alias{confint.LR_boot}
 \alias{confint.LR}
-\title{Confidence intervals for the Lorenz Regression}
+\title{Confidence intervals for the Lorenz regression}
 \usage{
 \method{confint}{LR_boot}(
   object,

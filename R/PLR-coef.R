@@ -1,4 +1,4 @@
-#' Estimated coefficients for the Penalized Lorenz Regression
+#' Estimated coefficients for the penalized Lorenz regression
 #'
 #' Provides the estimated coefficients for an object of class \code{"PLR"}.
 #'

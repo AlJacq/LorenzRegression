@@ -1,4 +1,4 @@
-#' Solves the Penalized Lorenz Regression with SCAD penalty
+#' Estimates the parameter vector in a penalized Lorenz regression with SCAD penalty
 #'
 #' \code{Lorenz.SCADFABS} solves the penalized Lorenz regression with SCAD penalty on a grid of lambda values.
 #' For each value of lambda, the function returns estimates for the vector of parameters and for the estimated explained Gini coefficient, as well as the Lorenz-\eqn{R^2} of the regression.

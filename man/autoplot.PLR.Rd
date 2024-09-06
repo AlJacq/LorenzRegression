@@ -7,7 +7,7 @@
 \alias{plot.PLR_boot}
 \alias{autoplot.PLR_cv}
 \alias{plot.PLR_cv}
-\title{Plots for the Penalized Lorenz Regression}
+\title{Plots for the penalized Lorenz regression}
 \usage{
 \method{autoplot}{PLR}(
   x,

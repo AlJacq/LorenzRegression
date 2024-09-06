@@ -1,4 +1,4 @@
-#' Confidence intervals for the Penalized Lorenz Regression
+#' Confidence intervals for the penalized Lorenz regression
 #'
 #' Provides bootstrap confidence intervals for the explained Gini coefficient and Lorenz-\eqn{R^2} for an object of class \code{"PLR_boot"}.
 #'

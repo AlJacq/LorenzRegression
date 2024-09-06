@@ -1,4 +1,4 @@
-#' Prediction and fitted values for Lorenz Regression models
+#' Prediction and fitted values for the Lorenz regression
 #'
 #' \code{prediction} provides predictions for an object of class \code{"LR"},
 #' while \code{fitted} extracts the fitted values.

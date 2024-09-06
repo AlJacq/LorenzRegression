@@ -2,7 +2,7 @@
 % Please edit documentation in R/PLR-diagnostic.R
 \name{diagnostic.PLR}
 \alias{diagnostic.PLR}
-\title{Diagnostic for the Penalized Lorenz Regression}
+\title{Diagnostic for the penalized Lorenz regression}
 \usage{
 diagnostic.PLR(
   object,

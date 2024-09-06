@@ -2,7 +2,7 @@
 % Please edit documentation in R/FABS-estimation.R
 \name{Lorenz.FABS}
 \alias{Lorenz.FABS}
-\title{Solves the Penalized Lorenz Regression with Lasso penalty}
+\title{Estimates the parameter vector in a penalized Lorenz regression with lasso penalty}
 \usage{
 Lorenz.FABS(
   y,

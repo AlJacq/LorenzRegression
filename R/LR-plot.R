@@ -1,4 +1,4 @@
-#' Plots for the Lorenz Regression
+#' Plots for the Lorenz regression
 #'
 #' \code{autoplot} generates a plot for an object of class \code{"LR"} and returns it as a \code{ggplot} object.
 #' The \code{plot} method is a wrapper around \code{autoplot} that directly displays the plot,

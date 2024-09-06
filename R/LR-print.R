@@ -1,4 +1,4 @@
-#' Printing method for the Lorenz Regression
+#' Printing method for the Lorenz regression
 #'
 #' Prints the arguments, explained Gini coefficient and estimated coefficients of an object of class \code{"LR"}.
 #'

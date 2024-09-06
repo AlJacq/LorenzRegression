@@ -1,4 +1,4 @@
-#' Solves the Penalized Lorenz Regression with Lasso penalty
+#' Estimates the parameter vector in a penalized Lorenz regression with lasso penalty
 #'
 #' \code{Lorenz.FABS} solves the penalized Lorenz regression with (adaptive) Lasso penalty on a grid of lambda values.
 #' For each value of lambda, the function returns estimates for the vector of parameters and for the estimated explained Gini coefficient, as well as the Lorenz-\eqn{R^2} of the regression.

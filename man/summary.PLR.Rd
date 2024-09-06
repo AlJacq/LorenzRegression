@@ -4,7 +4,7 @@
 \alias{summary.PLR}
 \alias{summary.PLR_boot}
 \alias{summary.PLR_cv}
-\title{Summary for the Penalized Lorenz Regression}
+\title{Summary for the penalized Lorenz regression}
 \usage{
 \method{summary}{PLR}(object, renormalize = TRUE, ...)
 }

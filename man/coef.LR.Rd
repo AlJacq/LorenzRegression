@@ -3,7 +3,7 @@
 \name{coef.LR}
 \alias{coef.LR}
 \alias{coef.LR_boot}
-\title{Estimated coefficients for the Lorenz Regression}
+\title{Estimated coefficients for the Lorenz regression}
 \usage{
 \method{coef}{LR}(object, ...)
 }
