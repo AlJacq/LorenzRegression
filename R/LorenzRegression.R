@@ -15,7 +15,7 @@
 #' @useDynLib LorenzRegression
 #' @importFrom Rcpp evalCpp
 #'
-#' @docType package
+#' @docType "_PACKAGE"
 #' @name LorenzRegression
 #' @aliases LorenzRegression-package
 NULL
