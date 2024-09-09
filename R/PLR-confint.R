@@ -6,7 +6,7 @@
 #' @param object An object of class \code{"PLR_boot"}. The object might also have S3 class \code{"PLR_cv"}. The current implementation requires bootstrap to construct confidence intervals. Hence, it is not sufficient that \code{object} inherits from \code{"PLR"}.
 #' @param parm A character string determining whether the confidence interval is computed for the explained Gini coefficient or for the Lorenz-\eqn{R^2}. Possible values are \code{"Gini"} (default, for the explained Gini) and \code{"LR2"} (for the Lorenz-\eqn{R^2})
 #' @param level A numeric giving the level of the confidence interval. Default value is 0.95.
-#' @param type A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link{boot.ci}} from the \emph{boot} library.
+#' @param type A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link[boot]{boot.ci}} from the \emph{boot} library.
 #' @param pars.idx What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
 #' \itemize{
 #'    \item \code{"BIC"} (default).

@@ -7,7 +7,7 @@
 #' @param data.orig A data frame corresponding to the original dataset, used in the \code{\link{Lorenz.Reg}} call.
 #' @param seed.CV An optional seed that is used internally for the creation of the folds. Default is \code{NULL}, in which case no seed is imposed.
 #' @param parallel Whether parallel computing should be used to distribute the cross-validation computations. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
-#' @param ... Additional parameters corresponding to arguments passed to the function \code{\link{vfold_cv}} from the \emph{rsample} library.
+#' @param ... Additional parameters corresponding to arguments passed to the function \code{\link[rsample]{vfold_cv}} from the \emph{rsample} library.
 #'
 #' @return An object of class \code{c("PLR_cv", "PLR")}. The object is a list containing the following components:
 #' \describe{

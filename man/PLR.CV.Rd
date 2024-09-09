@@ -17,7 +17,7 @@ PLR.CV(object, k, data.orig, seed.CV = NULL, parallel = FALSE, ...)
 
 \item{parallel}{Whether parallel computing should be used to distribute the cross-validation computations. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.}
 
-\item{...}{Additional parameters corresponding to arguments passed to the function \code{\link{vfold_cv}} from the \emph{rsample} library.}
+\item{...}{Additional parameters corresponding to arguments passed to the function \code{\link[rsample]{vfold_cv}} from the \emph{rsample} library.}
 }
 \value{
 An object of class \code{c("PLR_cv", "PLR")}. The object is a list containing the following components:

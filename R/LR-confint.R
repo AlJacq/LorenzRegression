@@ -6,7 +6,7 @@
 #' @param object An object of class \code{"LR_boot"}. The current implementation requires bootstrap to construct confidence intervals. Hence, it is not sufficient that \code{object} inherits from \code{"LR"}.
 #' @param parm A logical value determining whether the confidence interval is computed for the explained Gini coefficient, for the Lorenz-\eqn{R^2} or for the vector of coefficients of the single-index model. Possible values are \code{"Gini"} (default, for the explained Gini),\code{"LR2"} (for the Lorenz-\eqn{R^2}) and \code{"theta"} (for the index coefficients).
 #' @param level A numeric giving the level of the confidence interval. Default value is 0.95.
-#' @param type A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link{boot.ci}} from the \emph{boot} library.
+#' @param type A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link[boot]{boot.ci}} from the \emph{boot} library.
 #' @param bias.corr A logical determining whether bias correction should be performed. Only used if \code{type="norm"}. Default is \code{TRUE}.
 #' @param ... Additional arguments.
 #'

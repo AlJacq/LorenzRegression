@@ -23,7 +23,7 @@
 
 \item{level}{A numeric giving the level of the confidence interval. Default value is 0.95.}
 
-\item{type}{A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link{boot.ci}} from the \emph{boot} library.}
+\item{type}{A character string specifying the bootstrap method. Possible values are \code{"norm"}, \code{"basic"} and \code{"perc"}. For more information, see the argument \code{type} of the function \code{\link[boot]{boot.ci}} from the \emph{boot} library.}
 
 \item{pars.idx}{What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
 \itemize{

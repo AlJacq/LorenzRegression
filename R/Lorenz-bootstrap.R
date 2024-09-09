@@ -6,7 +6,7 @@
 #' @param R An integer indicating the number of bootstrap replicates.
 #' @param data.orig A data frame corresponding to the original dataset, used in the \code{\link{Lorenz.Reg}} call.
 #' @param boot_out_only A logical determining whether the function should return raw bootstrap results. This is an advanced feature that helps save computation time in certain instances. See Details.
-#' @param ... Additional parameters corresponding to arguments passed to the function \code{\link{boot}} from the \emph{boot} library.
+#' @param ... Additional parameters corresponding to arguments passed to the function \code{\link[boot]{boot}} from the \emph{boot} library.
 #'
 #' @return An object of class \code{c("LR_boot", "LR")} or \code{c("PLR_boot", "PLR")}, depending on whether a non-penalized or penalized regression was fitted.
 #'
@@ -49,14 +49,14 @@
 #' # This example is not run as it takes > 5 seconds to run.
 #' \dontrun{
 #' set.seed(123)
-#' NPLR_boot <- Lorenz.boot(NPLR, R = 40, data.orig = data)
+#' NPLR_boot <- Lorenz.boot(NPLR, R = 30, data.orig = data)
 #' # The method confint() is available to objects of class "LR_boot".
 #' confint(NPLR_boot)
 #' summary(NPLR_boot)
 #' }
 #' # Continuing the Lorenz.Reg(.) example for the penalized regression:
 #' set.seed(123)
-#' PLR_boot <- Lorenz.boot(PLR, R = 40, data.orig = data)
+#' PLR_boot <- Lorenz.boot(PLR, R = 30, data.orig = data)
 #' # The object now inherits from the class "PLR_boot"
 #' # Hence the methods (also) display the results obtained by bootstrap.
 #' print(PLR_boot)
