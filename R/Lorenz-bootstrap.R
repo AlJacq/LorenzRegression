@@ -55,7 +55,7 @@
 #' }
 #' # Continuing the Lorenz.Reg(.) example for the penalized regression:
 #' set.seed(123)
-#' PLR_boot <- Lorenz.boot(PLR, R = 30)
+#' PLR_boot <- Lorenz.boot(PLR, R = 20)
 #' # The object now inherits from the class "PLR_boot"
 #' # Hence the methods (also) display the results obtained by bootstrap.
 #' print(PLR_boot)

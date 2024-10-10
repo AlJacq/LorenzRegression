@@ -37,9 +37,9 @@
 #' # Continuing the Lorenz.Reg(.) example for the penalized regression:
 #' boot_list <- list()
 #' set.seed(123)
-#' boot_list[[1]] <- Lorenz.boot(PLR, R = 15, boot_out_only = TRUE)
+#' boot_list[[1]] <- Lorenz.boot(PLR, R = 10, boot_out_only = TRUE)
 #' set.seed(456)
-#' boot_list[[2]] <- Lorenz.boot(PLR, R = 15, boot_out_only = TRUE)
+#' boot_list[[2]] <- Lorenz.boot(PLR, R = 10, boot_out_only = TRUE)
 #' PLR_boot <- Lorenz.boot.combine(boot_list)
 #' summary(PLR_boot)
 #'
