@@ -1,3 +1,9 @@
+# LorenzRegression 2.1.0
+
+**Usage Changes**:
+
+* Functions `Lorenz.boot` and `PLR.CV` no longer have a `data.orig` argument. The original data are now retrieved from the input `LR` or `PLR` object.
+
 # LorenzRegression 2.0.0
 
 **Breaking Changes**:
