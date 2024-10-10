@@ -4,7 +4,6 @@
 #'
 #' @param object An object with S3 class \code{"LR"} or \code{"PLR"}, i.e. the return of a call to the \code{\link{Lorenz.Reg}} function.
 #' @param R An integer indicating the number of bootstrap replicates.
-#' @param data.orig A data frame corresponding to the original dataset, used in the \code{\link{Lorenz.Reg}} call.
 #' @param boot_out_only A logical determining whether the function should return raw bootstrap results. This is an advanced feature that helps save computation time in certain instances. See Details.
 #' @param ... Additional parameters corresponding to arguments passed to the function \code{\link[boot]{boot}} from the \emph{boot} library.
 #'
@@ -49,14 +48,14 @@
 #' # This example is not run as it takes > 5 seconds to run.
 #' \dontrun{
 #' set.seed(123)
-#' NPLR_boot <- Lorenz.boot(NPLR, R = 30, data.orig = data)
+#' NPLR_boot <- Lorenz.boot(NPLR, R = 30)
 #' # The method confint() is available to objects of class "LR_boot".
 #' confint(NPLR_boot)
 #' summary(NPLR_boot)
 #' }
 #' # Continuing the Lorenz.Reg(.) example for the penalized regression:
 #' set.seed(123)
-#' PLR_boot <- Lorenz.boot(PLR, R = 30, data.orig = data)
+#' PLR_boot <- Lorenz.boot(PLR, R = 30)
 #' # The object now inherits from the class "PLR_boot"
 #' # Hence the methods (also) display the results obtained by bootstrap.
 #' print(PLR_boot)
@@ -75,7 +74,7 @@
 #'
 #' @export
 
-Lorenz.boot <- function(object, R, data.orig, boot_out_only = FALSE, ...){
+Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
 
   # 0. Checks ----
   if(!inherits(object,c("LR","PLR"))) stop("object must be the output of a (penalized) Lorenz regression.")
@@ -95,9 +94,11 @@ Lorenz.boot <- function(object, R, data.orig, boot_out_only = FALSE, ...){
     if(first){
       result <- object
     }else{
-      boot.sample <- data[indices, ]
+      boot.x <- data[indices,-1,drop=FALSE]
+      boot.y <- data[indices,1]
       boot.call <- object$call
-      boot.call$data <- quote(boot.sample)
+      boot.call$data <- NULL
+      boot.call$formula <- boot.y ~ boot.x
       if(method == "LR") boot.call$parallel.GA <- quote(FALSE) # parallel will be used for bootstrap
       if(method == "PLR") boot.call$lambda.list <- lapply(object$path,function(x)x["lambda",])
       if(!is.null(object$weights)) boot.call$weights <- object$weights[indices]
@@ -146,6 +147,7 @@ Lorenz.boot <- function(object, R, data.orig, boot_out_only = FALSE, ...){
   }
 
   # 3. boot() ----
+  data.orig <- cbind(object$y,object$x)
   boot_out <- boot(data = data.orig, statistic = boot.f, R = R, ...)
   object$boot_out <- boot_out
 

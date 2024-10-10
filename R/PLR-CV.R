@@ -4,7 +4,6 @@
 #'
 #' @param object An object with S3 class \code{"PLR"}, i.e. the return of a call to the \code{\link{Lorenz.Reg}} function where \code{penalty=="SCAD"} or \code{penalty=="LASSO"}.
 #' @param k An integer indicating the number of folds in the k-fold cross-validation
-#' @param data.orig A data frame corresponding to the original dataset, used in the \code{\link{Lorenz.Reg}} call.
 #' @param seed.CV An optional seed that is used internally for the creation of the folds. Default is \code{NULL}, in which case no seed is imposed.
 #' @param parallel Whether parallel computing should be used to distribute the cross-validation computations. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
 #' @param ... Additional parameters corresponding to arguments passed to the function \code{\link[rsample]{vfold_cv}} from the \emph{rsample} library.
@@ -31,7 +30,7 @@
 #' utils::example(Lorenz.Reg, echo = FALSE)
 #' }
 #' # Continuing the  Lorenz.Reg(.) example:
-#' PLR_CV <- PLR.CV(PLR, k = 5, data.orig = data, seed.CV = 123)
+#' PLR_CV <- PLR.CV(PLR, k = 5, seed.CV = 123)
 #' # The object now inherits from the class "PLR_CV".
 #' # Hence the methods (also) display the results obtained by cross-validation.
 #' print(PLR_CV)
@@ -51,7 +50,6 @@
 
 PLR.CV<-function(object,
                  k,
-                 data.orig,
                  seed.CV=NULL,
                  parallel=FALSE,
                  ...
@@ -66,7 +64,10 @@ PLR.CV<-function(object,
     indices <- split$in_id
     train.call <- object$call
     if(!is.null(object$weights)) train.call$weights <- train.sample$weights_CV
-    train.call$data <- quote(train.sample)
+    y.train <- train.sample$y
+    x.train <- as.matrix(train.sample[,!(names(train.sample)%in% c("y","weights.CV"))])
+    train.call$data <- NULL
+    train.call$formula <- y.train ~ x.train
     train.call$lambda.list <- lapply(object$path,function(x)x["lambda",])
     train.LR <- eval(train.call)
     # With penalized reg, the algorithm may stop sooner than in the original sample.
@@ -95,6 +96,7 @@ PLR.CV<-function(object,
 
   # 2. cv folds ----
 
+  data.orig <- as.data.frame(cbind("y" = object$y, object$x))
   if (!is.null(object$weights)){
     data.orig$weights_CV <- object$weights
   }

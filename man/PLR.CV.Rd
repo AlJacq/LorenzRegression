@@ -4,14 +4,12 @@
 \alias{PLR.CV}
 \title{Cross-validation for penalized Lorenz regression}
 \usage{
-PLR.CV(object, k, data.orig, seed.CV = NULL, parallel = FALSE, ...)
+PLR.CV(object, k, seed.CV = NULL, parallel = FALSE, ...)
 }
 \arguments{
 \item{object}{An object with S3 class \code{"PLR"}, i.e. the return of a call to the \code{\link{Lorenz.Reg}} function where \code{penalty=="SCAD"} or \code{penalty=="LASSO"}.}
 
 \item{k}{An integer indicating the number of folds in the k-fold cross-validation}
-
-\item{data.orig}{A data frame corresponding to the original dataset, used in the \code{\link{Lorenz.Reg}} call.}
 
 \item{seed.CV}{An optional seed that is used internally for the creation of the folds. Default is \code{NULL}, in which case no seed is imposed.}
 
@@ -46,7 +44,7 @@ Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap e
 utils::example(Lorenz.Reg, echo = FALSE)
 }
 # Continuing the  Lorenz.Reg(.) example:
-PLR_CV <- PLR.CV(PLR, k = 5, data.orig = data, seed.CV = 123)
+PLR_CV <- PLR.CV(PLR, k = 5, seed.CV = 123)
 # The object now inherits from the class "PLR_CV".
 # Hence the methods (also) display the results obtained by cross-validation.
 print(PLR_CV)
