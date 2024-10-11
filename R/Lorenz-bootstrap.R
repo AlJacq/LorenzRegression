@@ -94,11 +94,16 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
     if(first){
       result <- object
     }else{
-      boot.x <- data[indices,-1,drop=FALSE]
-      boot.y <- data[indices,1]
       boot.call <- object$call
-      boot.call$data <- NULL
-      boot.call$formula <- boot.y ~ boot.x
+      if(data.access){
+        boot.sample <- data[indices, ]
+        boot.call$data <- quote(boot.sample)
+      }else{
+        boot.x <- data[indices,-1,drop=FALSE]
+        boot.y <- data[indices,1]
+        boot.call$data <- NULL
+        boot.call$formula <- boot.y ~ boot.x
+      }
       if(method == "LR") boot.call$parallel.GA <- quote(FALSE) # parallel will be used for bootstrap
       if(method == "PLR") boot.call$lambda.list <- lapply(object$path,function(x)x["lambda",])
       if(!is.null(object$weights)) boot.call$weights <- object$weights[indices]
@@ -147,7 +152,20 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
   }
 
   # 3. boot() ----
-  data.orig <- cbind(object$y,object$x)
+
+  if (!is.null(object$call$data)) {
+    data_name <- as.character(object$call$data)
+    if (exists(data_name, envir = .GlobalEnv)) {
+      data.orig <- get(data_name, envir = .GlobalEnv)
+      data.access <- TRUE
+    }else{
+      data.orig <- cbind(object$y, object$x)
+      data.access <- FALSE
+    }
+  }else{
+    data.orig <- cbind(object$y,object$x)
+    data.access <- FALSE
+  }
   boot_out <- boot(data = data.orig, statistic = boot.f, R = R, ...)
   object$boot_out <- boot_out
 

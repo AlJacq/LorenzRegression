@@ -10,14 +10,7 @@ There is no reverse dependency
 
 ## Output of devtools::check_win_devel()
 
-Status: 1 NOTE
-
-Maintainer: 'Alexandre Jacquemain <aljacquemain@gmail.com>'
-
-Possibly misspelled words in DESCRIPTION:
-  Pircalabelu (8:327)
-  
-The name above is an author name and is therefore not misspelled
+Status: OK
 
 ## Output of usethis::use_github_action_check_standard()
 

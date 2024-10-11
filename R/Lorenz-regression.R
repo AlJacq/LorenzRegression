@@ -51,12 +51,12 @@
 #' @examples
 #' data(Data.Incomes)
 #' set.seed(123)
-#' data <- Data.Incomes[sample(1:200,50),]
+#' data <- Data.Incomes[sample(1:200,40),]
 #' # 1. Non-penalized regression
-#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none", popSize = 20)
+#' NPLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "none", popSize = 15)
 #' # 2. Penalized regression
 #' PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes, penalty = "SCAD",
-#'                   eps = 0.03, grid.arg = "h",
+#'                   eps = 0.06, grid.arg = "h",
 #'                   grid.value=c(0.5,1,2)*nrow(Data.Incomes)^(-1/5.5))
 #' # Print method
 #' print(NPLR)
