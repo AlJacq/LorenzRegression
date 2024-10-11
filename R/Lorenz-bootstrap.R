@@ -101,6 +101,7 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
       }else{
         boot.x <- data[indices,-1,drop=FALSE]
         boot.y <- data[indices,1]
+        if(method == "PLR") boot.call$grid.value <- object$grid.value
         boot.call$data <- NULL
         boot.call$formula <- boot.y ~ boot.x
       }

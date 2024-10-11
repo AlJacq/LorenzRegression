@@ -58,16 +58,27 @@ PLR.CV<-function(object,
   # 0. Checks ----
   if(!inherits(object,"PLR")) stop("object must be the output of a penalized Lorenz regression.")
 
+  if(inherits(object,"PLR")){
+    method <- "PLR"
+  }else{
+    method <- "LR"
+  }
+
   # 1. statistic for cv ----
   cv.f <- function(split) {
     train.sample <- analysis(split)
     indices <- split$in_id
     train.call <- object$call
     if(!is.null(object$weights)) train.call$weights <- train.sample$weights_CV
-    y.train <- train.sample$y
-    x.train <- as.matrix(train.sample[,!(names(train.sample)%in% c("y","weights.CV"))])
-    train.call$data <- NULL
-    train.call$formula <- y.train ~ x.train
+    if(data.access){
+      train.call$data <- quote(train.sample)
+    }else{
+      y.train <- train.sample$y
+      x.train <- as.matrix(train.sample[,!(names(train.sample)%in% c("y","weights.CV"))])
+      if(method == "PLR") train.call$grid.value <- object$grid.value
+      train.call$data <- NULL
+      train.call$formula <- y.train ~ x.train
+    }
     train.call$lambda.list <- lapply(object$path,function(x)x["lambda",])
     train.LR <- eval(train.call)
     # With penalized reg, the algorithm may stop sooner than in the original sample.
@@ -96,7 +107,19 @@ PLR.CV<-function(object,
 
   # 2. cv folds ----
 
-  data.orig <- as.data.frame(cbind("y" = object$y, object$x))
+  if (!is.null(object$call$data)) {
+    data_name <- as.character(object$call$data)
+    if (exists(data_name, envir = .GlobalEnv)) {
+      data.orig <- get(data_name, envir = .GlobalEnv)
+      data.access <- TRUE
+    }else{
+      data.orig <- data.orig <- as.data.frame(cbind("y" = object$y, object$x))
+      data.access <- FALSE
+    }
+  }else{
+    data.orig <- data.orig <- as.data.frame(cbind("y" = object$y, object$x))
+    data.access <- FALSE
+  }
   if (!is.null(object$weights)){
     data.orig$weights_CV <- object$weights
   }
