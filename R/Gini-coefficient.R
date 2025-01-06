@@ -37,8 +37,6 @@ Gini.coef <- function(y, x=y, na.rm=TRUE, ties.method=c("mean","random"), seed=N
 
   ties.method <- match.arg(ties.method)
 
-  n <- length(y)
-
   if(sum(is.na(c(x,y)))>0){
     if(na.rm){
      x.tmp <- x[!(is.na(x) | is.na(y))]
@@ -49,6 +47,9 @@ Gini.coef <- function(y, x=y, na.rm=TRUE, ties.method=c("mean","random"), seed=N
       stop("There are missing values in either x or y and na.rm is FALSE")
     }
   }
+
+  n <- length(y)
+  if (n < 1) stop("'y' must have 1 or more non-missing values")
 
   if(any(weights<0)) stop("Weights must be nonnegative")
 
