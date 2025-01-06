@@ -3,6 +3,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^Drafts$
+^Talks$
 ^\.httr-oauth$
 ^doc$
 ^Meta$
