@@ -11,6 +11,7 @@
 #' @param maxiter passed to \code{ga}.
 #' @param run passed to \code{ga}.
 #' @param parallel.GA passed to \code{ga}.
+#' @param suggestions passed to \code{ga}.
 #' @param seed An optional integer for setting the seed for random number generation. Default is \code{NULL}.
 #'
 #' @importFrom GA ga
@@ -19,7 +20,7 @@
 #' @return The fitted genetic algorithm
 #' @keywords internal
 
-Lorenz.ga.call <- function(ties.method, y, x, pi, V, popSize, maxiter, run, parallel.GA, seed = NULL){
+Lorenz.ga.call <- function(ties.method, y, x, pi, V, popSize, maxiter, run, parallel.GA, suggestions, seed = NULL){
 
   p <- ncol(x)
 
@@ -42,7 +43,7 @@ Lorenz.ga.call <- function(ties.method, y, x, pi, V, popSize, maxiter, run, para
                fitness =  fitness_function,
                lower = rep(-1,p-1), upper = rep(1,p-1),
                popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
-               parallel = parallel.GA, seed = seed)
+               parallel = parallel.GA, seed = seed, suggestions = suggestions)
 
   return(GA)
 }

@@ -12,6 +12,7 @@ Lorenz.GA(
   popSize = 50,
   maxiter = 1500,
   run = 150,
+  suggestions = NULL,
   ties.method = c("random", "mean"),
   ties.Gini = c("random", "mean"),
   seed.random = NULL,
@@ -34,6 +35,10 @@ Lorenz.GA(
 \item{maxiter}{Maximum number ot iterations in the genetic algorithm. Default value is 1500.}
 
 \item{run}{Number of iterations without improvement in the best fitness necessary for the algorithm to stop. Default value is 150.}
+
+\item{suggestions}{Initial guesses used in the genetic algorithm. The default value is \code{NULL}, meaning no suggestions are passed.
+Other possible values are a numeric matrix with at most \code{popSize} rows and \code{ncol(x)} columns, or a character string "OLS".
+In the latter case, \code{0.5*popSize} suggestions are created as random perturbations of the OLS solutions.}
 
 \item{ties.method}{What method should be used to break the ties in optimization program. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.}
 
