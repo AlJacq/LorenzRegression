@@ -19,6 +19,10 @@ uvec arma_sort(arma::vec y, arma::vec z) {
   return c;
 }
 
+#include <chrono>
+static double total_time = 0.0, total_matmul = 0.0, total_sort = 0.0, total_penalty = 0.0;
+static int call_count = 0;
+
 //' @title Computes the fitness used in the GA
 //' @description Computes the fitness of a candidate in the genetic algorithm displayed in function Lorenz.GA.cpp
 //' @param x vector of size (p-1) giving the proposed candidate, where p is the number of covariates
@@ -32,8 +36,10 @@ uvec arma_sort(arma::vec y, arma::vec z) {
 //' @keywords internal
 // [[Rcpp::export(.Fitness_cpp)]]
 double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z, arma::vec pi, double tolerance) {
+  auto start_total = std::chrono::high_resolution_clock::now();
   // 0. Let us define some basic objects
   int nx = x.n_rows;
+  auto start_matmul = std::chrono::high_resolution_clock::now();
   // 1. We must acknowledge the fact that the last coefficient is constrained
   vec theta1(nx+1);//But it may be positive
   vec theta2(nx+1);//... or negative
@@ -48,11 +54,16 @@ double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z, arma::vec
   }
   vec index1 = X*theta1;
   vec index2 = X*theta2;
+  auto end_matmul = std::chrono::high_resolution_clock::now();
+  total_matmul += std::chrono::duration<double>(end_matmul - start_matmul).count();
   index1 = round(index1 / tolerance) * tolerance;
   index2 = round(index2 / tolerance) * tolerance;
   // 2. We need to sort the Y's first in terms of index (a) and then in terms of a unif(0,1) (b)
+  auto start_sort = std::chrono::high_resolution_clock::now();
   uvec sort1 = arma_sort(index1,Z);
   uvec sort2 = arma_sort(index2,Z);
+  auto end_sort = std::chrono::high_resolution_clock::now();
+  total_sort += std::chrono::duration<double>(end_sort - start_sort).count();
   vec Y_sort1 = Y(sort1);
   vec Y_sort2 = Y(sort2);
   // 3. We proceed similarly for the weights
@@ -68,5 +79,17 @@ double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z, arma::vec
   Obj(1) = as_scalar(Y_pi_sort2.t()*rank2);
   double Fit = max(Obj);
   double pen = ::fabs(Fit)*::fabs(accu(abs(theta1))-1);
+
+  auto end_total = std::chrono::high_resolution_clock::now();
+  total_time += std::chrono::duration<double>(end_total - start_total).count();
+  call_count++;
+
+  if (call_count % 5000 == 0) {
+    Rcpp::Rcout << "Fitness_cpp avg time: " << (total_time / call_count)
+                << " sec | MatMul: " << (total_matmul / call_count)
+                << " | Sort: " << (total_sort / call_count)
+                << " over " << call_count << " calls.\n";
+  }
+
   return Fit-pen;
 }
