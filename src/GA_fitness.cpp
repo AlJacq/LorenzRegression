@@ -3,22 +3,6 @@
 
 using namespace arma;
 
-// Function to sort x in terms of first y and then if ties occur in terms of z
-uvec arma_sort(arma::vec y, arma::vec z) {
-  vec y1 = y + ::fabs(min(y));
-  vec z1 = z + ::fabs(min(z));
-  vec a = nonzeros(diff(y1(arma::sort_index(y1))));
-  double bound;
-  if (a.n_rows==1){
-    bound = a(0) - exp(-10);
-  }else{
-    bound = min(a) - exp(-10);
-  }
-  vec b = y1 + z1/max(z1)*bound;
-  uvec c = sort_index(b);
-  return c;
-}
-
 //' @title Computes the fitness used in the GA
 //' @description Computes the fitness of a candidate in the genetic algorithm displayed in function Lorenz.GA.cpp
 //' @param x vector of size (p-1) giving the proposed candidate, where p is the number of covariates
@@ -48,11 +32,11 @@ double Fitness_cpp(arma::vec x, arma::vec Y, arma::mat X, arma::vec Z, arma::vec
   }
   vec index1 = X*theta1;
   vec index2 = X*theta2;
-  index1 = round(index1 / tolerance) * tolerance;
-  index2 = round(index2 / tolerance) * tolerance;
+  index1 = round(index1 / tolerance) + Z/2;
+  index2 = round(index2 / tolerance) + Z/2;
   // 2. We need to sort the Y's first in terms of index (a) and then in terms of a unif(0,1) (b)
-  uvec sort1 = arma_sort(index1,Z);
-  uvec sort2 = arma_sort(index2,Z);
+  uvec sort1 = sort_index(index1);
+  uvec sort2 = sort_index(index2);
   vec Y_sort1 = Y(sort1);
   vec Y_sort2 = Y(sort2);
   // 3. We proceed similarly for the weights
