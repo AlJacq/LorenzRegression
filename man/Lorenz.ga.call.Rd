@@ -14,6 +14,7 @@ Lorenz.ga.call(
   maxiter,
   run,
   parallel.GA,
+  suggestions,
   seed = NULL
 )
 }
@@ -35,6 +36,8 @@ Lorenz.ga.call(
 \item{run}{passed to \code{ga}.}
 
 \item{parallel.GA}{passed to \code{ga}.}
+
+\item{suggestions}{passed to \code{ga}.}
 
 \item{seed}{An optional integer for setting the seed for random number generation. Default is \code{NULL}.}
 }

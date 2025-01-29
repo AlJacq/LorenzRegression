@@ -13,6 +13,9 @@
 #' @param popSize Size of the population of candidates in the genetic algorithm. Default value is 50.
 #' @param maxiter Maximum number ot iterations in the genetic algorithm. Default value is 1500.
 #' @param run Number of iterations without improvement in the best fitness necessary for the algorithm to stop. Default value is 150.
+#' @param suggestions Initial guesses used in the genetic algorithm. The default value is \code{NULL}, meaning no suggestions are passed.
+#' Other possible values are a numeric matrix with at most \code{popSize} rows and \code{ncol(x)} columns, or a character string "OLS".
+#' In the latter case, \code{0.5*popSize} suggestions are created as random perturbations of the OLS solutions.
 #' @param ties.method What method should be used to break the ties in optimization program. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.
 #' @param ties.Gini what method should be used to break the ties in the computation of the Gini coefficient at the end of the algorithm. Possible values and default choice are the same as above.
 #' @param seed.random An optional seed for generating the vector of uniform random variables used to break ties in the genetic algorithm. Defaults to \code{NULL}, which means no specific seed is set.
@@ -47,7 +50,7 @@
 #' @export
 
 # unit-norm normalization ----
-Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, seed.Gini=NULL, seed.GA=NULL, parallel.GA = FALSE){
+Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=1500, run=150, suggestions = NULL, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, seed.Gini=NULL, seed.GA=NULL, parallel.GA = FALSE){
 
   # PRE-GA ----
 
@@ -75,6 +78,17 @@ Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=15
       x.scale <- sqrt(colSums(x^2)/(n-1))
       x <- x / rep(x.scale, rep.int(n,p))
 
+    }else{
+
+      x.scale <- 1
+    }
+
+    # PRE-GA > SUGGESTIONS ----
+
+    if(!is.null(suggestions)){
+
+      suggestions <- Lorenz.Suggestions(suggestions, popSize, y, x, pi, x.scale, seed.random)
+
     }
 
     # GA ----
@@ -85,7 +99,9 @@ Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=15
       V <- NULL
     }
 
-    GA <- Lorenz.ga.call(ties.method, y, x, pi, V, popSize, maxiter, run, parallel.GA, seed = seed.GA)
+    GA <- Lorenz.ga.call(ties.method, y, x, pi, V, popSize, maxiter, run, parallel.GA, suggestions, seed = seed.GA)
+
+    # save(GA,file="/Users/Jacquemain/Library/CloudStorage/OneDrive-UCL/Research/1-LR_Software/V4/GA.Rdata")
 
     # We need to take care of the fact that the first coefficient for theta may be positive or negative
     theta1<-c(GA@solution[1,],1-sum(abs(GA@solution[1,]))) #The theta solution if the last coeff is positive
