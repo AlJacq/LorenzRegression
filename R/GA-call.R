@@ -19,7 +19,7 @@
 #' @return The fitted genetic algorithm
 #' @keywords internal
 
-Lorenz.ga.call <- function(ties.method, y, x, pi, V, popSize, maxiter, run, parallel.GA, seed = NULL){
+Lorenz.ga.call <- function(ties.method, y, x, pi, V, popSize, maxiter, run, parallel.GA, seed = NULL, fit.test = FALSE){
 
   p <- ncol(x)
 
@@ -34,7 +34,8 @@ Lorenz.ga.call <- function(ties.method, y, x, pi, V, popSize, maxiter, run, para
   }
 
   tolerance <- sqrt(.Machine$double.eps)
-  if (ties.method == "random") fitness_function <- function(u) .Fitness_cpp(u,as.vector(y),as.matrix(x),V,pi,tolerance)
+  if (ties.method == "random" & !fit.test) fitness_function <- function(u) .Fitness_cpp(u,as.vector(y),as.matrix(x),V,pi,tolerance)
+  if (ties.method == "random" & fit.test) fitness_function <- function(u) .Fitness_cpp_test(u,as.vector(y),as.matrix(x),V,pi,tolerance)
   if (ties.method == "mean") fitness_function <- function(u) .Fitness_meanrank(u,as.vector(y),as.matrix(x),pi,tolerance)
 
   GA <- GA::ga(type = "real-valued",
@@ -43,6 +44,13 @@ Lorenz.ga.call <- function(ties.method, y, x, pi, V, popSize, maxiter, run, para
                lower = rep(-1,p-1), upper = rep(1,p-1),
                popSize = popSize, maxiter = maxiter, run = run, monitor = FALSE,
                parallel = parallel.GA, seed = seed)
+  # if(!fit.test){
+  #   save(GA, y, x, V, pi, tolerance, file ="GA.rdata")
+  # }else{
+  #   save(GA, y, x, V, pi, tolerance, file ="GA_test.rdata")
+  # }
+
+
 
   return(GA)
 }

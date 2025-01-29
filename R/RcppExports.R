@@ -16,6 +16,21 @@
     .Call('_LorenzRegression_Fitness_cpp', PACKAGE = 'LorenzRegression', x, Y, X, Z, pi, tolerance)
 }
 
+#' @title Computes the fitness used in the GA
+#' @description Computes the fitness of a candidate in the genetic algorithm displayed in function Lorenz.GA.cpp
+#' @param x vector of size (p-1) giving the proposed candidate, where p is the number of covariates
+#' @param Y vector of size n gathering the response, where n is the sample size
+#' @param X matrix of dimension (n*p) gathering the covariates
+#' @param Z vector of size n gathering iid repetitions of a U[0,1]
+#' @param pi vector of size n gathering the observation weights (notice that sum(pi)=1)
+#' @param tolerance A small positive number used to determine the threshold for considering two floating-point numbers as equal. This is primarily used to
+#' address issues with floating-point precision when comparing values that should theoretically be identical but may differ slightly due to numerical inaccuracies.
+#' @return Fitness of candidate x
+#' @keywords internal
+.Fitness_cpp_test <- function(x, Y, X, Z, pi, tolerance) {
+    .Call('_LorenzRegression_Fitness_cpp_test', PACKAGE = 'LorenzRegression', x, Y, X, Z, pi, tolerance)
+}
+
 .Fitness_meanrank <- function(x, Y, X, pi, tolerance) {
     .Call('_LorenzRegression_Fitness_meanrank', PACKAGE = 'LorenzRegression', x, Y, X, pi, tolerance)
 }

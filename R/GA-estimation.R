@@ -47,7 +47,7 @@
 #' @export
 
 # unit-norm normalization ----
-Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, seed.Gini=NULL, seed.GA=NULL, parallel.GA = FALSE){
+Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=1500, run=150, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, seed.Gini=NULL, seed.GA=NULL, parallel.GA = FALSE, fit.test = FALSE){
 
   # PRE-GA ----
 
@@ -85,7 +85,7 @@ Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=15
       V <- NULL
     }
 
-    GA <- Lorenz.ga.call(ties.method, y, x, pi, V, popSize, maxiter, run, parallel.GA, seed = seed.GA)
+    GA <- Lorenz.ga.call(ties.method, y, x, pi, V, popSize, maxiter, run, parallel.GA, seed = seed.GA, fit.test = fit.test)
 
     # We need to take care of the fact that the first coefficient for theta may be positive or negative
     theta1<-c(GA@solution[1,],1-sum(abs(GA@solution[1,]))) #The theta solution if the last coeff is positive
