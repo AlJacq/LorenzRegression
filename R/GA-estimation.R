@@ -50,7 +50,7 @@
 #' @export
 
 # unit-norm normalization ----
-Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=1500, run=150, suggestions = NULL, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, seed.Gini=NULL, seed.GA=NULL, parallel.GA = FALSE){
+Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=1500, run=150, suggestions = NULL, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, seed.Gini=NULL, seed.GA=NULL, parallel.GA = FALSE, optim = FALSE, optimArgs = NULL){
 
   # PRE-GA ----
 
@@ -99,7 +99,7 @@ Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=15
       V <- NULL
     }
 
-    GA <- Lorenz.ga.call(ties.method, y, x, pi, V, popSize, maxiter, run, parallel.GA, suggestions, seed = seed.GA)
+    GA <- Lorenz.ga.call(ties.method, y, x, pi, V, popSize, maxiter, run, parallel.GA, suggestions, optim, optimArgs, seed = seed.GA)
 
     # save(GA,file="/Users/Jacquemain/Library/CloudStorage/OneDrive-UCL/Research/1-LR_Software/V4/GA.Rdata")
 
