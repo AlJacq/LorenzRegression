@@ -32,3 +32,13 @@
     .Call('_LorenzRegression_SCAD_derivative_cpp', PACKAGE = 'LorenzRegression', x, lambda, a)
 }
 
+#' @title Computes fractional ranks
+#' @description Computes the vector of fractional ranks related to a given vector
+#' @param x vector of size n gathering the values for which the fractional rank should be computed
+#' @param pi vector of size n gathering the observation weights (notice that sum(pi)=1)
+#' @return Fractional rank related to vector x
+#' @keywords internal
+.frac_rank_cpp <- function(x, pi) {
+    .Call('_LorenzRegression_frac_rank_cpp', PACKAGE = 'LorenzRegression', x, pi)
+}
+

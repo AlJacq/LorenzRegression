@@ -89,6 +89,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// frac_rank_cpp
+arma::vec frac_rank_cpp(arma::vec x, arma::vec pi);
+RcppExport SEXP _LorenzRegression_frac_rank_cpp(SEXP xSEXP, SEXP piSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type pi(piSEXP);
+    rcpp_result_gen = Rcpp::wrap(frac_rank_cpp(x, pi));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_LorenzRegression_Fitness_cpp", (DL_FUNC) &_LorenzRegression_Fitness_cpp, 6},
@@ -96,6 +108,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_LorenzRegression_PLR_derivative_cpp", (DL_FUNC) &_LorenzRegression_PLR_derivative_cpp, 7},
     {"_LorenzRegression_PLR_loss_cpp", (DL_FUNC) &_LorenzRegression_PLR_loss_cpp, 7},
     {"_LorenzRegression_SCAD_derivative_cpp", (DL_FUNC) &_LorenzRegression_SCAD_derivative_cpp, 3},
+    {"_LorenzRegression_frac_rank_cpp", (DL_FUNC) &_LorenzRegression_frac_rank_cpp, 2},
     {NULL, NULL, 0}
 };
 
