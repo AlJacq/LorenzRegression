@@ -70,12 +70,8 @@ Gini.coef <- function(y, x=y, na.rm=TRUE, ties.method=c("mean","random"), seed=N
 
   if (ties.method == "mean"){
 
-    x_k <- sort(unique(x))
-    pi_k <- sapply(1:length(x_k),function(k)sum(pi[x==x_k[k]]))
-    F_k <- cumsum(pi_k) - 0.5*pi_k
-    F_i <- sapply(1:length(x),function(i)sum(F_k[x_k==x[i]])) # Ensures that sum(F_i*pi) = 0.5
+    F_i <- .frac_rank_cpp(x, pi)
     y_mean <- pi%*%y
-
   }
 
   Gini <- 2*((pi*y)%*%F_i)/y_mean - 1
