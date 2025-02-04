@@ -49,126 +49,59 @@
 #'
 #' @export
 
-# unit-norm normalization ----
-Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=1500, run=150, suggestions = NULL, ties.method=c("random","mean"), ties.Gini=c("random","mean"), seed.random=NULL, seed.Gini=NULL, seed.GA=NULL, parallel.GA = FALSE){
+PLR.fit <- function(y, x, weights = NULL, penalty, grid.arg, grid.value, lambda.list, ...){
 
-  # PRE-GA ----
+  # 1. Model fitting ----
 
-  ties.method <- match.arg(ties.method)
-  ties.Gini <- match.arg(ties.Gini)
-
-  n <- length(y)
-  p <- ncol(x)
-
-  if(any(weights<0)) stop("Weights must be nonnegative")
-
-  if(is.null(weights)){
-    weights <- rep(1,n)
-  }
-  pi <- weights/sum(weights)
-
-  if(p > 1){
-
-    # PRE-GA > STANDARDIZE X ----
-
-    if (standardize){
-
-      x.center <- colMeans(x)
-      x <- x - rep(x.center, rep.int(n,p))
-      x.scale <- sqrt(colSums(x^2)/(n-1))
-      x <- x / rep(x.scale, rep.int(n,p))
-
-    }else{
-
-      x.scale <- 1
-    }
-
-    # PRE-GA > SUGGESTIONS ----
-
-    if(!is.null(suggestions)){
-
-      suggestions <- Lorenz.Suggestions(suggestions, popSize, y, x, pi, x.scale, seed.random)
-
-    }
-
-    # GA ----
-
-    if (ties.method == "random"){
-      V <- runif_seed(n,seed=seed.random)
-    }else{
-      V <- NULL
-    }
-
-    GA <- Lorenz.ga.call(ties.method, y, x, pi, V, popSize, maxiter, run, parallel.GA, suggestions, seed = seed.GA)
-
-    # save(GA,file="/Users/Jacquemain/Library/CloudStorage/OneDrive-UCL/Research/1-LR_Software/V4/GA.Rdata")
-
-    # We need to take care of the fact that the first coefficient for theta may be positive or negative
-    theta1<-c(GA@solution[1,],1-sum(abs(GA@solution[1,]))) #The theta solution if the last coeff is positive
-    theta2<-c(GA@solution[1,],-(1-sum(abs(GA@solution[1,])))) #The theta solution if the last coeff is negative
-    theta<-rbind(theta1,theta2)
-    index1<-theta1%*%t(x)
-    index2<-theta2%*%t(x)
-    if(ties.method == "random"){
-      Y_1<-y[order(index1,V)]
-      pi_1<-pi[order(index1,V)]
-      rank_1<-cumsum(pi_1)-pi_1/2
-      Y_2<-y[order(index2,V)]
-      pi_2<-pi[order(index2,V)]
-      rank_2<-cumsum(pi_2)-pi_2/2
-      theta.argmax<-theta[which.max(c((Y_1*pi_1)%*%rank_1,(Y_2*pi_2)%*%rank_2)),]
-    }
-    if(ties.method == "mean"){
-      F1_i <- .frac_rank_cpp(index1, pi)
-      F2_i <- .frac_rank_cpp(index2, pi)
-      theta.argmax<-theta[which.max(c((pi*y)%*%F1_i,(pi*y)%*%F2_i)),]
-    }
-    Index.sol<-x%*%theta.argmax
-
-    # POST-LR ----
-
-    LR2.num<-Gini.coef(y, x=Index.sol, na.rm=TRUE, ties.method=ties.Gini, seed=seed.Gini, weights=weights)
-    LR2.denom<-Gini.coef(y, na.rm=TRUE, ties.method=ties.Gini, seed=seed.Gini, weights=weights)
-    LR2<-as.numeric(LR2.num/LR2.denom)
-    Gi.expl<-as.numeric(LR2.num)
-
-    if (standardize) theta.argmax <- theta.argmax/x.scale # Need to put back on the original scale
-    theta <- theta.argmax/sqrt(sum(theta.argmax^2))
-    niter <- length(GA@summary[,1])
-    fit <- GA@fitnessValue
-
+  if(is.null(grid.value)){
+    lth.path <- 1
   }else{
-
-    # Empty model
-    if(all(x==1)){
-
-      theta <- niter <- fit <- NULL
-      Gi.expl <- LR2 <- 0
-
-    # Only one covariate
-    }else{
-
-      CI<-Gini.coef(y, x=x[,1], na.rm=TRUE, ties.method=ties.Gini, seed=seed.Gini, weights=weights)
-      LR2.denom<-Gini.coef(y, na.rm=TRUE, ties.method=ties.Gini, seed=seed.Gini, weights=weights)
-      Gi.expl<-as.numeric(abs(CI))
-      LR2<-as.numeric(Gi.expl/LR2.denom)
-
-      niter <- fit <- NULL
-      theta <- sign(CI)
-
-    }
-
+    lth.path <- length(grid.value)
   }
+  fun <- switch(penalty,
+                "LASSO" = Lorenz.FABS,
+                "SCAD" = Lorenz.SCADFABS)
+  arg.list <- lapply(1:lth.path,function(z)list(y = y, x = x, weights = w))
+  for (i in 1:lth.path){
+    if(!is.null(lambda.list)) arg.list[[i]]$lambda <- lambda.list[[i]]
+    if(!is.null(grid.value)) arg.list[[i]][grid.arg] <- grid.value[i]
+  }
+  dots <- list(...)
+  call.list <- lapply(1:lth.path,function(i)c(arg.list[[i]],dots))
+  LR <- lapply(1:lth.path,function(i)do.call(fun,call.list[[i]]))
 
-  names(theta) <- colnames(x)
+  # 2. Return ----
 
-  Return.list <- list()
-  Return.list$theta <- theta
-  Return.list$LR2 <- LR2
-  Return.list$Gi.expl <- Gi.expl
-  Return.list$niter <- niter
-  Return.list$fit <- fit
+  return.list <- list()
 
-  return(Return.list)
+  # Construction of the path > Number of selected vars
+  n_selected <- lapply(1:lth.path,function(i)apply(LR[[i]]$theta,2,function(x)sum(abs(x) > 10^(-10))))
+  # Construction of the path > Main objects
+  Path <- lapply(1:lth.path,function(i)rbind(LR[[i]]$lambda, LR[[i]]$LR2, LR[[i]]$Gi.expl, n_selected[[i]]))
+  for(i in 1:lth.path) rownames(Path[[i]]) <- c("lambda","Lorenz-R2","Explained Gini", "Number of nonzeroes")
+  # Construction of the path > BIC score
+  Path_BIC <- lapply(1:lth.path,function(i)PLR.BIC(y, x, LR[[i]]$theta, weights = w))
+  best.BIC <- lapply(1:lth.path,function(i)Path_BIC[[i]]$best)
+  val.BIC <- lapply(1:lth.path,function(i)Path_BIC[[i]]$val)
+  for (i in 1:lth.path){
+    Path[[i]] <- rbind(Path[[i]], val.BIC[[i]])
+    rownames(Path[[i]])[nrow(Path[[i]])] <- "BIC score"
+  }
+  # Construction of the path > theta's
+  for (i in 1:lth.path){
+    lth <- nrow(Path[[i]])
+    Path[[i]] <- rbind(Path[[i]], LR[[i]]$theta)
+    rownames(Path[[i]])[(lth+1):nrow(Path[[i]])] <- colnames(x)
+  }
+  return.list$path <- Path
+  # Optimum grid params for BIC
+  # grid refers either to h or to SCAD.nfwd
+  grid.idx <- which.max(sapply(1:lth.path,function(i)max(val.BIC[[i]])))
+  lambda.idx <- best.BIC[[grid.idx]]
+  names(grid.idx) <- names(lambda.idx) <- "BIC"
+  return.list$grid.idx <- grid.idx
+  return.list$lambda.idx <- lambda.idx
+  return.list$grid.value <- grid.value
 
+  return(return.list)
 }

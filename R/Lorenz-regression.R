@@ -152,69 +152,22 @@ Lorenz.Reg <- function(formula,
   if(penalty == "none"){
     LR <- Lorenz.GA(y, x, weights=w, ...)
   }else{
-    if(is.null(grid.value)){
-      lth.path <- 1
-    }else{
-      lth.path <- length(grid.value)
-    }
-    fun <- switch(penalty,
-                  "LASSO" = Lorenz.FABS,
-                  "SCAD" = Lorenz.SCADFABS)
-    arg.list <- lapply(1:lth.path,function(z)list(y = y, x = x, weights = w))
-    for (i in 1:lth.path){
-      if(!is.null(lambda.list)) arg.list[[i]]$lambda <- lambda.list[[i]]
-      if(!is.null(grid.value)) arg.list[[i]][grid.arg] <- grid.value[i]
-    }
-    dots <- list(...)
-    call.list <- lapply(1:lth.path,function(i)c(arg.list[[i]],dots))
-    LR <- lapply(1:lth.path,function(i)do.call(fun,call.list[[i]]))
+    LR <- PLR.fit(y, x, weights=w, penalty=penalty, grid.arg=grid.arg, grid.value=grid.value, lambda.list=lambda.list, ...)
   }
 
   # 2. Output of the (P)LR ----
 
   if(penalty == "none"){
-    theta <- LR$theta
-    names(theta) <- colnames(x)
-    Gi.expl <- LR$Gi.expl
-    LR2 <- LR$LR2
+    return.list$theta <- LR$theta
+    return.list$Gi.expl <- LR$Gi.expl
+    return.list$LR2 <- LR$LR2
     class(return.list) <- "LR"
   }else{
-    # Construction of the path > Number of selected vars
-    n_selected <- lapply(1:lth.path,function(i)apply(LR[[i]]$theta,2,function(x)sum(abs(x) > 10^(-10))))
-    # Construction of the path > Main objects
-    Path <- lapply(1:lth.path,function(i)rbind(LR[[i]]$lambda, LR[[i]]$LR2, LR[[i]]$Gi.expl, n_selected[[i]]))
-    for(i in 1:lth.path) rownames(Path[[i]]) <- c("lambda","Lorenz-R2","Explained Gini", "Number of nonzeroes")
-    # Construction of the path > BIC score
-    Path_BIC <- lapply(1:lth.path,function(i)PLR.BIC(y, x, LR[[i]]$theta, weights = w))
-    best.BIC <- lapply(1:lth.path,function(i)Path_BIC[[i]]$best)
-    val.BIC <- lapply(1:lth.path,function(i)Path_BIC[[i]]$val)
-    for (i in 1:lth.path){
-      Path[[i]] <- rbind(Path[[i]], val.BIC[[i]])
-      rownames(Path[[i]])[nrow(Path[[i]])] <- "BIC score"
-    }
-    # Construction of the path > theta's
-    for (i in 1:lth.path){
-      lth <- nrow(Path[[i]])
-      Path[[i]] <- rbind(Path[[i]], LR[[i]]$theta)
-      rownames(Path[[i]])[(lth+1):nrow(Path[[i]])] <- colnames(x)
-    }
-    return.list$path <- Path
-    # Optimum grid params for BIC
-    # grid refers either to h or to SCAD.nfwd
-    grid.idx <- which.max(sapply(1:lth.path,function(i)max(val.BIC[[i]])))
-    lambda.idx <- best.BIC[[grid.idx]]
-    names(grid.idx) <- names(lambda.idx) <- "BIC"
-    return.list$grid.idx <- grid.idx
-    return.list$lambda.idx <- lambda.idx
-    return.list$grid.value <- grid.value
+    return.list$path <- LR$path
+    return.list$grid.idx <- LR$grid.idx
+    return.list$lambda.idx <- LR$lambda.idx
+    return.list$grid.value <- LR$grid.value
     class(return.list) <- "PLR"
-  }
-
-  # Return fitted objects
-  if(penalty == "none"){
-    return.list$theta <- theta
-    return.list$Gi.expl <- Gi.expl
-    return.list$LR2 <- LR2
   }
 
   return(return.list)
