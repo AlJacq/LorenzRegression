@@ -12,7 +12,6 @@ Lorenz.Reg(
   penalty = c("none", "SCAD", "LASSO"),
   grid.arg = c("h", "SCAD.nfwd", "eps", "kernel", "a", "gamma"),
   grid.value = NULL,
-  lambda.list = NULL,
   ...
 )
 }
@@ -32,8 +31,6 @@ Other possible values are \code{"LASSO"} and \code{"SCAD"}, in which case a pena
 \item{grid.arg}{A character string specifying the tuning parameter for which a grid is to be constructed, see Details.}
 
 \item{grid.value}{A numeric vector specifying the grid values, see Details.}
-
-\item{lambda.list}{Technical argument used inside the function \code{\link{Lorenz.boot}}.}
 
 \item{...}{Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}}, \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}}, depending on the argument chosen in \code{penalty}.}
 }

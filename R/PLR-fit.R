@@ -1,51 +1,38 @@
-#' Estimates the parameter vector in Lorenz regression using a genetic algorithm
+#' Penalized Lorenz Regression Fit Function
 #'
-#' \code{Lorenz.GA} estimates the coefficient vector of the single-index model.
-#' It also returns the Lorenz-\eqn{R^2} of the regression as well as the estimated explained Gini coefficient.
+#' \code{PLR.fit} fits a penalized Lorenz regression model using either the LASSO or SCAD penalty.
+#' It serves as an internal wrapper that applies the fit function over a grid of tuning parameter values.
 #'
-#' The genetic algorithm is solved using function \code{\link[GA]{ga}} from the \emph{GA} package. The fitness function is coded in Rcpp to speed up computation time.
-#' When discrete covariates are introduced and ties occur in the index, the default option randomly breaks them, as advised in Section 3 of Heuchenne and Jacquemain (2022)
+#' @param y A numeric vector representing the response variable.
+#' @param x A numeric matrix of covariates.
+#' @param weights An optional numeric vector of sample weights. Default is \code{NULL}.
+#' @param penalty A character string specifying the penalty type. Possible values are \code{"LASSO"} and \code{"SCAD"}.
+#' @param grid.arg A character string specifying the tuning parameter for which a grid is constructed.
+#' @param grid.value A numeric vector specifying the grid values for \code{grid.arg}. If \code{NULL}, no grid is constructed.
+#' @param lambda.list An optional list specifying penalty values (\eqn{\lambda}) to be used for each grid value.
+#' @param ... Additional arguments passed to \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}}, depending on the penalty type.
 #'
-#' @param y a vector of responses
-#' @param x a matrix of explanatory variables
-#' @param standardize Should the variables be standardized before the estimation process? Default value is TRUE.
-#' @param weights vector of sample weights. By default, each observation is given the same weight.
-#' @param popSize Size of the population of candidates in the genetic algorithm. Default value is 50.
-#' @param maxiter Maximum number ot iterations in the genetic algorithm. Default value is 1500.
-#' @param run Number of iterations without improvement in the best fitness necessary for the algorithm to stop. Default value is 150.
-#' @param suggestions Initial guesses used in the genetic algorithm. The default value is \code{NULL}, meaning no suggestions are passed.
-#' Other possible values are a numeric matrix with at most \code{popSize} rows and \code{ncol(x)} columns, or a character string "OLS".
-#' In the latter case, \code{0.5*popSize} suggestions are created as random perturbations of the OLS solutions.
-#' @param ties.method What method should be used to break the ties in optimization program. Possible values are "random" (default value) or "mean". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.
-#' @param ties.Gini what method should be used to break the ties in the computation of the Gini coefficient at the end of the algorithm. Possible values and default choice are the same as above.
-#' @param seed.random An optional seed for generating the vector of uniform random variables used to break ties in the genetic algorithm. Defaults to \code{NULL}, which means no specific seed is set.
-#' @param seed.Gini An optional seed for generating the vector of uniform random variables used to break ties in the computation of the Gini coefficient. Defaults to \code{NULL}, meaning no specific seed is applied.
-#' @param seed.GA An optional seed for \code{\link[GA]{ga}}, used during the fitting of the genetic algorithm. Defaults to \code{NULL}, implying that no specific seed is set.
-#' @param parallel.GA Whether parallel computing should be used to distribute the computations in the genetic algorithm. Either a logical value determining whether parallel computing is used (TRUE) or not (FALSE, the default value). Or a numerical value determining the number of cores to use.
-#'
-#' @return A list with several components:
+#' @return A list containing:
 #' \describe{
-#'    \item{\code{theta}}{the estimated vector of parameters.}
-#'    \item{\code{LR2}}{the Lorenz-\eqn{R^2} of the regression.}
-#'    \item{\code{Gi.expl}}{the estimated explained Gini coefficient.}
-#'    \item{\code{niter}}{number of iterations attained by the genetic algorithm.}
-#'    \item{\code{fit}}{value attained by the fitness function at the optimum.}
+#'   \item{\code{path}}{A list of matrices, where each element corresponds to a grid value. Each matrix contains lambda values, Lorenz-\eqn{R^2}, explained Gini coefficients, BIC scores, and estimated coefficients.}
+#'   \item{\code{grid.idx}}{The index of the optimal grid parameter selected by the BIC criterion.}
+#'   \item{\code{lambda.idx}}{The index of the optimal \eqn{\lambda} selected by the BIC criterion.}
+#'   \item{\code{grid.value}}{The grid values used for \code{grid.arg}.}
+#'   \item{\code{lambda.list}}{A list of \eqn{\lambda} values along the solution paths.}
+#'   \item{\code{grid.arg}}{The tuning parameter for which the grid was constructed.}
 #' }
 #'
-#' @details The parameters \code{seed.random}, \code{seed.Gini}, and \code{seed.GA} allow for local seed setting to control randomness in specific parts of the function.
-#' Each seed is applied to the respective part of the computation, and the seed is reverted to its previous state after the operation.
-#' This ensures that the seed settings do not interfere with the global random state or other parts of the code.
+#' @details
+#' The function applies either \code{\link{Lorenz.FABS}} (for LASSO) or \code{\link{Lorenz.SCADFABS}} (for SCAD) for each grid value.
+#' The best model is selected based on the BIC score.
 #'
-#' @seealso \code{\link{Lorenz.Reg}}, \code{\link[GA]{ga}}
-#'
-#' @section References:
-#' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
+#' @seealso \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.boot}}, \code{\link{Lorenz.Reg}}
 #'
 #' @examples
 #' data(Data.Incomes)
 #' y <- Data.Incomes$Income
-#' x <- cbind(Data.Incomes$Age, Data.Incomes$Work.Hours)
-#' Lorenz.GA(y, x, popSize = 40)
+#' x <- as.matrix(Data.Incomes[,-c(1,2)])
+#' PLR.fit(y, x, penalty = "SCAD", grid.arg = "eps", grid.value = c(0.2,0.5), lambda.list = NULL)
 #'
 #' @export
 
