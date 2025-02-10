@@ -159,6 +159,7 @@ Lorenz.Reg <- function(formula,
                         "LASSO" = names(formals(Lorenz.FABS)),
                         "SCAD" = names(formals(Lorenz.SCADFABS)))
   fit_args <- args[names(args) %in% fit_formals]
+  return.list$fit_args <- fit_args
   if(penalty != "none") fit_args <- c(fit_args, PLR_args)
 
   LR <- do.call(fit_fun, c(list(y = y, x = x, weights = w), fit_args))
@@ -177,9 +178,9 @@ Lorenz.Reg <- function(formula,
     return.list$grid.value <- LR$grid.value
     return.list$lambda.list <- LR$lambda.list
     return.list$grid.arg <- LR$grid.arg
-    return.list$penalty <- LR$penalty
     class(return.list) <- "PLR"
   }
+  return.list$penalty <- penalty
 
   return(return.list)
 }

@@ -102,9 +102,9 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
                         "none" = names(formals(fit_fun)),
                         "LASSO" = names(formals(Lorenz.FABS)),
                         "SCAD" = names(formals(Lorenz.SCADFABS)))
-  fit_args <- args[names(args) %in% fit_formals]
-  if(penalty != "none") fit_args <- c(fit_args, PLR_args)
-  if(penalty == "none") fit_args$parallel.GA <- FALSE
+  fit_args <- modifyList(object$fit_args, args[names(args) %in% fit_formals])
+  if(object$penalty != "none") fit_args <- c(fit_args, PLR_args)
+  if(object$penalty == "none") fit_args$parallel.GA <- FALSE
 
   # 1. statistic in boot() ----
   boot.f <- function(data, indices){
