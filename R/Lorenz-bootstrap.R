@@ -85,30 +85,52 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
     method <- "LR"
   }
 
+  args <- list(...)
+
+  # 1. Arguments of the bootstrap ----
+  data <- cbind(object$y, object$x)
+  boot_args <- args[names(args) %in% names(formals(boot))]
+
+  if(object$penalty == "none"){
+    fit_fun <- Lorenz.GA
+  }else{
+    fit_fun <- PLR.fit
+    PLR_args <- list("penalty"=object$penalty, "grid.arg"=object$grid.arg,
+                     "grid.value"=object$grid.value, "lambda.list"=object$lambda.list)
+  }
+  fit_formals <- switch(object$penalty,
+                        "none" = names(formals(fit_fun)),
+                        "LASSO" = names(formals(Lorenz.FABS)),
+                        "SCAD" = names(formals(Lorenz.SCADFABS)))
+  fit_args <- args[names(args) %in% fit_formals]
+  if(penalty != "none") fit_args <- c(fit_args, PLR_args)
+  if(penalty == "none") fit_args$parallel.GA <- FALSE
+
   # 1. statistic in boot() ----
   boot.f <- function(data, indices){
-
     # Construction similar to the "Boot" function in library "car".
     # We want to avoid recomputation on the original sample
     first <- all(indices == seq(length(indices)))
     if(first){
       result <- object
     }else{
-      boot.call <- object$call
-      if(data.access){
-        boot.sample <- data[indices, ]
-        boot.call$data <- quote(boot.sample)
+      x.boot <- data[indices,-1,drop=FALSE]
+      y.boot <- data[indices,1]
+      if(!is.null(object$weights)){
+        w.boot <- object$weights[indices]
       }else{
-        boot.x <- data[indices,-1,drop=FALSE]
-        boot.y <- data[indices,1]
-        if(method == "PLR") boot.call$grid.value <- object$grid.value
-        boot.call$data <- NULL
-        boot.call$formula <- boot.y ~ boot.x
+        w.boot <- NULL
       }
-      if(method == "LR") boot.call$parallel.GA <- quote(FALSE) # parallel will be used for bootstrap
-      if(method == "PLR") boot.call$lambda.list <- lapply(object$path,function(x)x["lambda",])
-      if(!is.null(object$weights)) boot.call$weights <- object$weights[indices]
-      boot.LR <- eval(boot.call)
+      if(method == "PLR"){
+        x.oob <- data[-unique(indices),-1,drop=FALSE]
+        y.oob <- data[-unique(indices),1]
+        if(!is.null(object$weights)){
+          w.oob <- object$weights[-unique(indices)]
+        }else{
+          w.oob <- NULL
+        }
+      }
+      boot.LR <- do.call(fit_fun, c(list(y = y.boot, x = x.boot, weights = w.boot), fit_args))
       if(method == "PLR"){
         # With penalized reg, the algorithm may stop sooner than in the original sample.
         # Therefore the paths would be shorter and the objects would not have the same size
@@ -119,19 +141,11 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
         }
         boot.LR$path <- lapply(1:length(object$path),function(i)compare.paths(object$path[[i]],boot.LR$path[[i]]))
         # Computation of the OOB score
-        OOB.x <- object$x[-unique(indices),]
-        OOB.y <- object$y[-unique(indices)]
-        if(!is.null(object$weights)){
-          OOB.weights <- object$weights[-unique(indices)]
-        }else{
-          OOB.weights <- NULL
-        }
         theta.boot <- lapply(boot.LR$path,function(x)x[(nrow(x)-ncol(object$x)+1):nrow(x),])
-        OOB.score <- PLR.scores(OOB.y,OOB.x,OOB.weights,theta.boot)
+        OOB.score <- PLR.scores(y.oob,x.oob,w.oob,theta.boot)
       }
       result <- boot.LR
     }
-
     # All objects that require bootstrapping are stacked in a vector
     if(method == "LR"){
       boot.vec <- c("Gi.expl"=result$Gi.expl,
@@ -153,21 +167,7 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
   }
 
   # 3. boot() ----
-
-  if (!is.null(object$call$data)) {
-    data_name <- as.character(object$call$data)
-    if (exists(data_name, envir = .GlobalEnv)) {
-      data.orig <- get(data_name, envir = .GlobalEnv)
-      data.access <- TRUE
-    }else{
-      data.orig <- cbind(object$y, object$x)
-      data.access <- FALSE
-    }
-  }else{
-    data.orig <- cbind(object$y,object$x)
-    data.access <- FALSE
-  }
-  boot_out <- boot(data = data.orig, statistic = boot.f, R = R, ...)
+  boot_out <- do.call(boot, c(list(data = data, statistic = boot.f, R = R), boot_args))
   object$boot_out <- boot_out
 
   if(!boot_out_only){
