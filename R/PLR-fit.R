@@ -61,7 +61,7 @@ PLR.fit <- function(y, x, weights = NULL, penalty, grid.arg, grid.value, lambda.
   fun <- switch(penalty,
                 "LASSO" = Lorenz.FABS,
                 "SCAD" = Lorenz.SCADFABS)
-  arg.list <- lapply(1:lth.path,function(z)list(y = y, x = x, weights = w))
+  arg.list <- lapply(1:lth.path,function(z)list(y = y, x = x, weights = weights))
   for (i in 1:lth.path){
     if(!is.null(lambda.list)) arg.list[[i]]$lambda <- lambda.list[[i]]
     if(!is.null(grid.value)) arg.list[[i]][grid.arg] <- grid.value[i]
@@ -80,7 +80,7 @@ PLR.fit <- function(y, x, weights = NULL, penalty, grid.arg, grid.value, lambda.
   Path <- lapply(1:lth.path,function(i)rbind(LR[[i]]$lambda, LR[[i]]$LR2, LR[[i]]$Gi.expl, n_selected[[i]]))
   for(i in 1:lth.path) rownames(Path[[i]]) <- c("lambda","Lorenz-R2","Explained Gini", "Number of nonzeroes")
   # Construction of the path > BIC score
-  Path_BIC <- lapply(1:lth.path,function(i)PLR.BIC(y, x, LR[[i]]$theta, weights = w))
+  Path_BIC <- lapply(1:lth.path,function(i)PLR.BIC(y, x, LR[[i]]$theta, weights = weights))
   best.BIC <- lapply(1:lth.path,function(i)Path_BIC[[i]]$best)
   val.BIC <- lapply(1:lth.path,function(i)Path_BIC[[i]]$val)
   for (i in 1:lth.path){
@@ -104,7 +104,6 @@ PLR.fit <- function(y, x, weights = NULL, penalty, grid.arg, grid.value, lambda.
   return.list$grid.value <- grid.value
   return.list$lambda.list <- lapply(Path,function(x)x["lambda",])
   return.list$grid.arg <- grid.arg
-  return.list$penalty <- penalty
 
   return(return.list)
 }
