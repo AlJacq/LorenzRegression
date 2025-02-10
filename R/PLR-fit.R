@@ -102,6 +102,9 @@ PLR.fit <- function(y, x, weights = NULL, penalty, grid.arg, grid.value, lambda.
   return.list$grid.idx <- grid.idx
   return.list$lambda.idx <- lambda.idx
   return.list$grid.value <- grid.value
+  return.list$lambda.list <- lapply(Path,function(x)x["lambda",])
+  return.list$grid.arg <- grid.arg
+  return.list$penalty <- penalty
 
   return(return.list)
 }

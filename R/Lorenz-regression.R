@@ -11,7 +11,6 @@
 #' Other possible values are \code{"LASSO"} and \code{"SCAD"}, in which case a penalized Lorenz regression is fitted using \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}} respectively.
 #' @param grid.arg A character string specifying the tuning parameter for which a grid is to be constructed, see Details.
 #' @param grid.value A numeric vector specifying the grid values, see Details.
-#' @param lambda.list Technical argument used inside the function \code{\link{Lorenz.boot}}.
 #' @param ... Additional parameters corresponding to arguments passed in \code{\link{Lorenz.GA}}, \code{\link{Lorenz.FABS}} or \code{\link{Lorenz.SCADFABS}}, depending on the argument chosen in \code{penalty}.
 #'
 #' @return An object of class \code{"LR"} for the non-penalized Lorenz regression or of class \code{"PLR"} for a penalized Lorenz regression.
@@ -92,10 +91,10 @@ Lorenz.Reg <- function(formula,
                        penalty=c("none","SCAD","LASSO"),
                        grid.arg=c("h","SCAD.nfwd","eps","kernel","a","gamma"),
                        grid.value=NULL,
-                       lambda.list=NULL,
                        ...){
 
   # 0 > Calls ----
+  args <- list(...)
   cl <- match.call()
   mf <- match.call(expand.dots = FALSE)
   m <- match(c("formula", "data", "weights", "na.action"),
@@ -150,10 +149,19 @@ Lorenz.Reg <- function(formula,
   # 1. (Penalized) Lorenz Regression ----
 
   if(penalty == "none"){
-    LR <- Lorenz.GA(y, x, weights=w, ...)
+    fit_fun <- Lorenz.GA
   }else{
-    LR <- PLR.fit(y, x, weights=w, penalty=penalty, grid.arg=grid.arg, grid.value=grid.value, lambda.list=lambda.list, ...)
+    fit_fun <- PLR.fit
+    PLR_args <- list("penalty"=penalty, "grid.arg"=grid.arg, "grid.value"=grid.value, "lambda.list"=NULL)
   }
+  fit_formals <- switch(penalty,
+                        "none" = names(formals(fit_fun)),
+                        "LASSO" = names(formals(Lorenz.FABS)),
+                        "SCAD" = names(formals(Lorenz.SCADFABS)))
+  fit_args <- args[names(args) %in% fit_formals]
+  if(penalty != "none") fit_args <- c(fit_args, PLR_args)
+
+  LR <- do.call(fit_fun, c(list(y = y, x = x, weights = w), fit_args))
 
   # 2. Output of the (P)LR ----
 
@@ -167,6 +175,9 @@ Lorenz.Reg <- function(formula,
     return.list$grid.idx <- LR$grid.idx
     return.list$lambda.idx <- LR$lambda.idx
     return.list$grid.value <- LR$grid.value
+    return.list$lambda.list <- LR$lambda.list
+    return.list$grid.arg <- LR$grid.arg
+    return.list$penalty <- LR$penalty
     class(return.list) <- "PLR"
   }
 
