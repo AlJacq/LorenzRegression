@@ -28,8 +28,9 @@ coef.PLR <- function(object, renormalize=TRUE, pars.idx="BIC", ...){
 
   if((is.numeric(pars.idx) & length(pars.idx)==2)){
     lth1 <- length(object$path)
-    lth2 <- ncol(object$path[[lth1]])
-    if(pars.idx[1] > lth1 | pars.idx[2] > lth2) stop("Indices in pars.idx are out of bounds.")
+    if(pars.idx[1] > lth1) stop("Index of grid parameter is out of bond.")
+    lth2 <- ncol(object$path[[pars.idx[1]]])
+    if(pars.idx[2] > lth2) stop("Index of lambda parameter is out of bond.")
   }else if(pars.idx == "BIC"){
     pars.idx <- c(object$grid.idx["BIC"],object$lambda.idx["BIC"])
   }else if(pars.idx == "Boot"){
