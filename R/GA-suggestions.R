@@ -13,6 +13,9 @@
 #' @seealso \code{\link{Lorenz.GA}}
 #'
 #' @return A matrix with at most \code{popsize} rows and with a number of columns equal to the number of explanatory variables minus one.
+#'
+#' @importFrom stats lm median rnorm
+#'
 #' @keywords internal
 
 Lorenz.Suggestions <- function(suggestions, popSize, y, x, pi, x.scale, seed){

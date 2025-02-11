@@ -47,6 +47,7 @@
 #' @importFrom parallel detectCores
 #' @importFrom foreach foreach '%do%' '%dopar%'
 #' @importFrom stats setNames runif
+#' @importFrom utils modifyList
 #'
 #' @export
 

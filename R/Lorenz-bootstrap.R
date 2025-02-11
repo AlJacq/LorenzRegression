@@ -75,6 +75,7 @@
 #'
 #' @importFrom boot boot
 #' @importFrom stats setNames
+#' @importFrom utils modifyList
 #'
 #' @export
 
