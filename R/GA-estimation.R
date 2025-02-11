@@ -160,6 +160,8 @@ Lorenz.GA<-function(y, x, standardize=TRUE, weights=NULL, popSize=50, maxiter=15
 
   }
 
+  names(theta) <- colnames(x)
+
   Return.list <- list()
   Return.list$theta <- theta
   Return.list$LR2 <- LR2
