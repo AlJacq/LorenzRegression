@@ -64,23 +64,33 @@ PLR.CV<-function(object,
     method <- "LR"
   }
 
+  args <- list(...)
+
+  # 1. Arguments of the cv ----
+  data <- cbind(object$y, object$x)
+  cv_args <- args[names(args) %in% names(formals(vfold_cv))]
+  PLR_args <- list("penalty"=object$penalty, "grid.arg"=object$grid.arg,
+                   "grid.value"=object$grid.value, "lambda.list"=object$lambda.list)
+  fit_formals <- switch(object$penalty,
+                        "LASSO" = names(formals(Lorenz.FABS)),
+                        "SCAD" = names(formals(Lorenz.SCADFABS)))
+  fit_args <- modifyList(object$fit_args, args[names(args) %in% fit_formals])
+  fit_args <- c(fit_args, PLR_args)
+
   # 1. statistic for cv ----
   cv.f <- function(split) {
-    train.sample <- analysis(split)
     indices <- split$in_id
-    train.call <- object$call
-    if(!is.null(object$weights)) train.call$weights <- train.sample$weights_CV
-    if(data.access){
-      train.call$data <- quote(train.sample)
+    x.train <- object$x[indices,,drop=FALSE]
+    y.train <- object$y[indices]
+    x.test <- object$x[-indices,,drop=FALSE]
+    y.test <- object$y[-indices]
+    if(!is.null(object$weights)){
+      w.train <- object$weights[indices]
+      w.test <- object$weights[-indices]
     }else{
-      y.train <- train.sample$y
-      x.train <- as.matrix(train.sample[,!(names(train.sample)%in% c("y","weights.CV"))])
-      if(method == "PLR") train.call$grid.value <- object$grid.value
-      train.call$data <- NULL
-      train.call$formula <- y.train ~ x.train
+      w.test <- w.train <- NULL
     }
-    train.call$lambda.list <- lapply(object$path,function(x)x["lambda",])
-    train.LR <- eval(train.call)
+    train.LR <- do.call(PLR.fit, c(list(y = y.train, x = x.train, weights = w.train), fit_args))
     # With penalized reg, the algorithm may stop sooner than in the original sample.
     # Therefore the paths would be shorter and the objects would not have the same size
     compare.paths <- function(path.long,path.short){
@@ -90,15 +100,8 @@ PLR.CV<-function(object,
     }
     train.LR$path <- lapply(1:length(object$path),function(i)compare.paths(object$path[[i]],train.LR$path[[i]]))
     # Computation of the CV score
-    test.x <- object$x[-unique(indices),]
-    test.y <- object$y[-unique(indices)]
-    if(!is.null(object$weights)){
-      test.weights <- object$weights[-unique(indices)]
-    }else{
-      test.weights <- NULL
-    }
     theta.train <- lapply(train.LR$path,function(x)x[(nrow(x)-ncol(object$x)+1):nrow(x),])
-    cv.score <- PLR.scores(test.y,test.x,test.weights,theta.train)
+    cv.score <- PLR.scores(y.test,x.test,w.test,theta.train)
     cv.vec <- unlist(cv.score)
 
     return(cv.vec)
@@ -107,22 +110,8 @@ PLR.CV<-function(object,
 
   # 2. cv folds ----
 
-  if (!is.null(object$call$data)) {
-    data_name <- as.character(object$call$data)
-    if (exists(data_name, envir = .GlobalEnv)) {
-      data.orig <- get(data_name, envir = .GlobalEnv)
-      data.access <- TRUE
-    }else{
-      data.orig <- data.orig <- as.data.frame(cbind("y" = object$y, object$x))
-      data.access <- FALSE
-    }
-  }else{
-    data.orig <- data.orig <- as.data.frame(cbind("y" = object$y, object$x))
-    data.access <- FALSE
-  }
-  if (!is.null(object$weights)){
-    data.orig$weights_CV <- object$weights
-  }
+  data <- as.data.frame(cbind("y" = object$y, object$x))
+
   if (!is.null(seed.CV)) {
     if(exists(".Random.seed")){
       old <- .Random.seed
@@ -133,7 +122,7 @@ PLR.CV<-function(object,
     on.exit( { .Random.seed <<- old } )
     set.seed(seed.CV)
   }
-  cv_folds <- vfold_cv(data.orig, v = k, ...)
+  cv_folds <- vfold_cv(data, v = k, ...)
 
   # 3. cv computations ----
 

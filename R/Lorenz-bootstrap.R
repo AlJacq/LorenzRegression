@@ -110,7 +110,7 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
   if(object$penalty != "none") fit_args <- c(fit_args, PLR_args)
   if(object$penalty == "none") fit_args$parallel.GA <- FALSE
 
-  # 1. statistic in boot() ----
+  # 2. statistic in boot() ----
   boot.f <- function(data, indices){
     # Construction similar to the "Boot" function in library "car".
     # We want to avoid recomputation on the original sample
