@@ -35,8 +35,8 @@ Lorenz.ga.call <- function(ties.method, y, x, pi, V, popSize, maxiter, run, para
   }
 
   tolerance <- sqrt(.Machine$double.eps)
-  if (ties.method == "random") fitness_function <- function(u) .Fitness_cpp(u,as.vector(y),as.matrix(x),V,pi,tolerance)
-  if (ties.method == "mean") fitness_function <- function(u) .Fitness_meanrank(u,as.vector(y),as.matrix(x),pi,tolerance)
+  if (ties.method == "random") fitness_function <- function(u) .Fitness_cpp(u,y,x,V,pi,tolerance)
+  if (ties.method == "mean") fitness_function <- function(u) .Fitness_meanrank(u,y,x,pi,tolerance)
 
   GA <- GA::ga(type = "real-valued",
                population = Lorenz.Population,
