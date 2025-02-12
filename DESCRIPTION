@@ -33,3 +33,4 @@ LinkingTo:
   RcppArmadillo
 URL: https://github.com/AlJacq/LorenzRegression
 BugReports: https://github.com/AlJacq/LorenzRegression/issues
+ByteCompile: true
