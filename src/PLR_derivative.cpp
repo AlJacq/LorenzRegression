@@ -30,7 +30,7 @@ arma::vec PLR_derivative_cpp(arma::vec y, arma::mat X, arma::vec pi, arma::vec t
     {
       // Avoid computation if increment to der(k) is 0 anyway
       double a = y_i - y(j);
-      if(a == 0) continue;
+      if(std::abs(a) < 1e-12) continue;
 
       u =  (index_i - index(j))/h;
       // Avoid computation if increment to der(k) is 0 anyway
