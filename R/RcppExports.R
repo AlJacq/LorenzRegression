@@ -20,8 +20,12 @@
     .Call('_LorenzRegression_Fitness_meanrank', PACKAGE = 'LorenzRegression', x, Y, X, pi, tolerance)
 }
 
-.PLR_derivative_cpp <- function(y, X, pi, theta, h, gamma, kernel) {
-    .Call('_LorenzRegression_PLR_derivative_cpp', PACKAGE = 'LorenzRegression', y, X, pi, theta, h, gamma, kernel)
+.PLR_derivative_cpp_m <- function(derz, y, X, pi, theta, h, gamma, kernel) {
+    .Call('_LorenzRegression_PLR_derivative_cpp_m', PACKAGE = 'LorenzRegression', derz, y, X, pi, theta, h, gamma, kernel)
+}
+
+.PLR_derivative_cpp_zero <- function(y, X, pi, theta, h, gamma, kernel) {
+    .Call('_LorenzRegression_PLR_derivative_cpp_zero', PACKAGE = 'LorenzRegression', y, X, pi, theta, h, gamma, kernel)
 }
 
 .PLR_loss_cpp <- function(X, y, pi, theta, h, gamma, kernel) {

@@ -90,13 +90,7 @@ Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL,
   if(!is.null(SCAD.nfwd)){
 
     b1 <- b0 <- rep(0,p)
-    Grad0 <- -.PLR_derivative_cpp(y,
-                                  x,
-                                  pi,
-                                  b0,
-                                  h,
-                                  gamma,
-                                  kernel)
+    Grad0 <- -.PLR_derivative_cpp_zero(y, x, pi, b0, h, gamma, kernel)
     k0 <- which.max(abs(Grad0))
     b1[k0] <- - sign(Grad0[k0])*eps
     loss0 = .PLR_loss_cpp(x,
@@ -127,7 +121,7 @@ Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL,
   b[,1] <- b0
 
   # Computing k
-  Grad0 <- -.PLR_derivative_cpp(y,x,pi,b0,h,gamma,kernel)
+  Grad0 <- -.PLR_derivative_cpp_zero(y,x,pi,b0,h,gamma,kernel)
   k0 <- which.max(abs(Grad0))
   A.set <- k0
   B.set <- 1:p
@@ -166,7 +160,7 @@ Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL,
   for (i in 1:(iter-1))
   {
     b[,i+1] <- b[,i]
-    Grad.loss.i <- -.PLR_derivative_cpp(y, x, pi, b[,i], h, gamma, kernel)
+    Grad.loss.i <- -.PLR_derivative_cpp_m(Grad0, y, x, pi, b[,i], h, gamma, kernel)
     Grad.Pen.i <- .SCAD_derivative_cpp(abs(b[,i]), as.double(lambda.out[i]), a)
     # Backward direction
     Back.Obj <- -Grad.loss.i[A.set]*sign(b[A.set,i]) - Grad.Pen.i[A.set]
