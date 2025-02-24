@@ -25,11 +25,22 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::mat X, arma::ve
       u =  (index(i) - index(j))/h;
       // Loop-skipping 2: if out of kernel bonds, contrib = 0
       // Loop-skipping 3: if u_{ij}=0, the contrib is the same as der_0 and therefore we can skip
-      if (u < -1 || u > 1 || std::abs(u) < 1e-12) continue;
+      if (std::abs(u) < 1e-12) continue;
 
       // Computation of difference k(u)-k(0)
-      if (kernel == 1) kerd = - 15.0/8.0*pow(u,2.0);
-      if (kernel == 2) kerd = - 75.0/16.0*pow(u,2.0) + 105.0/32.0*pow(u,4.0);
+      if (kernel == 1){
+        if(u < -1 || u > 1){
+          kerd = - 9.0/8.0;
+        } else {
+          kerd = - 15.0/8.0*pow(u,2.0);
+        }
+      } else if (kernel == 2){
+        if(u < -1 || u > 1){
+          kerd = - 45.0/32.0;
+        } else {
+          kerd = - 75.0/16.0*pow(u,2.0) + 105.0/32.0*pow(u,4.0);
+        }
+      }
 
       // Computation of der(k)
       for (k=0; k<p; k++){
