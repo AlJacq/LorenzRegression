@@ -94,7 +94,7 @@ Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL,
   b[,1] <- b0
 
   # Computing k
-  Grad0 <- -.PLR_derivative_cpp(as.vector(y),as.matrix(x),as.vector(pi),as.vector(b0),as.double(h),as.double(gamma),as.integer(kernel))
+  Grad0 <- -.PLR_derivative_cpp_zero(as.vector(y),as.matrix(x),as.vector(pi),as.vector(b0),as.double(h),as.double(gamma),as.integer(kernel))
   k0 <- which.max(abs(Grad0)/w)
   A.set <- k0
 
@@ -102,8 +102,8 @@ Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL,
   b[k0,1] <- - sign(Grad0[k0])/w[k0]*eps
 
   # Computing lambda and the direction
-  loss0 = .PLR_loss_cpp(as.matrix(x), as.vector(y), as.vector(pi), as.vector(b0), as.double(h),as.double(gamma),as.integer(kernel))
-  loss  = .PLR_loss_cpp(as.matrix(x), as.vector(y), as.vector(pi), as.vector(b[,1]), as.double(h),as.double(gamma),as.integer(kernel))
+  loss0 = .PLR_loss_cpp_zero(as.matrix(x), as.vector(y), as.vector(pi), as.double(h),as.double(gamma),as.integer(kernel))
+  loss  = .PLR_loss_cpp_m(loss0, as.matrix(x), as.vector(y), as.vector(pi), as.vector(b[,1]), as.double(h),as.double(gamma),as.integer(kernel))
 
   if(length(lambda)==1){
     # Either lambda="grid" or lambda="Shi". in both cases, the starting lambda is the same
@@ -133,13 +133,13 @@ Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL,
   for (i in 1:(iter-1))
   {
     b[,i+1] <- b[,i]
-    Grad.i <- -.PLR_derivative_cpp(as.vector(y),as.matrix(x),as.vector(pi),as.vector(b[,i]),as.double(h),as.double(gamma),as.integer(kernel))
+    Grad.i <- -.PLR_derivative_cpp_m(Grad0, as.vector(y),as.matrix(x),as.vector(pi),as.vector(b[,i]),as.double(h),as.double(gamma),as.integer(kernel))
 
     # Backward direction
     k <- A.set[which.min(-Grad.i[A.set]*sign(b[A.set,i])/w[A.set])]
     Delta.k <- -sign(b[k,i])/w[k]
     b[k,i+1] <- b[k,i] + Delta.k*eps
-    loss.back <- .PLR_loss_cpp(as.matrix(x), as.vector(y), as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma),as.integer(kernel))
+    loss.back <- .PLR_loss_cpp_m(loss0, as.matrix(x), as.vector(y), as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma),as.integer(kernel))
     back <- loss.back - loss.i - lambda.out[i]*eps*w[k] < -.Machine$double.eps^0.5
     if(back & (length(A.set)>1)){
       # Backward step
@@ -156,7 +156,7 @@ Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL,
       k <- which.max(abs(Grad.i)/w)
       A.set <- union(A.set,k)
       b[k,i+1] <- b[k,i] - sign(Grad.i[k])/w[k]*eps
-      loss.forward <- .PLR_loss_cpp(as.matrix(x), as.vector(y), as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma),as.integer(kernel))
+      loss.forward <- .PLR_loss_cpp_m(loss0, as.matrix(x), as.vector(y), as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma),as.integer(kernel))
       if (lambda.out[i] > (loss.i-loss.forward)/eps){
         # It means that with this lambda, I can no longer improve the score function. Hence, I have to update lambda
         if(!all(lambda=="Shi")){
