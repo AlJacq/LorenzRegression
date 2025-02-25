@@ -1,11 +1,20 @@
 #include <RcppArmadillo.h>
+#include <chrono>
 // [[Rcpp::depends(RcppArmadillo)]]
 
 using namespace arma;
+using namespace std::chrono;
+
+// Global timing variables
+static double time_all = 0.0;
+static int call_count = 0;
 
 // [[Rcpp::export(.PLR_derivative_cpp_m)]]
-arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::mat X, arma::vec pi, arma::vec theta, double h, double gamma, int kernel)
+arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, arma::mat X, arma::vec pi, arma::vec theta, double h, double gamma, int kernel)
 {
+
+  auto start_time = high_resolution_clock::now();
+
   int i, j, k;
   double  kerd, u=0, xd=0;
   int n=y.n_rows;
@@ -15,11 +24,11 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::mat X, arma::ve
 
   for (i=1; i<n; i++)
   {
-    for (j=0; j<i; j++)
+    // Loop-skipping 1: if y_i = y_j, contrib = 0
+    int j_end = i - ycum[i];
+    if (j_end < 0) j_end = 0;
+    for (j = 0; j <= j_end; j++)
     {
-
-      // Loop-skipping 1: if y_i = y_j, contrib = 0
-      if(std::abs(y(i)-y(j)) < 1e-12) continue;
 
       // Computation of u_{ij}
       u =  (index(i) - index(j))/h;
@@ -43,11 +52,12 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::mat X, arma::ve
       }
 
       // Computation of der(k)
-      for (k=0; k<p; k++){
-        xd =  (X(i,k) - X(j,k))/h;
+      double contrib = pi(i) * pi(j) * (y(i) - y(j)) * kerd;
+      for (k = 0; k < p; k++) {
+        xd = (X(i, k) - X(j, k)) / h;
         // Loop-skipping 4: if x_ik = x_jk, contrib = 0
-        if(std::abs(xd) > 1e-12){
-          der(k) = der(k) + pi(i)*pi(j)*(y(i)-y(j)) * kerd * xd;
+        if (std::abs(xd) > 1e-12) {
+          der[k] += contrib * xd;
         }
       }
 
@@ -56,6 +66,14 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::mat X, arma::ve
 
   for (k=0; k<p; k++)
     der[k] = der[k] - 2*gamma*theta[k];
+
+  auto end_time = high_resolution_clock::now();
+  time_all += duration<double>(end_time - start_time).count();
+  call_count++;
+  if (call_count % 10 == 0) {
+    Rcpp::Rcout << "Timing summary after " << call_count << " calls:" << std::endl;
+    Rcpp::Rcout << "Complete time: " << time_all << " seconds" << std::endl;
+  }
 
   return der;
 }

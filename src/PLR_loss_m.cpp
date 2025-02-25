@@ -4,7 +4,7 @@
 using namespace arma;
 
 // [[Rcpp::export(.PLR_loss_cpp_m)]]
-double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec pi, arma::vec theta, double h, double gamma, int kernel)
+double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, arma::vec pi, arma::vec theta, double h, double gamma, int kernel)
 {
   int i, j;
   int k;
@@ -16,11 +16,11 @@ double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec pi, arma
 
   for (i=1; i<n; i++)
   {
-    for (j=0; j<i; j++)
+    // Loop-skipping 1: if y_i = y_j, contrib = 0
+    int j_end = i - ycum[i];
+    if (j_end < 0) j_end = 0;
+    for (j = 0; j <= j_end; j++)
     {
-
-      // Loop-skipping 1: if y_i = y_j, contrib = 0
-      if(std::abs(y(i)-y(j)) < 1e-12) continue;
 
       // Computation of u_{ij}
       u =  (index(i) - index(j))/h;
