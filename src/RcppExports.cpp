@@ -43,21 +43,22 @@ BEGIN_RCPP
 END_RCPP
 }
 // PLR_derivative_cpp_m
-arma::vec PLR_derivative_cpp_m(arma::vec derz, arma::vec y, arma::vec ycum, arma::mat X, arma::vec pi, arma::vec theta, double h, double gamma, int kernel);
-RcppExport SEXP _LorenzRegression_PLR_derivative_cpp_m(SEXP derzSEXP, SEXP ySEXP, SEXP ycumSEXP, SEXP XSEXP, SEXP piSEXP, SEXP thetaSEXP, SEXP hSEXP, SEXP gammaSEXP, SEXP kernelSEXP) {
+arma::vec PLR_derivative_cpp_m(arma::vec derz, arma::vec y, arma::vec ycum, int y_skipped, arma::mat X, arma::vec pi, arma::vec theta, double h, double gamma, int kernel);
+RcppExport SEXP _LorenzRegression_PLR_derivative_cpp_m(SEXP derzSEXP, SEXP ySEXP, SEXP ycumSEXP, SEXP y_skippedSEXP, SEXP XSEXP, SEXP piSEXP, SEXP thetaSEXP, SEXP hSEXP, SEXP gammaSEXP, SEXP kernelSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec >::type derz(derzSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::vec >::type ycum(ycumSEXP);
+    Rcpp::traits::input_parameter< int >::type y_skipped(y_skippedSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type pi(piSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< double >::type h(hSEXP);
     Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
     Rcpp::traits::input_parameter< int >::type kernel(kernelSEXP);
-    rcpp_result_gen = Rcpp::wrap(PLR_derivative_cpp_m(derz, y, ycum, X, pi, theta, h, gamma, kernel));
+    rcpp_result_gen = Rcpp::wrap(PLR_derivative_cpp_m(derz, y, ycum, y_skipped, X, pi, theta, h, gamma, kernel));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -80,8 +81,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // PLR_loss_cpp_m
-double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, arma::vec pi, arma::vec theta, double h, double gamma, int kernel);
-RcppExport SEXP _LorenzRegression_PLR_loss_cpp_m(SEXP losszSEXP, SEXP XSEXP, SEXP ySEXP, SEXP ycumSEXP, SEXP piSEXP, SEXP thetaSEXP, SEXP hSEXP, SEXP gammaSEXP, SEXP kernelSEXP) {
+double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, int y_skipped, arma::vec pi, arma::vec theta, double h, double gamma, int kernel);
+RcppExport SEXP _LorenzRegression_PLR_loss_cpp_m(SEXP losszSEXP, SEXP XSEXP, SEXP ySEXP, SEXP ycumSEXP, SEXP y_skippedSEXP, SEXP piSEXP, SEXP thetaSEXP, SEXP hSEXP, SEXP gammaSEXP, SEXP kernelSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -89,12 +90,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::vec >::type ycum(ycumSEXP);
+    Rcpp::traits::input_parameter< int >::type y_skipped(y_skippedSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type pi(piSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< double >::type h(hSEXP);
     Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
     Rcpp::traits::input_parameter< int >::type kernel(kernelSEXP);
-    rcpp_result_gen = Rcpp::wrap(PLR_loss_cpp_m(lossz, X, y, ycum, pi, theta, h, gamma, kernel));
+    rcpp_result_gen = Rcpp::wrap(PLR_loss_cpp_m(lossz, X, y, ycum, y_skipped, pi, theta, h, gamma, kernel));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -144,9 +146,9 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_LorenzRegression_Fitness_cpp", (DL_FUNC) &_LorenzRegression_Fitness_cpp, 6},
     {"_LorenzRegression_Fitness_meanrank", (DL_FUNC) &_LorenzRegression_Fitness_meanrank, 5},
-    {"_LorenzRegression_PLR_derivative_cpp_m", (DL_FUNC) &_LorenzRegression_PLR_derivative_cpp_m, 9},
+    {"_LorenzRegression_PLR_derivative_cpp_m", (DL_FUNC) &_LorenzRegression_PLR_derivative_cpp_m, 10},
     {"_LorenzRegression_PLR_derivative_cpp_zero", (DL_FUNC) &_LorenzRegression_PLR_derivative_cpp_zero, 8},
-    {"_LorenzRegression_PLR_loss_cpp_m", (DL_FUNC) &_LorenzRegression_PLR_loss_cpp_m, 9},
+    {"_LorenzRegression_PLR_loss_cpp_m", (DL_FUNC) &_LorenzRegression_PLR_loss_cpp_m, 10},
     {"_LorenzRegression_PLR_loss_cpp_zero", (DL_FUNC) &_LorenzRegression_PLR_loss_cpp_zero, 7},
     {"_LorenzRegression_SCAD_derivative_cpp", (DL_FUNC) &_LorenzRegression_SCAD_derivative_cpp, 3},
     {"_LorenzRegression_frac_rank_cpp", (DL_FUNC) &_LorenzRegression_frac_rank_cpp, 2},

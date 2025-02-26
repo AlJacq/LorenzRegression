@@ -4,7 +4,7 @@
 using namespace arma;
 
 // [[Rcpp::export(.PLR_loss_cpp_m)]]
-double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, arma::vec pi, arma::vec theta, double h, double gamma, int kernel)
+double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, int y_skipped, arma::vec pi, arma::vec theta, double h, double gamma, int kernel)
 {
   int i, j;
   int k;
@@ -14,38 +14,98 @@ double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, ar
   double pen=0;
   vec index = X*theta;
 
-  for (i=1; i<n; i++)
-  {
-    // Loop-skipping 1: if y_i = y_j, contrib = 0
-    int j_end = i - ycum[i];
-    if (j_end < 0) j_end = 0;
-    for (j = 0; j <= j_end; j++)
-    {
-
-      // Computation of u_{ij}
-      u =  (index(i) - index(j))/h;
-      // Loop-skipping 2: if u_{ij}<-1, contrib = 0
-      // Loop-skipping 3: if u_{ij}=0, the contrib is the same as loss_0 and therefore we can skip
-      if (std::abs(u) < 1e-12) continue;
-
-      // Computation of difference k(u)-k(0)
-      if(u < -1){
-        kerd = -0.5;
-      }else if (u>= 1){
-        kerd = 0.5;
-      }else{
-        if(kernel == 1){
-          kerd = 9.0/8.0*u - 5.0/8.0*pow(u,3.0);
-        }else if(kernel == 2){
-          kerd = 45.0/32.0*u - 25.0/16.0*pow(u,3.0) + 21.0/32.0*pow(u,5.0);
-        }
-      }
-
-      // Computation of loss
-      sum = sum + pi(i)*pi(j)*(y(i)-y(j))*kerd;
-
-    }
+  // Determine potential for index skipping
+  arma::uvec o_idx = arma::sort_index(index);
+  arma::vec index_idx = index.elem(o_idx);
+  arma::vec y_idx = y.elem(o_idx);
+  arma::mat X_idx = X.rows(o_idx);
+  arma::vec pi_idx = pi.elem(o_idx);
+  // Cumulative counts of sorted unique values
+  std::unordered_map<double, int> count_map;
+  arma::vec icum(index_idx.n_elem);
+  for (size_t j = 0; j < index_idx.n_elem; j++) {
+    count_map[index_idx[j]]++; // Increase count
+    icum[j] = count_map[index_idx[j]]; // Store cumulative count
   }
+  // Compute index_skipped (sum of k*(k-1)/2 for each unique value count)
+  int index_skipped = 0;
+  for (const auto& pair : count_map) {
+    int k = pair.second;
+    index_skipped += (k * (k - 1)) / 2;
+  }
+
+  if (index_skipped > y_skipped){
+
+    for (i=1; i<n; i++)
+    {
+      // Loop-skipping 1: if index_i = index_j, contrib = 0
+      int j_end = i - icum[i];
+      if (j_end < 0) j_end = 0;
+      for (j = 0; j <= j_end; j++)
+      {
+
+        // Loop-skipping 2: if y_i = y_j, contrib = 0
+        if(std::abs(y_idx(i)-y_idx(j)) < 1e-12) continue;
+
+        // Computation of u_{ij}
+        u =  (index_idx(i) - index_idx(j))/h;
+
+        // Computation of difference k(u)-k(0)
+        if(u < -1){
+          kerd = -0.5;
+        }else if (u>= 1){
+          kerd = 0.5;
+        }else{
+          if(kernel == 1){
+            kerd = 9.0/8.0*u - 5.0/8.0*pow(u,3.0);
+          }else if(kernel == 2){
+            kerd = 45.0/32.0*u - 25.0/16.0*pow(u,3.0) + 21.0/32.0*pow(u,5.0);
+          }
+        }
+
+        // Computation of loss
+        sum = sum + pi_idx(i)*pi_idx(j)*(y_idx(i)-y_idx(j))*kerd;
+
+      }
+    }
+
+  }else{
+
+    for (i=1; i<n; i++)
+    {
+      // Loop-skipping 1: if y_i = y_j, contrib = 0
+      int j_end = i - ycum[i];
+      if (j_end < 0) j_end = 0;
+      for (j = 0; j <= j_end; j++)
+      {
+
+        // Computation of u_{ij}
+        u =  (index(i) - index(j))/h;
+        // Loop-skipping 2: if index_i = index_j, contrib = 0
+        if(std::abs(u) < 1e-12) continue;
+
+        // Computation of difference k(u)-k(0)
+        if(u < -1){
+          kerd = -0.5;
+        }else if (u>= 1){
+          kerd = 0.5;
+        }else{
+          if(kernel == 1){
+            kerd = 9.0/8.0*u - 5.0/8.0*pow(u,3.0);
+          }else if(kernel == 2){
+            kerd = 45.0/32.0*u - 25.0/16.0*pow(u,3.0) + 21.0/32.0*pow(u,5.0);
+          }
+        }
+
+        // Computation of loss
+        sum = sum + pi(i)*pi(j)*(y(i)-y(j))*kerd;
+
+      }
+    }
+
+  }
+
+
 
   for (k=0; k<p; k++)
     pen = pen + pow(theta[k],2.0);

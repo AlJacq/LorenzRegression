@@ -92,6 +92,7 @@ Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL,
     ave(y_sorted, y_sorted, FUN = seq_along)
   }
   ycum <- compute_ycum(y)
+  y_skipped <- as.integer(sum(sapply(table(y),function(x)x*(x-1)/2)))
 
   # We are going to record the lambda and the direction (backward or forward) for each iteration
   lambda.out <- direction <- numeric(iter)
@@ -105,7 +106,7 @@ Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL,
     k0 <- which.max(abs(Grad0))
     b1[k0] <- - sign(Grad0[k0])*eps
     loss0 = .PLR_loss_cpp_zero(x, y, ycum, pi, h, gamma, kernel)
-    loss1  = .PLR_loss_cpp_m(loss0, x, y, ycum, pi, b1, h, gamma, kernel)
+    loss1  = .PLR_loss_cpp_m(loss0, x, y, ycum, y_skipped, pi, b1, h, gamma, kernel)
     diff.loss.sqrt <- sqrt(loss0-loss1)
     eps.old <- eps
     eps <- diff.loss.sqrt/sqrt(SCAD.nfwd) + sqrt(.Machine$double.eps)
@@ -130,7 +131,7 @@ Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL,
 
   # Computing lambda and the direction
   loss0 = .PLR_loss_cpp_zero(x, y, ycum, pi, h, gamma, kernel)
-  loss  = .PLR_loss_cpp_m(loss0, x, y, ycum, pi, b[,1], h, gamma, kernel)
+  loss  = .PLR_loss_cpp_m(loss0, x, y, ycum, y_skipped, pi, b[,1], h, gamma, kernel)
   direction[1] <- 1
 
   if(length(lambda)==1){
@@ -160,7 +161,7 @@ Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL,
   {
     print(i)
     b[,i+1] <- b[,i]
-    Grad.loss.i <- -.PLR_derivative_cpp_m(-Grad0, y, ycum, x, pi, b[,i], h, gamma, kernel)
+    Grad.loss.i <- -.PLR_derivative_cpp_m(-Grad0, y, ycum, y_skipped, x, pi, b[,i], h, gamma, kernel)
     Grad.Pen.i <- .SCAD_derivative_cpp(abs(b[,i]), as.double(lambda.out[i]), a)
     # Backward direction
     Back.Obj <- -Grad.loss.i[A.set]*sign(b[A.set,i]) - Grad.Pen.i[A.set]
@@ -168,13 +169,13 @@ Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL,
     Delta.k <- -sign(b[k,i])
     b[k,i+1] <- b[k,i] + Delta.k*eps
     Back.Obj.opt <- -Grad.loss.i[k]*sign(b[k,i]) - Grad.Pen.i[k]
-    loss.back <- .PLR_loss_cpp_m(loss0, x, y, ycum, pi, b[,i+1], h, gamma, kernel)
+    loss.back <- .PLR_loss_cpp_m(loss0, x, y, ycum, y_skipped, pi, b[,i+1], h, gamma, kernel)
     back <- loss.back - loss.i - Grad.Pen.i[k]*eps < -.Machine$double.eps^0.5
     if(back & (length(A.set)>1)){
       # Backward step
       lambda.out[i+1] <- lambda.out[i]
       direction[i+1] <- -1
-      loss.i <- .PLR_loss_cpp_m(loss0, x, y, ycum, pi, b[,i+1], h, gamma, kernel)
+      loss.i <- .PLR_loss_cpp_m(loss0, x, y, ycum, y_skipped, pi, b[,i+1], h, gamma, kernel)
       if(abs(b[k,i+1]) < .Machine$double.eps^0.5){
         b[k,i+1] <- 0
         A.set <- setdiff(A.set,k)
@@ -189,7 +190,7 @@ Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL,
         k <- B.set[which.max(Fwd.Obj)]
         A.set <- union(A.set,k)
         b[k,i+1] <- b[k,i] - sign(Grad.loss.i[k])*eps
-        loss.forward <- .PLR_loss_cpp_m(loss0, x, y, ycum, pi, b[,i+1], h, gamma, kernel)
+        loss.forward <- .PLR_loss_cpp_m(loss0, x, y, ycum, y_skipped, pi, b[,i+1], h, gamma, kernel)
         L_eps <- (loss.i-loss.forward)/eps
         L_eps.check <- L_eps > 0
         if(L_eps.check){
