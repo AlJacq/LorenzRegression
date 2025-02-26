@@ -7,9 +7,12 @@ using namespace arma;
 double PLR_loss_cpp_zero(arma::mat X, arma::vec y, arma::vec ycum, arma::vec pi, double h, double gamma, int kernel)
 {
   int i, j;
-  int k;
   int n=y.n_rows;
-  double sum=0, u=0;
+  double sum=0;
+
+  // Convert y and pi for speed
+  std::vector<double> y_std(y.begin(), y.end());
+  std::vector<double> pi_std(pi.begin(), pi.end());
 
   for (i=1; i<n; i++)
   {
@@ -22,7 +25,7 @@ double PLR_loss_cpp_zero(arma::mat X, arma::vec y, arma::vec ycum, arma::vec pi,
       // Remark : there is no "u" here since it is 0 everywhere
 
       // Computation of loss
-      sum = sum + pi(i)*pi(j)*(y(i)-y(j))*0.5;
+      sum = sum + pi_std[i]*pi_std[j]*(y_std[i]-y_std[j])*0.5;
 
     }
   }

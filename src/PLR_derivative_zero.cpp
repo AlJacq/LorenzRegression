@@ -10,11 +10,21 @@ arma::vec PLR_derivative_cpp_zero(arma::vec y, arma::vec ycum, arma::mat X, arma
   double  ker, u=0, xd=0;
   int n=y.n_rows;
   int p=theta.n_rows;
-  vec der(p);
+  std::vector<double> der(p);
 
   // Initializing der(.)
   for (k=0; k<p; k++)
     der[k] = 0;
+
+  // Convert y, X and pi for speed
+  std::vector<double> y_std(y.begin(), y.end());
+  std::vector<double> pi_std(pi.begin(), pi.end());
+  std::vector<std::vector<double>> X_std(n, std::vector<double>(p));
+  for (i = 0; i < n; i++) {
+    for (k = 0; k < p; k++) {
+      X_std[i][k] = X(i, k);
+    }
+  }
 
   for (i=1; i<n; i++)
   {
@@ -30,9 +40,9 @@ arma::vec PLR_derivative_cpp_zero(arma::vec y, arma::vec ycum, arma::mat X, arma
       if (kernel == 2) ker = 45.0/32.0;
 
       // Computation of der(k)
-      double contrib = pi(i) * pi(j) * (y(i) - y(j)) * ker;
+      double contrib = pi_std[i] * pi_std[j] * (y_std[i] - y_std[j]) * ker;
       for (k = 0; k < p; k++) {
-        xd = (X(i, k) - X(j, k)) / h;
+        xd = (X_std[i][k] - X_std[j][k]) / h;
         // Loop-skipping 4: if x_ik = x_jk, contrib = 0
         if (std::abs(xd) > 1e-12) {
           der[k] += contrib * xd;

@@ -19,8 +19,8 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, int y
   double  kerd, u=0, xd=0;
   int n=y.n_rows;
   int p=theta.n_rows;
-  vec der = derz;
-  vec index = X*theta;
+  std::vector<double> der(derz.begin(), derz.end());
+  arma::vec index = X * theta;
 
   // Determine potential for index skipping
   arma::uvec o_idx = arma::sort_index(index);
@@ -42,6 +42,28 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, int y
     index_skipped += (k * (k - 1)) / 2;
   }
 
+  // The loop is way faster with std::vectors
+  // For y-skipping loop
+  std::vector<double> y_std(y.begin(), y.end());
+  std::vector<double> index_std(index.begin(), index.end());
+  std::vector<double> pi_std(pi.begin(), pi.end());
+  std::vector<std::vector<double>> X_std(n, std::vector<double>(p));
+  for (int i = 0; i < n; i++) {
+    for (int k = 0; k < p; k++) {
+      X_std[i][k] = X(i, k);
+    }
+  }
+  // For index-skipping loop
+  std::vector<double> y_idx_std(y_idx.begin(), y_idx.end());
+  std::vector<double> index_idx_std(index_idx.begin(), index_idx.end());
+  std::vector<double> pi_idx_std(pi_idx.begin(), pi_idx.end());
+  std::vector<std::vector<double>> X_idx_std(n, std::vector<double>(p));
+  for (int i = 0; i < n; i++) {
+    for (int k = 0; k < p; k++) {
+      X_idx_std[i][k] = X_idx(i, k);
+    }
+  }
+
   if(index_skipped > y_skipped){
 
     for (i=1; i<n; i++)
@@ -53,10 +75,10 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, int y
       {
 
         // Loop-skipping 2: if y_i = y_j, contrib = 0
-        if(std::abs(y_idx(i)-y_idx(j)) < 1e-12) continue;
+        if(std::abs(y_idx_std[i]-y_idx_std[j]) < 1e-12) continue;
 
         // Computation of u_{ij}
-        u =  (index_idx(i) - index_idx(j))/h;
+        u =  (index_idx_std[i] - index_idx_std[j])/h;
 
         // Computation of difference k(u)-k(0)
         if (kernel == 1){
@@ -74,9 +96,9 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, int y
         }
 
         // Computation of der(k)
-        double contrib = pi_idx(i) * pi_idx(j) * (y_idx(i) - y_idx(j)) * kerd;
+        double contrib = pi_idx_std[i] * pi_idx_std[j] * (y_idx_std[i] - y_idx_std[j]) * kerd;
         for (k = 0; k < p; k++) {
-          xd = (X_idx(i, k) - X_idx(j, k)) / h;
+          xd = (X_idx_std[i][k] - X_idx_std[j][k]) / h;
           // Loop-skipping 4: if x_ik = x_jk, contrib = 0
           if (std::abs(xd) > 1e-12) {
             der[k] += contrib * xd;
@@ -97,7 +119,7 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, int y
       {
 
         // Computation of u_{ij}
-        u =  (index(i) - index(j))/h;
+        u =  (index_std[i] - index_std[j])/h;
         // Loop-skipping 2: if index_i = index_j, contrib = 0
         if(std::abs(u) < 1e-12) continue;
 
@@ -117,9 +139,9 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, int y
         }
 
         // Computation of der(k)
-        double contrib = pi(i) * pi(j) * (y(i) - y(j)) * kerd;
+        double contrib = pi_std[i] * pi_std[j] * (y_std[i] - y_std[j]) * kerd;
         for (k = 0; k < p; k++) {
-          xd = (X(i, k) - X(j, k)) / h;
+          xd = (X_std[i][k] - X_std[j][k]) / h;
           // Loop-skipping 4: if x_ik = x_jk, contrib = 0
           if (std::abs(xd) > 1e-12) {
             der[k] += contrib * xd;

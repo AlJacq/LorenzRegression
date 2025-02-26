@@ -18,7 +18,6 @@ double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, in
   arma::uvec o_idx = arma::sort_index(index);
   arma::vec index_idx = index.elem(o_idx);
   arma::vec y_idx = y.elem(o_idx);
-  arma::mat X_idx = X.rows(o_idx);
   arma::vec pi_idx = pi.elem(o_idx);
   // Cumulative counts of sorted unique values
   std::unordered_map<double, int> count_map;
@@ -34,6 +33,16 @@ double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, in
     index_skipped += (k * (k - 1)) / 2;
   }
 
+  // The loop is way faster with std::vectors
+  // For y-skipping loop
+  std::vector<double> y_std(y.begin(), y.end());
+  std::vector<double> index_std(index.begin(), index.end());
+  std::vector<double> pi_std(pi.begin(), pi.end());
+  // For index-skipping loop
+  std::vector<double> y_idx_std(y_idx.begin(), y_idx.end());
+  std::vector<double> index_idx_std(index_idx.begin(), index_idx.end());
+  std::vector<double> pi_idx_std(pi_idx.begin(), pi_idx.end());
+
   if (index_skipped > y_skipped){
 
     for (i=1; i<n; i++)
@@ -45,10 +54,10 @@ double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, in
       {
 
         // Loop-skipping 2: if y_i = y_j, contrib = 0
-        if(std::abs(y_idx(i)-y_idx(j)) < 1e-12) continue;
+        if(std::abs(y_idx_std[i]-y_idx_std[j]) < 1e-12) continue;
 
         // Computation of u_{ij}
-        u =  (index_idx(i) - index_idx(j))/h;
+        u =  (index_idx_std[i] - index_idx_std[j])/h;
 
         // Computation of difference k(u)-k(0)
         if(u < -1){
@@ -64,7 +73,7 @@ double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, in
         }
 
         // Computation of loss
-        sum = sum + pi_idx(i)*pi_idx(j)*(y_idx(i)-y_idx(j))*kerd;
+        sum = sum + pi_idx_std[i]*pi_idx_std[j]*(y_idx_std[i]-y_idx_std[j])*kerd;
 
       }
     }
@@ -80,7 +89,7 @@ double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, in
       {
 
         // Computation of u_{ij}
-        u =  (index(i) - index(j))/h;
+        u =  (index_std[i] - index_std[j])/h;
         // Loop-skipping 2: if index_i = index_j, contrib = 0
         if(std::abs(u) < 1e-12) continue;
 
@@ -98,7 +107,7 @@ double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, in
         }
 
         // Computation of loss
-        sum = sum + pi(i)*pi(j)*(y(i)-y(j))*kerd;
+        sum = sum + pi_std[i]*pi_std[j]*(y_std[i]-y_std[j])*kerd;
 
       }
     }
