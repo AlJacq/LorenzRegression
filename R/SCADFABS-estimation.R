@@ -159,7 +159,7 @@ Lorenz.SCADFABS <- function(y, x, standardize = TRUE, weights=NULL,
   loss.i <- loss
   for (i in 1:(iter-1))
   {
-    print(i)
+    # print(i)
     b[,i+1] <- b[,i]
     Grad.loss.i <- -.PLR_derivative_cpp_m(-Grad0, y, ycum, y_skipped, x, pi, b[,i], h, gamma, kernel)
     Grad.Pen.i <- .SCAD_derivative_cpp(abs(b[,i]), as.double(lambda.out[i]), a)

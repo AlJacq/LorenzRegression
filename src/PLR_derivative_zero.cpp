@@ -7,7 +7,7 @@ using namespace arma;
 arma::vec PLR_derivative_cpp_zero(arma::vec y, arma::vec ycum, arma::mat X, arma::vec pi, arma::vec theta, double h, double gamma, int kernel)
 {
   int i, j, k;
-  double  ker, u=0, xd=0;
+  double  kerh, u=0;
   int n=y.n_rows;
   int p=theta.n_rows;
   std::vector<double> der(p);
@@ -26,6 +26,10 @@ arma::vec PLR_derivative_cpp_zero(arma::vec y, arma::vec ycum, arma::mat X, arma
     }
   }
 
+  // Computation of k(u)
+  if (kernel == 1) kerh = 9.0/8.0 / h;
+  if (kernel == 2) kerh = 45.0/32.0 / h;
+
   for (i=1; i<n; i++)
   {
     // Loop-skipping 1: if y_i = y_j, contrib = 0
@@ -35,18 +39,12 @@ arma::vec PLR_derivative_cpp_zero(arma::vec y, arma::vec ycum, arma::mat X, arma
     {
       // Remark : there is no "u" here since it is 0 everywhere
 
-      // Computation of k(u)
-      if (kernel == 1) ker = 9.0/8.0;
-      if (kernel == 2) ker = 45.0/32.0;
-
       // Computation of der(k)
-      double contrib = pi_std[i] * pi_std[j] * (y_std[i] - y_std[j]) * ker;
+      double contrib = pi_std[i] * pi_std[j] * (y_std[i] - y_std[j]) * kerh;
+      const std::vector<double>& Xi = X_std[i];
+      const std::vector<double>& Xj = X_std[j];
       for (k = 0; k < p; k++) {
-        xd = (X_std[i][k] - X_std[j][k]) / h;
-        // Loop-skipping 4: if x_ik = x_jk, contrib = 0
-        if (std::abs(xd) > 1e-12) {
-          der[k] += contrib * xd;
-        }
+        der[k] += contrib * (Xi[k] - Xj[k]);
       }
 
     }

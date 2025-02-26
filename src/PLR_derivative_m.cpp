@@ -13,10 +13,10 @@ static int call_count = 0;
 arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, int y_skipped, arma::mat X, arma::vec pi, arma::vec theta, double h, double gamma, int kernel)
 {
 
-  auto start_time = high_resolution_clock::now();
+  // auto start_time = high_resolution_clock::now();
 
   int i, j, k;
-  double  kerd, u=0, xd=0;
+  double  kerd, u=0;
   int n=y.n_rows;
   int p=theta.n_rows;
   std::vector<double> der(derz.begin(), derz.end());
@@ -64,6 +64,21 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, int y
     }
   }
 
+  // Divide index by h outside the loop
+  for (double& val : index_std) {
+    val /= h;
+  }
+  for (double& val : index_idx_std) {
+    val /= h;
+  }
+
+  // Store kernel constants (and externalize the h that would go in contrib)
+  double k1_a = -9.0 / 8.0 / h;
+  double k1_b = -15.0 / 8.0 / h;
+  double k2_a = -45.0 / 32.0 / h;
+  double k2_b = -75.0 / 16.0 / h;
+  double k2_c = 105.0 / 32.0 / h;
+
   if(index_skipped > y_skipped){
 
     for (i=1; i<n; i++)
@@ -78,31 +93,30 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, int y
         if(std::abs(y_idx_std[i]-y_idx_std[j]) < 1e-12) continue;
 
         // Computation of u_{ij}
-        u =  (index_idx_std[i] - index_idx_std[j])/h;
+        u =  (index_idx_std[i] - index_idx_std[j]);
 
         // Computation of difference k(u)-k(0)
         if (kernel == 1){
           if(u < -1 || u > 1){
-            kerd = - 9.0/8.0;
+            kerd = k1_a;
           } else {
-            kerd = - 15.0/8.0*pow(u,2.0);
+            kerd = k1_b * u * u;
           }
         } else if (kernel == 2){
           if(u < -1 || u > 1){
-            kerd = - 45.0/32.0;
+            kerd = k2_a;
           } else {
-            kerd = - 75.0/16.0*pow(u,2.0) + 105.0/32.0*pow(u,4.0);
+            double u2 = u * u;
+            kerd = k2_b * u2 + k2_c * u2 * u2;
           }
         }
 
         // Computation of der(k)
         double contrib = pi_idx_std[i] * pi_idx_std[j] * (y_idx_std[i] - y_idx_std[j]) * kerd;
+        const std::vector<double>& Xi = X_idx_std[i];
+        const std::vector<double>& Xj = X_idx_std[j];
         for (k = 0; k < p; k++) {
-          xd = (X_idx_std[i][k] - X_idx_std[j][k]) / h;
-          // Loop-skipping 4: if x_ik = x_jk, contrib = 0
-          if (std::abs(xd) > 1e-12) {
-            der[k] += contrib * xd;
-          }
+          der[k] += contrib * (Xi[k] - Xj[k]);
         }
 
       }
@@ -119,33 +133,32 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, int y
       {
 
         // Computation of u_{ij}
-        u =  (index_std[i] - index_std[j])/h;
+        u =  (index_std[i] - index_std[j]);
         // Loop-skipping 2: if index_i = index_j, contrib = 0
         if(std::abs(u) < 1e-12) continue;
 
         // Computation of difference k(u)-k(0)
         if (kernel == 1){
           if(u < -1 || u > 1){
-            kerd = - 9.0/8.0;
+            kerd = k1_a;
           } else {
-            kerd = - 15.0/8.0*pow(u,2.0);
+            kerd = k1_b * u * u;
           }
         } else if (kernel == 2){
           if(u < -1 || u > 1){
-            kerd = - 45.0/32.0;
+            kerd = k2_a;
           } else {
-            kerd = - 75.0/16.0*pow(u,2.0) + 105.0/32.0*pow(u,4.0);
+            double u2 = u * u;
+            kerd = k2_b * u2 + k2_c * u2 * u2;
           }
         }
 
         // Computation of der(k)
         double contrib = pi_std[i] * pi_std[j] * (y_std[i] - y_std[j]) * kerd;
+        const std::vector<double>& Xi = X_std[i];
+        const std::vector<double>& Xj = X_std[j];
         for (k = 0; k < p; k++) {
-          xd = (X_std[i][k] - X_std[j][k]) / h;
-          // Loop-skipping 4: if x_ik = x_jk, contrib = 0
-          if (std::abs(xd) > 1e-12) {
-            der[k] += contrib * xd;
-          }
+          der[k] += contrib * (Xi[k] - Xj[k]);
         }
 
       }
@@ -156,15 +169,13 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, int y
   for (k=0; k<p; k++)
     der[k] = der[k] - 2*gamma*theta[k];
 
-  auto end_time = high_resolution_clock::now();
-  time_all += duration<double>(end_time - start_time).count();
-  call_count++;
-  if (call_count % 10 == 0) {
-    Rcpp::Rcout << "Timing summary after " << call_count << " calls:" << std::endl;
-    Rcpp::Rcout << "Complete time: " << time_all << " seconds" << std::endl;
-  }
-  // Print index_skipped
-  Rcpp::Rcout << "index_skipped: " << index_skipped << std::endl;
+  // auto end_time = high_resolution_clock::now();
+  // time_all += duration<double>(end_time - start_time).count();
+  // call_count++;
+  // if (call_count % 10 == 0) {
+  //   Rcpp::Rcout << "Timing summary after " << call_count << " calls:" << std::endl;
+  //   Rcpp::Rcout << "Complete time: " << time_all << " seconds" << std::endl;
+  // }
 
   return der;
 }

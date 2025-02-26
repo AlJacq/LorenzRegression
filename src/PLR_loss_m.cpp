@@ -43,6 +43,20 @@ double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, in
   std::vector<double> index_idx_std(index_idx.begin(), index_idx.end());
   std::vector<double> pi_idx_std(pi_idx.begin(), pi_idx.end());
 
+  // Divide index by h outside the loop
+  for (double& val : index_std) {
+    val /= h;
+  }
+  for (double& val : index_idx_std) {
+    val /= h;
+  }
+
+  constexpr double k1_a = 9.0/8.0;
+  constexpr double k1_b = 5.0/8.0;
+  constexpr double k2_a = 45.0/32.0;
+  constexpr double k2_b = 25.0/16.0;
+  constexpr double k2_c = 21.0/32.0;
+
   if (index_skipped > y_skipped){
 
     for (i=1; i<n; i++)
@@ -57,7 +71,7 @@ double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, in
         if(std::abs(y_idx_std[i]-y_idx_std[j]) < 1e-12) continue;
 
         // Computation of u_{ij}
-        u =  (index_idx_std[i] - index_idx_std[j])/h;
+        u =  (index_idx_std[i] - index_idx_std[j]);
 
         // Computation of difference k(u)-k(0)
         if(u < -1){
@@ -66,9 +80,10 @@ double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, in
           kerd = 0.5;
         }else{
           if(kernel == 1){
-            kerd = 9.0/8.0*u - 5.0/8.0*pow(u,3.0);
+            kerd = k1_a * u - k1_b * u * u * u;
           }else if(kernel == 2){
-            kerd = 45.0/32.0*u - 25.0/16.0*pow(u,3.0) + 21.0/32.0*pow(u,5.0);
+            double u3 = u * u * u;
+            kerd = k2_a*u - k2_b*u3 + k2_c * u3 * u * u;
           }
         }
 
@@ -89,7 +104,7 @@ double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, in
       {
 
         // Computation of u_{ij}
-        u =  (index_std[i] - index_std[j])/h;
+        u =  (index_std[i] - index_std[j]);
         // Loop-skipping 2: if index_i = index_j, contrib = 0
         if(std::abs(u) < 1e-12) continue;
 
@@ -100,9 +115,10 @@ double PLR_loss_cpp_m(double lossz, arma::mat X, arma::vec y, arma::vec ycum, in
           kerd = 0.5;
         }else{
           if(kernel == 1){
-            kerd = 9.0/8.0*u - 5.0/8.0*pow(u,3.0);
+            kerd = k1_a * u - k1_b * u * u * u;
           }else if(kernel == 2){
-            kerd = 45.0/32.0*u - 25.0/16.0*pow(u,3.0) + 21.0/32.0*pow(u,5.0);
+            double u3 = u * u * u;
+            kerd = k2_a*u - k2_b*u3 + k2_c * u3 * u * u;
           }
         }
 
