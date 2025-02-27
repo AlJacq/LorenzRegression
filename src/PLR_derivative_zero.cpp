@@ -7,7 +7,7 @@ using namespace arma;
 arma::vec PLR_derivative_cpp_zero(arma::vec y, arma::vec ycum, arma::mat X, arma::vec pi, arma::vec theta, double h, double gamma, int kernel)
 {
   int i, j, k;
-  double  kerh, u=0;
+  double  kerh;
   int n=y.n_rows;
   int p=theta.n_rows;
   std::vector<double> der(p);

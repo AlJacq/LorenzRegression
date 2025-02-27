@@ -3,17 +3,10 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 
 using namespace arma;
-using namespace std::chrono;
-
-// Global timing variables
-static double time_all = 0.0;
-static int call_count = 0;
 
 // [[Rcpp::export(.PLR_derivative_cpp_m)]]
 arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, int y_skipped, arma::mat X, arma::vec pi, arma::vec theta, double h, double gamma, int kernel)
 {
-
-  // auto start_time = high_resolution_clock::now();
 
   int i, j, k;
   double  kerd, u=0;
@@ -168,14 +161,6 @@ arma::vec PLR_derivative_cpp_m(arma::vec derz,arma::vec y, arma::vec ycum, int y
 
   for (k=0; k<p; k++)
     der[k] = der[k] - 2*gamma*theta[k];
-
-  // auto end_time = high_resolution_clock::now();
-  // time_all += duration<double>(end_time - start_time).count();
-  // call_count++;
-  // if (call_count % 10 == 0) {
-  //   Rcpp::Rcout << "Timing summary after " << call_count << " calls:" << std::endl;
-  //   Rcpp::Rcout << "Complete time: " << time_all << " seconds" << std::endl;
-  // }
 
   return der;
 }

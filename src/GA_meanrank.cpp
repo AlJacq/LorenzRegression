@@ -10,7 +10,6 @@ arma::vec frac_rank_cpp(arma::vec x, arma::vec pi);  // Declaration
 double Fitness_meanrank(arma::vec x, arma::vec Y, arma::mat X, arma::vec pi, double tolerance) {
   // 0. Let us define some basic objects
   int nx = x.n_rows;
-  int n = Y.n_rows;
   // 1. We must acknowledge the fact that the last coefficient is constrained
   vec theta1(nx+1);//But it may be positive
   vec theta2(nx+1);//... or negative
