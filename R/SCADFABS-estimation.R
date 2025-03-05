@@ -46,6 +46,7 @@
 #' Lorenz.SCADFABS(y, x)
 #'
 #' @import MASS
+#' @importFrom stats ave
 #'
 #' @export
 

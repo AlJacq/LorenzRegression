@@ -47,6 +47,7 @@
 #' Lorenz.FABS(y, x)
 #'
 #' @import MASS
+#' @importFrom stats ave
 #'
 #' @export
 
@@ -148,13 +149,13 @@ Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL,
   for (i in 1:(iter-1))
   {
     b[,i+1] <- b[,i]
-    Grad.i <- -.PLR_derivative_cpp_m(-Grad0, y, y_cum, y_skipped, x, pi, b[,i], h, gamma, kernel)
+    Grad.i <- -.PLR_derivative_cpp_m(-Grad0, y, ycum, y_skipped, x, pi, b[,i], h, gamma, kernel)
 
     # Backward direction
     k <- A.set[which.min(-Grad.i[A.set]*sign(b[A.set,i])/w[A.set])]
     Delta.k <- -sign(b[k,i])/w[k]
     b[k,i+1] <- b[k,i] + Delta.k*eps
-    loss.back <- .PLR_loss_cpp_m(loss0, x, y, y_cum, y_skipped, pi, b[,i+1], h, gamma, kernel)
+    loss.back <- .PLR_loss_cpp_m(loss0, x, y, ycum, y_skipped, pi, b[,i+1], h, gamma, kernel)
     back <- loss.back - loss.i - lambda.out[i]*eps*w[k] < -.Machine$double.eps^0.5
     if(back & (length(A.set)>1)){
       # Backward step
@@ -171,7 +172,7 @@ Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL,
       k <- which.max(abs(Grad.i)/w)
       A.set <- union(A.set,k)
       b[k,i+1] <- b[k,i] - sign(Grad.i[k])/w[k]*eps
-      loss.forward <- .PLR_loss_cpp_m(loss0, x, y, y_cum, y_skipped, pi, b[,i+1], h, gamma, kernel)
+      loss.forward <- .PLR_loss_cpp_m(loss0, x, y, ycum, y_skipped, pi, b[,i+1], h, gamma, kernel)
       if (lambda.out[i] > (loss.i-loss.forward)/eps){
         # It means that with this lambda, I can no longer improve the score function. Hence, I have to update lambda
         if(!all(lambda=="Shi")){
