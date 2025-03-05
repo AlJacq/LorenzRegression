@@ -20,12 +20,20 @@
     .Call('_LorenzRegression_Fitness_meanrank', PACKAGE = 'LorenzRegression', x, Y, X, pi, tolerance)
 }
 
-.PLR_derivative_cpp <- function(y, X, pi, theta, h, gamma, kernel) {
-    .Call('_LorenzRegression_PLR_derivative_cpp', PACKAGE = 'LorenzRegression', y, X, pi, theta, h, gamma, kernel)
+.PLR_derivative_cpp_m <- function(derz, y, ycum, y_skipped, X, pi, theta, h, gamma, kernel) {
+    .Call('_LorenzRegression_PLR_derivative_cpp_m', PACKAGE = 'LorenzRegression', derz, y, ycum, y_skipped, X, pi, theta, h, gamma, kernel)
 }
 
-.PLR_loss_cpp <- function(X, y, pi, theta, h, gamma, kernel) {
-    .Call('_LorenzRegression_PLR_loss_cpp', PACKAGE = 'LorenzRegression', X, y, pi, theta, h, gamma, kernel)
+.PLR_derivative_cpp_zero <- function(y, ycum, X, pi, theta, h, gamma, kernel) {
+    .Call('_LorenzRegression_PLR_derivative_cpp_zero', PACKAGE = 'LorenzRegression', y, ycum, X, pi, theta, h, gamma, kernel)
+}
+
+.PLR_loss_cpp_m <- function(lossz, X, y, ycum, y_skipped, pi, theta, h, gamma, kernel) {
+    .Call('_LorenzRegression_PLR_loss_cpp_m', PACKAGE = 'LorenzRegression', lossz, X, y, ycum, y_skipped, pi, theta, h, gamma, kernel)
+}
+
+.PLR_loss_cpp_zero <- function(X, y, ycum, pi, h, gamma, kernel) {
+    .Call('_LorenzRegression_PLR_loss_cpp_zero', PACKAGE = 'LorenzRegression', X, y, ycum, pi, h, gamma, kernel)
 }
 
 .SCAD_derivative_cpp <- function(x, lambda, a) {

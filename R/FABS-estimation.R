@@ -47,6 +47,7 @@
 #' Lorenz.FABS(y, x)
 #'
 #' @import MASS
+#' @importFrom stats ave
 #'
 #' @export
 
@@ -58,6 +59,9 @@ Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL,
 
   n <- length(y)
   p <- ncol(x)
+  h <- as.double(h)
+  gamma <- as.double(gamma)
+  kernel <- as.integer(kernel)
 
   # Standardization
 
@@ -80,6 +84,18 @@ Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL,
   }
   pi <- weights/sum(weights)
 
+  # Reordering is necessary for faster computation of loss and derivative
+  # ... because it enables fast skipping of terms in loss and derivative functions
+  o.y <- order(y)
+  y <- y[o.y]
+  x <- x[o.y,]
+  pi <- pi[o.y]
+  compute_ycum <- function(y_sorted) {
+    ave(y_sorted, y_sorted, FUN = seq_along)
+  }
+  ycum <- compute_ycum(y)
+  y_skipped <- as.integer(sum(sapply(table(y),function(x)x*(x-1)/2)))
+
   # Adaptive Lasso weights
 
   if(is.null(w.adaptive)) w <- rep(1,p) else w <- w.adaptive
@@ -94,7 +110,7 @@ Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL,
   b[,1] <- b0
 
   # Computing k
-  Grad0 <- -.PLR_derivative_cpp(as.vector(y),as.matrix(x),as.vector(pi),as.vector(b0),as.double(h),as.double(gamma),as.integer(kernel))
+  Grad0 <- -.PLR_derivative_cpp_zero(y,ycum,x,pi,b0,h,gamma,kernel)
   k0 <- which.max(abs(Grad0)/w)
   A.set <- k0
 
@@ -102,8 +118,8 @@ Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL,
   b[k0,1] <- - sign(Grad0[k0])/w[k0]*eps
 
   # Computing lambda and the direction
-  loss0 = .PLR_loss_cpp(as.matrix(x), as.vector(y), as.vector(pi), as.vector(b0), as.double(h),as.double(gamma),as.integer(kernel))
-  loss  = .PLR_loss_cpp(as.matrix(x), as.vector(y), as.vector(pi), as.vector(b[,1]), as.double(h),as.double(gamma),as.integer(kernel))
+  loss0 = .PLR_loss_cpp_zero(x, y, ycum, pi, h, gamma, kernel)
+  loss  = .PLR_loss_cpp_m(loss0, x, y, ycum, y_skipped, pi, b[,1], h, gamma, kernel)
 
   if(length(lambda)==1){
     # Either lambda="grid" or lambda="Shi". in both cases, the starting lambda is the same
@@ -133,13 +149,13 @@ Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL,
   for (i in 1:(iter-1))
   {
     b[,i+1] <- b[,i]
-    Grad.i <- -.PLR_derivative_cpp(as.vector(y),as.matrix(x),as.vector(pi),as.vector(b[,i]),as.double(h),as.double(gamma),as.integer(kernel))
+    Grad.i <- -.PLR_derivative_cpp_m(-Grad0, y, ycum, y_skipped, x, pi, b[,i], h, gamma, kernel)
 
     # Backward direction
     k <- A.set[which.min(-Grad.i[A.set]*sign(b[A.set,i])/w[A.set])]
     Delta.k <- -sign(b[k,i])/w[k]
     b[k,i+1] <- b[k,i] + Delta.k*eps
-    loss.back <- .PLR_loss_cpp(as.matrix(x), as.vector(y), as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma),as.integer(kernel))
+    loss.back <- .PLR_loss_cpp_m(loss0, x, y, ycum, y_skipped, pi, b[,i+1], h, gamma, kernel)
     back <- loss.back - loss.i - lambda.out[i]*eps*w[k] < -.Machine$double.eps^0.5
     if(back & (length(A.set)>1)){
       # Backward step
@@ -156,7 +172,7 @@ Lorenz.FABS <- function(y, x, standardize = TRUE, weights=NULL,
       k <- which.max(abs(Grad.i)/w)
       A.set <- union(A.set,k)
       b[k,i+1] <- b[k,i] - sign(Grad.i[k])/w[k]*eps
-      loss.forward <- .PLR_loss_cpp(as.matrix(x), as.vector(y), as.vector(pi), as.vector(b[,i+1]), as.double(h),as.double(gamma),as.integer(kernel))
+      loss.forward <- .PLR_loss_cpp_m(loss0, x, y, ycum, y_skipped, pi, b[,i+1], h, gamma, kernel)
       if (lambda.out[i] > (loss.i-loss.forward)/eps){
         # It means that with this lambda, I can no longer improve the score function. Hence, I have to update lambda
         if(!all(lambda=="Shi")){
