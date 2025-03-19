@@ -7,9 +7,11 @@
 #' @aliases plot.LR autoplot.LR_boot plot.LR_boot
 #' @param x An object of class \code{"LR"}.
 #' @param object An object of class \code{"LR"}.
+#' @param band.level Confidence level for the bootstrap confidence intervals.
 #' @param ... Additional arguments passed to \code{\link{Lorenz.graphs}}.
 #'
-#' @return \code{autoplot} returns a \code{ggplot} object representing the Lorenz curve of the response and the concentration curve of the response with respect to the estimated index. \code{plot} directly displays this plot.
+#' @return \code{autoplot} returns a \code{ggplot} object representing the Lorenz curve of the response and the concentration curve of the response with respect to the estimated index.
+#' If \code{object} inherits from \code{"LR_boot"} and \code{LC_store} was set to \code{TRUE} in \code{\link{Lorenz.boot}}, pointwise confidence intervals for the concentration curve are added. Their confidence level is set via the argument \code{band.level}.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}
 #'

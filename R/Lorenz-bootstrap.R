@@ -5,6 +5,7 @@
 #' @param object An object of class \code{"LR"} or \code{"PLR"}, i.e., the output of a call to \code{\link{Lorenz.Reg}}.
 #' @param R An integer specifying the number of bootstrap replicates.
 #' @param boot_out_only A logical value indicating whether the function should return only the raw bootstrap output. This advanced feature can help save computation time in specific use cases. See Details.
+#' @param store_LC A logical determining whether explained Lorenz curves ordinates should be stored for each bootstrap sample. The default is \code{FALSE} since it might require storing large objects. If set to \code{TRUE}, ordinates are stored and plots of the explained Lorenz curve will include confidence bands, see \code{\link{plot.LR}} and \code{\link{plot.PLR}}.
 #' @param ... Additional arguments passed to either the bootstrap function \code{\link[boot]{boot}} from the \pkg{boot} package or the underlying fit functions (\code{\link{Lorenz.GA}}, \code{\link{Lorenz.FABS}}, or \code{\link{Lorenz.SCADFABS}}). By default, the fit function uses the same parameters as in the original call to \code{Lorenz.Reg}, but these can be overridden by explicitly passing them in \code{...}.
 #'
 #' @return An object of class \code{c("LR_boot", "LR")} or \code{c("PLR_boot", "PLR")}, depending on whether a non-penalized or penalized regression was fitted.

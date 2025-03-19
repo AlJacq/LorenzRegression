@@ -9,14 +9,23 @@
 #' @param object An object of class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})
 #' @param type A character string indicating the type of plot. Possible values are \code{"explained"}, \code{"traceplot"} and \code{"diagnostic"}.
 #' \itemize{
-#' \item If \code{"explained"} is selected, the graph displays the Lorenz curve of the response and concentration curve(s) of the response with respect to the estimated index. More specifically, there is one concentration curve per selection method available.
+#' \item If \code{"explained"} is selected, the graph displays the Lorenz curve of the response and concentration curve of the response with respect to the estimated index. The grid and penalty parameters used to estimate the index are chosen via the \code{pars.idx} argument.
+#' If \code{object} inherits from \code{"PLR_boot"} and \code{LC_store} was set to \code{TRUE} in \code{\link{Lorenz.boot}}, pointwise confidence intervals for the concentration curve are added. Their confidence level is set via the argument \code{band.level}.
 #' \item If \code{"traceplot"} is selected, the graph displays a traceplot, where the horizontal axis is -log(lambda), lambda being the value of the penalty parameter. The vertical axis gives the value of the estimated coefficient attached to each covariate.
 #' \item If \code{"diagnostic"} is selected, the graph displays a faceted plot, where each facet corresponds to a different value of the grid parameter. Each plot shows the evolution of the scores of each available selection method. For comparability reasons, the scores are normalized such that the larger the better and the optimum is attained in 1.
 #' }
 #' @param traceplot.which This argument indicates the value of the grid parameter for which the traceplot should be produced (see arguments \code{grid.value} and \code{grid.arg} in function \code{\link{Lorenz.Reg}}).
 #' It can be an integer indicating the index in the grid determined via \code{grid.value}.
 #' Alternatively, it can be a character string indicating the selection method. In this case the index corresponds to the optimal value according to that selection method.
+#' @param pars.idx What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
+#' \itemize{
+#'    \item \code{"BIC"} (default) - Always available.
+#'    \item \code{"Boot"} - Available if \code{object} inherits from \code{"PLR_boot"}.
+#'    \item \code{"CV"} - Available if \code{object} inherits from \code{"PLR_cv"}.
+#' }
+#' Or a numeric vector of length 2, where the first element is the index of the grid parameter and the second is the index of the penalty parameter.
 #' @param score.df A data.frame providing the scores to be displayed if \code{type} is set to \code{"diagnostic"}. For internal use only.
+#' @param band.level Confidence level for the bootstrap confidence intervals.
 #' @param ... Additional arguments passed to function \code{\link{Lorenz.graphs}}
 #'
 #' @return \code{autoplot} returns a \code{ggplot} object representing the desired graph. \code{plot} directly displays this plot.
