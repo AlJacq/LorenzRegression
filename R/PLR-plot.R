@@ -73,7 +73,7 @@ autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic"),
     formula <- as.formula(paste(as.character(object$call$formula[[2]]), "~ ."))
     data <- data.frame(object$y,
                        predict.PLR(object, pars.idx = pars.idx))
-    names(data) <- c(all.vars(formula)[1],"Estimated index")
+    names(data) <- c(all.vars(formula)[1],"index")
 
     g <- Lorenz.graphs(formula, data, weights = object$weights, ...)
     g <- g + ggtitle("Observed and explained inequality")
@@ -182,10 +182,6 @@ autoplot.PLR_boot <- function(object, type = c("explained","traceplot","diagnost
       g <- Lorenz.bands(g, LC_ordinates, level = band.level, ...)
 
     }
-
-    # y <- object$y
-    # x <- predict(object, pars.idx = "Boot")
-    # g <- Lorenz.graphs_add(g, y, x, curve_label = "index (Boot)",...)
 
   }
 

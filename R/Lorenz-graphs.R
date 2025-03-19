@@ -112,11 +112,6 @@ Lorenz.graphs <- function(formula, data, difference = FALSE, ...){
 
 Lorenz.bands <- function(g, LC_ordinates, level, difference = FALSE) {
 
-  # Determine the color of the confidence bands
-  color_scale <- g$scales$scales[[1]]
-  existing_colors <- color_scale$palette(length(g$layers) - 1)
-  band_color <- existing_colors["Estimated index"]
-
   # Determine the upper and lower bounds
   lci <- apply(LC_ordinates, 2, quantile, probs = (1-level)/2)
   uci <- apply(LC_ordinates, 2, quantile, probs = 1-(1-level)/2)
@@ -128,6 +123,6 @@ Lorenz.bands <- function(g, LC_ordinates, level, difference = FALSE) {
 
   # Add the bands
   df_band <- data.frame(p = p, lci = lci, uci = uci)
-  g <- g + geom_ribbon(data = df_band, aes(x = p, ymin = lci, ymax = uci), fill = band_color, alpha = 0.3)
+  g <- g + geom_ribbon(data = df_band, aes(x = p, ymin = lci, ymax = uci), fill = 3, alpha = 0.3)
   g
 }
