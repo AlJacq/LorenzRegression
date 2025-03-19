@@ -240,6 +240,8 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, store_LC = FALSE, ...)
 
     }
 
+    object$store_LC <- store_LC
+
     # 5. Class ----
     if(method == "LR"){
       class(object) <- c("LR_boot",class(object))
