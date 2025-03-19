@@ -28,13 +28,13 @@
 #' @examples
 #' ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 #'
-#' @importFrom ggplot2 ggplot aes geom_line ggtitle scale_color_hue labs theme_minimal facet_wrap labeller theme autoplot
+#' @importFrom ggplot2 ggplot aes geom_line ggtitle scale_color_hue labs theme_minimal facet_wrap labeller theme autoplot geom_ribbon
 #' @importFrom stats as.formula na.omit predict
 #'
 #' @method autoplot PLR
 #' @export
 
-autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", score.df = NULL, ...){
+autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", pars.idx = "BIC", score.df = NULL, band.level = 0.95, ...){
 
   type <- match.arg(type)
 
@@ -51,13 +51,29 @@ autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic"),
     stop("traceplot.which does not have the correct format")
   }
 
+  if((is.numeric(pars.idx) & length(pars.idx)==2)){
+    lth1 <- length(object$path)
+    if(pars.idx[1] > lth1) stop("Index of grid parameter is out of bond.")
+    lth2 <- ncol(object$path[[pars.idx[1]]])
+    if(pars.idx[2] > lth2) stop("Index of lambda parameter is out of bond.")
+  }else if(pars.idx == "BIC"){
+    pars.idx <- c(object$grid.idx["BIC"],object$lambda.idx["BIC"])
+  }else if(pars.idx == "Boot"){
+    stop("object is not of class 'PLR_boot'. Therefore pars.idx cannot be set to 'Boot'.")
+  }else if(pars.idx == "CV"){
+    stop("object is not of class 'PLR_cv'. Therefore pars.idx cannot be set to 'CV'.")
+  }else{
+    stop("pars.idx does not have the correct format")
+  }
+
   # 1. type = "explained" ----
 
   if(type == "explained"){
 
     formula <- as.formula(paste(as.character(object$call$formula[[2]]), "~ ."))
-    data <- data.frame(object$y,predict.PLR(object))
-    names(data) <- c(all.vars(formula)[1],"index (BIC)")
+    data <- data.frame(object$y,
+                       predict.PLR(object, pars.idx = pars.idx))
+    names(data) <- c(all.vars(formula)[1],"Estimated index")
 
     g <- Lorenz.graphs(formula, data, weights = object$weights, ...)
     g <- g + ggtitle("Observed and explained inequality")
@@ -139,7 +155,7 @@ autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic"),
 #' @method autoplot PLR_boot
 #' @export
 
-autoplot.PLR_boot <- function(object, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", score.df = NULL, ...){
+autoplot.PLR_boot <- function(object, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", pars.idx = "BIC", score.df = NULL, band.level = 0.95, ...){
 
   type <- match.arg(type)
 
@@ -147,10 +163,29 @@ autoplot.PLR_boot <- function(object, type = c("explained","traceplot","diagnost
 
   if (type == "explained"){
 
+    if(all(pars.idx == "Boot")) pars.idx <- c(object$grid.idx["Boot"],object$lambda.idx["Boot"])
     g <- NextMethod("autoplot")
-    y <- object$y
-    x <- predict(object, pars.idx = "Boot")
-    g <- Lorenz.graphs_add(g, y, x, curve_label = "index (Boot)",...)
+
+    if(object$store_LC){
+
+      if(all(pars.idx == "BIC")) pars.idx <- c(object$grid.idx["BIC"],object$lambda.idx["BIC"])
+      path.sizes <- sapply(object$path,ncol)
+      path.size <- sum(path.sizes)
+      lth.path <- length(path.sizes)
+      idx <- lapply(1:lth.path,function(i)(cumsum(path.sizes)-path.sizes+1)[i]:cumsum(path.sizes)[i])
+      i <- idx[[pars.idx[1]]][pars.idx[2]]
+      LC_path_start <- 3*path.size # bootstrap stores first Gi.expl, LR2 and OOB score
+      LC_lth <- 100 # We consider a grid of 100 ordinates
+      LC_i_start <- LC_path_start + LC_lth * (i-1)
+      LC_ordinates <- object$boot_out$t[,LC_i_start + 1:LC_lth]
+
+      g <- Lorenz.bands(g, LC_ordinates, level = band.level, ...)
+
+    }
+
+    # y <- object$y
+    # x <- predict(object, pars.idx = "Boot")
+    # g <- Lorenz.graphs_add(g, y, x, curve_label = "index (Boot)",...)
 
   }
 
@@ -191,7 +226,7 @@ autoplot.PLR_boot <- function(object, type = c("explained","traceplot","diagnost
 #' @method autoplot PLR_cv
 #' @export
 
-autoplot.PLR_cv <- function(object, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", score.df = NULL, ...){
+autoplot.PLR_cv <- function(object, type = c("explained","traceplot","diagnostic"), traceplot.which = "BIC", pars.idx = "BIC", score.df = NULL, band.level = 0.95, ...){
 
   type <- match.arg(type)
 
@@ -199,10 +234,8 @@ autoplot.PLR_cv <- function(object, type = c("explained","traceplot","diagnostic
 
   if (type == "explained"){
 
+    if(all(pars.idx == "CV")) pars.idx <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
     g <- NextMethod("autoplot")
-    y <- object$y
-    x <- predict(object, pars.idx = "CV")
-    g <- Lorenz.graphs_add(g, y, x, curve_label = "index (CV)",...)
 
   }
 
