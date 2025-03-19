@@ -79,7 +79,7 @@
 #'
 #' @export
 
-Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
+Lorenz.boot <- function(object, R, boot_out_only = FALSE, store_LC = FALSE, ...){
 
   # 0. Checks ----
   if(!inherits(object,c("LR","PLR"))) stop("object must be the output of a (penalized) Lorenz regression.")
@@ -166,7 +166,35 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
       }
       boot.vec <- c(Gi.vec,LR2.vec,OOB.vec)
     }
-
+    # If store_LC, we also add LC ordinates
+    if (store_LC){
+      pi <- seq(from = 0, to = 1, length.out = 100)
+      if (method == "LR"){
+        if (first){
+          LC.vec <- Lorenz.curve(y = object$y, x = object$x%*%result$theta, weights = object$weights, ties.method = "mean")(pi)
+        }else{
+          LC.vec <- Lorenz.curve(y = y.boot, x = x.boot%*%result$theta, weights = w.boot, ties.method = "mean")(pi)
+        }
+      }else if (method == "PLR"){
+        if (first){
+          theta.list <- lapply(object$path,function(x)x[(nrow(x)-ncol(object$x)+1):nrow(x),])
+          LC.list <- lapply(theta.list, function(theta.mat)apply(theta.mat,2,
+                                                                 function(theta.vec)Lorenz.curve(y = object$y,
+                                                                                                 x = object$x%*%theta.vec,
+                                                                                                 weights = object$weights,
+                                                                                                 ties.method = "mean")(pi)))
+        }else{
+          LC.list <- lapply(theta.boot, function(theta.mat)apply(theta.mat,2,
+                                                                 function(theta.vec)Lorenz.curve(y = y.boot,
+                                                                                                 x = x.boot%*%theta.vec,
+                                                                                                 weights = w.boot,
+                                                                                                 ties.method = "mean")(pi)))
+        }
+        LC.vec <- unlist(lapply(LC.list, function(x) as.vector(x)))
+      }
+      boot.vec <- c(boot.vec, LC.vec)
+    }
+    # returning the content of bootstrap
     return(boot.vec)
 
   }
@@ -181,11 +209,14 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
     # 4. PLR specifics ----
     if(method == "PLR"){
 
-      path.sizes <- sapply(object$path,ncol)
-      path.size <- sum(path.sizes)
-      lth.path <- length(path.sizes)
+      # Indices to retrieve info on all bootstrap elements
+      path.sizes <- sapply(object$path,ncol)    # Number of lambda values for each grid_param
+      path.size <- sum(path.sizes)              # Number of (lambda,grid_param) combinations
+      lth.path <- length(path.sizes)            # Number of grid_param values
+
       # the OOB score is the mean of the OOB scores across the bootstrap samples
-      OOB_matrix <- boot_out$t[,(ncol(boot_out$t)-path.size+1):ncol(boot_out$t)]
+      idx_OOB <- (2*path.size + 1) : (3*path.size)
+      OOB_matrix <- boot_out$t[,idx_OOB]
       OOB_total <- colMeans(OOB_matrix)
       # Adding OOB score to the path
       idx <- lapply(1:lth.path,function(i)(cumsum(path.sizes)-path.sizes+1)[i]:cumsum(path.sizes)[i])
