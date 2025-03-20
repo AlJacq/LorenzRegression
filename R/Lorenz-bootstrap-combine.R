@@ -69,11 +69,14 @@ Lorenz.boot.combine <- function(boot_list){
   # PLR specifics ----
   if(method == "PLR"){
 
-    path.sizes <- sapply(object$path,ncol)
-    path.size <- sum(path.sizes)
-    lth.path <- length(path.sizes)
+    # Indices to retrieve info on all bootstrap elements
+    path.sizes <- sapply(object$path,ncol)    # Number of lambda values for each grid_param
+    path.size <- sum(path.sizes)              # Number of (lambda,grid_param) combinations
+    lth.path <- length(path.sizes)            # Number of grid_param values
+
     # the OOB score is the mean of the OOB scores across the bootstrap samples
-    OOB_matrix <- boot_out$t[,(ncol(boot_out$t)-path.size+1):ncol(boot_out$t)]
+    idx_OOB <- (2*path.size + 1) : (3*path.size)
+    OOB_matrix <- boot_out$t[,idx_OOB]
     OOB_total <- colMeans(OOB_matrix)
     # Adding OOB score to the path
     idx <- lapply(1:lth.path,function(i)(cumsum(path.sizes)-path.sizes+1)[i]:cumsum(path.sizes)[i])

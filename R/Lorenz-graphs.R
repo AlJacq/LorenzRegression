@@ -78,29 +78,51 @@ Lorenz.graphs <- function(formula, data, difference = FALSE, ...){
   graph
 }
 
-#' @importFrom ggplot2 stat_function aes scale_color_manual ggplot
-#' @importFrom scales hue_pal
+# This is no longer used because plot(PLR) now only plots one explained LC
+# #' @importFrom ggplot2 stat_function aes scale_color_manual ggplot
+# #' @importFrom scales hue_pal
+# #' @keywords internal
+#
+# Lorenz.graphs_add <- function(g, y, x, difference = FALSE, curve_label, ...) {
+#
+#   # Determine the new color that will be applied to the new curve
+#   color_scale <- g$scales$scales[[1]]
+#   existing_colors <- color_scale$palette(length(g$layers) - 1)
+#   next_color <- hue_pal()(length(existing_colors) + 1)[length(existing_colors) + 1]
+#
+#   # Add the new curve to the plot
+#   g <- g + stat_function(
+#     fun = if (difference) function(p) Lorenz.curve(y, x, ...)(p) - p
+#     else function(p) Lorenz.curve(y, x, ...)(p),
+#     geom = "line", aes(color = curve_label)
+#   )
+#
+#   # Update the color scale to include the new color
+#   new_colors <- c(existing_colors, next_color)
+#   names(new_colors) <- c(names(existing_colors), curve_label)
+#
+#   g <- suppressMessages( g + scale_color_manual(values = new_colors) )
+#
+#   g
+# }
+
+#' @importFrom ggplot2 geom_ribbon aes
+#' @importFrom stats quantile
 #' @keywords internal
 
-Lorenz.graphs_add <- function(g, y, x, difference = FALSE, curve_label, ...) {
+Lorenz.bands <- function(g, LC_ordinates, level, difference = FALSE) {
 
-  # Determine the new color that will be applied to the new curve
-  color_scale <- g$scales$scales[[1]]
-  existing_colors <- color_scale$palette(length(g$layers) - 1)
-  next_color <- hue_pal()(length(existing_colors) + 1)[length(existing_colors) + 1]
+  # Determine the upper and lower bounds
+  lci <- apply(LC_ordinates, 2, quantile, probs = (1-level)/2)
+  uci <- apply(LC_ordinates, 2, quantile, probs = 1-(1-level)/2)
+  p <- seq(from = 0, to = 1, length.out = 100)
+  if(difference){
+    lci <- lci - p
+    uci <- uci - p
+  }
 
-  # Add the new curve to the plot
-  g <- g + stat_function(
-    fun = if (difference) function(p) Lorenz.curve(y, x, ...)(p) - p
-    else function(p) Lorenz.curve(y, x, ...)(p),
-    geom = "line", aes(color = curve_label)
-  )
-
-  # Update the color scale to include the new color
-  new_colors <- c(existing_colors, next_color)
-  names(new_colors) <- c(names(existing_colors), curve_label)
-
-  g <- suppressMessages( g + scale_color_manual(values = new_colors) )
-
+  # Add the bands
+  df_band <- data.frame(p = p, lci = lci, uci = uci)
+  g <- g + geom_ribbon(data = df_band, aes(x = p, ymin = lci, ymax = uci), fill = 3, alpha = 0.3)
   g
 }

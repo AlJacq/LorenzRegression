@@ -5,6 +5,7 @@
 #' @param object An object of class \code{"LR"} or \code{"PLR"}, i.e., the output of a call to \code{\link{Lorenz.Reg}}.
 #' @param R An integer specifying the number of bootstrap replicates.
 #' @param boot_out_only A logical value indicating whether the function should return only the raw bootstrap output. This advanced feature can help save computation time in specific use cases. See Details.
+#' @param store_LC A logical determining whether explained Lorenz curves ordinates should be stored for each bootstrap sample. The default is \code{FALSE} since it might require storing large objects. If set to \code{TRUE}, ordinates are stored and plots of the explained Lorenz curve will include confidence bands, see \code{\link{plot.LR}} and \code{\link{plot.PLR}}.
 #' @param ... Additional arguments passed to either the bootstrap function \code{\link[boot]{boot}} from the \pkg{boot} package or the underlying fit functions (\code{\link{Lorenz.GA}}, \code{\link{Lorenz.FABS}}, or \code{\link{Lorenz.SCADFABS}}). By default, the fit function uses the same parameters as in the original call to \code{Lorenz.Reg}, but these can be overridden by explicitly passing them in \code{...}.
 #'
 #' @return An object of class \code{c("LR_boot", "LR")} or \code{c("PLR_boot", "PLR")}, depending on whether a non-penalized or penalized regression was fitted.
@@ -79,7 +80,7 @@
 #'
 #' @export
 
-Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
+Lorenz.boot <- function(object, R, boot_out_only = FALSE, store_LC = FALSE, ...){
 
   # 0. Checks ----
   if(!inherits(object,c("LR","PLR"))) stop("object must be the output of a (penalized) Lorenz regression.")
@@ -91,6 +92,8 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
   }
 
   args <- list(...)
+
+  object$store_LC <- store_LC
 
   # 1. Arguments of the bootstrap ----
   data <- cbind(object$y, object$x)
@@ -166,13 +169,42 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
       }
       boot.vec <- c(Gi.vec,LR2.vec,OOB.vec)
     }
-
+    # If store_LC, we also add LC ordinates
+    if (store_LC){
+      pi <- seq(from = 0, to = 1, length.out = 100)
+      if (method == "LR"){
+        if (first){
+          LC.vec <- Lorenz.curve(y = object$y, x = object$x%*%result$theta, weights = object$weights, ties.method = "mean")(pi)
+        }else{
+          LC.vec <- Lorenz.curve(y = y.boot, x = x.boot%*%result$theta, weights = w.boot, ties.method = "mean")(pi)
+        }
+      }else if (method == "PLR"){
+        if (first){
+          theta.list <- lapply(object$path,function(x)x[(nrow(x)-ncol(object$x)+1):nrow(x),])
+          LC.list <- lapply(theta.list, function(theta.mat)apply(theta.mat,2,
+                                                                 function(theta.vec)Lorenz.curve(y = object$y,
+                                                                                                 x = object$x%*%theta.vec,
+                                                                                                 weights = object$weights,
+                                                                                                 ties.method = "mean")(pi)))
+        }else{
+          LC.list <- lapply(theta.boot, function(theta.mat)apply(theta.mat,2,
+                                                                 function(theta.vec)Lorenz.curve(y = y.boot,
+                                                                                                 x = x.boot%*%theta.vec,
+                                                                                                 weights = w.boot,
+                                                                                                 ties.method = "mean")(pi)))
+        }
+        LC.vec <- unlist(lapply(LC.list, function(x) as.vector(x)))
+      }
+      boot.vec <- c(boot.vec, LC.vec)
+    }
+    # returning the content of bootstrap
     return(boot.vec)
 
   }
 
   # 3. boot() ----
   boot_out <- do.call(boot, c(list(data = data, statistic = boot.f, R = R), boot_args))
+  boot_out <- boot_out[!(names(boot_out) %in% c("statistic", "data", "call"))]
   object$boot_out <- boot_out
 
   if(!boot_out_only){
@@ -180,11 +212,14 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, ...){
     # 4. PLR specifics ----
     if(method == "PLR"){
 
-      path.sizes <- sapply(object$path,ncol)
-      path.size <- sum(path.sizes)
-      lth.path <- length(path.sizes)
+      # Indices to retrieve info on all bootstrap elements
+      path.sizes <- sapply(object$path,ncol)    # Number of lambda values for each grid_param
+      path.size <- sum(path.sizes)              # Number of (lambda,grid_param) combinations
+      lth.path <- length(path.sizes)            # Number of grid_param values
+
       # the OOB score is the mean of the OOB scores across the bootstrap samples
-      OOB_matrix <- boot_out$t[,(ncol(boot_out$t)-path.size+1):ncol(boot_out$t)]
+      idx_OOB <- (2*path.size + 1) : (3*path.size)
+      OOB_matrix <- boot_out$t[,idx_OOB]
       OOB_total <- colMeans(OOB_matrix)
       # Adding OOB score to the path
       idx <- lapply(1:lth.path,function(i)(cumsum(path.sizes)-path.sizes+1)[i]:cumsum(path.sizes)[i])
