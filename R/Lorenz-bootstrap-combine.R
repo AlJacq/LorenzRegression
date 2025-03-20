@@ -99,8 +99,6 @@ Lorenz.boot.combine <- function(boot_list){
     object$lambda.idx <- c(object$lambda.idx,"Boot"=wl)
   }
 
-  object$store_LC <- store_LC
-
   # Class ----
   if(method == "LR"){
     class(object) <- c("LR_boot",class(object))

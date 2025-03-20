@@ -93,6 +93,8 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, store_LC = FALSE, ...)
 
   args <- list(...)
 
+  object$store_LC <- store_LC
+
   # 1. Arguments of the bootstrap ----
   data <- cbind(object$y, object$x)
   boot_args <- args[names(args) %in% names(formals(boot))]
@@ -240,8 +242,6 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, store_LC = FALSE, ...)
       object$lambda.idx <- c(object$lambda.idx,"Boot"=wl)
 
     }
-
-    object$store_LC <- store_LC
 
     # 5. Class ----
     if(method == "LR"){

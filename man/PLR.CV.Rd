@@ -15,7 +15,7 @@ PLR.CV(object, k, seed.CV = NULL, parallel = FALSE, ...)
 
 \item{parallel}{A logical or numeric value controlling parallel computation. If \code{TRUE}, parallel processing is enabled using the maximum available cores minus one. If a numeric value is provided, it specifies the number of cores to use. Default is \code{FALSE} (no parallelization).}
 
-\item{...}{Additional arguments passed to either the cross-validation function \code{\link[vfold_cv]{vfold_cv}} from the \pkg{rsample} package or the underlying fit functions (\code{\link{Lorenz.GA}}, \code{\link{Lorenz.FABS}}, or \code{\link{Lorenz.SCADFABS}}). By default, the fit function uses the same parameters as in the original call to \code{Lorenz.Reg}, but these can be overridden by explicitly passing them in \code{...}.}
+\item{...}{Additional arguments passed to either the cross-validation function \code{\link[rsample]{vfold_cv}} from the \pkg{rsample} package or the underlying fit functions (\code{\link{Lorenz.GA}}, \code{\link{Lorenz.FABS}}, or \code{\link{Lorenz.SCADFABS}}). By default, the fit function uses the same parameters as in the original call to \code{Lorenz.Reg}, but these can be overridden by explicitly passing them in \code{...}.}
 }
 \value{
 An object of class \code{c("PLR_cv", "PLR")}.

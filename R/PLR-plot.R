@@ -37,7 +37,7 @@
 #' @examples
 #' ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 #'
-#' @importFrom ggplot2 ggplot aes geom_line ggtitle scale_color_hue labs theme_minimal facet_wrap labeller theme autoplot geom_ribbon
+#' @importFrom ggplot2 ggplot aes geom_line ggtitle scale_color_hue labs theme_minimal facet_wrap labeller theme autoplot
 #' @importFrom stats as.formula na.omit predict
 #'
 #' @method autoplot PLR

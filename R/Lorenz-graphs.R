@@ -106,8 +106,8 @@ Lorenz.graphs <- function(formula, data, difference = FALSE, ...){
 #   g
 # }
 
-#' @importFrom ggplot2 stat_function aes scale_color_manual ggplot
-#' @importFrom scales hue_pal
+#' @importFrom ggplot2 geom_ribbon aes
+#' @importFrom stats quantile
 #' @keywords internal
 
 Lorenz.bands <- function(g, LC_ordinates, level, difference = FALSE) {
