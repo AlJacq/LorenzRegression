@@ -5,13 +5,12 @@
 #'
 #' @param y variable of interest.
 #' @param x variable to use for the ranking. By default \eqn{x=y}, and the obtained concentration curve is the Lorenz curve of \emph{y}.
-#' @param graph whether a graph of the obtained concentration curve should be traced. Default value is FALSE.
 #' @param na.rm should missing values be deleted. Default value is \code{TRUE}. If \code{FALSE} is selected, missing values generate an error message
 #' @param ties.method What method should be used to break the ties in the rank index. Possible values are "mean" (default value) or "random". If "random" is selected, the ties are broken by further ranking in terms of a uniformly distributed random variable. If "mean" is selected, the average rank method is used.
 #' @param seed seed imposed for the generation of the vector of uniform random variables used to break the ties. Default is NULL, in which case no seed is imposed.
 #' @param weights vector of sample weights. By default, each observation is given the same weight.
 #'
-#' @return A function corresponding to the estimated Lorenz or concentration curve. If \code{graph} is TRUE, the curve is also plotted.
+#' @return A function corresponding to the estimated Lorenz or concentration curve.
 #'
 #' @details The parameter \code{seed} allows for local seed setting to control randomness in the generation of the uniform random variables.
 #' The specified seed is applied to the respective part of the computation, and the seed is reverted to its previous state after the operation.
@@ -23,16 +22,16 @@
 #' data(Data.Incomes)
 #' # We first compute the Lorenz curve of Income
 #' Y <- Data.Incomes$Income
-#' Lorenz.curve(y = Y, graph = TRUE)
+#' Lorenz.curve(y = Y)
 #' # Then we compute the concentration curve of Income with respect to Age
 #' X <- Data.Incomes$Age
-#' Lorenz.curve(y = Y, x = X, graph = TRUE)
+#' Lorenz.curve(y = Y, x = X)
 #'
 #' @importFrom ggplot2 ggplot aes stat_function labs
 #'
 #' @export
 
-Lorenz.curve <- function(y, x=y, graph=FALSE, na.rm=TRUE, ties.method=c("mean","random"), seed=NULL, weights=NULL){
+Lorenz.curve <- function(y, x=y, na.rm=TRUE, ties.method=c("mean","random"), seed=NULL, weights=NULL){
 
   # 0. Preliminaries ----
 
@@ -86,20 +85,6 @@ Lorenz.curve <- function(y, x=y, graph=FALSE, na.rm=TRUE, ties.method=c("mean","
 
 
   }
-
-  # 2. Graph ----
-
-    if(graph){
-    if(all.equal(sort(x),sort(y))==TRUE){
-      txt.title <- "Lorenz curve of y"
-    }else{
-      txt.title <- "Concentration curve of y wrt x"
-    }
-    print(ggplot2::ggplot(data.frame(p=c(0,1)), aes(p)) +
-      stat_function(fun=function(p)Fun(p), geom="line") +
-      stat_function(fun=function(p)p, geom="line") +
-      labs(x = "Cumulative share of the population",y = "Cumulative share of y",title = txt.title))
-    }
 
   return(Fun)
 
