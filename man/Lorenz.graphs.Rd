@@ -7,7 +7,7 @@
 Lorenz.graphs(formula, data, difference = FALSE, ...)
 }
 \arguments{
-\item{formula}{A formula object of the form \emph{response} ~ \emph{other_variables}.}
+\item{formula}{A formula object of the form \emph{response} ~ \emph{other_variables}. The form \emph{response} ~ \emph{1} is used to display only the Lorenz curve of the response.}
 
 \item{data}{A dataframe containing the variables of interest}
 

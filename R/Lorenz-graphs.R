@@ -2,7 +2,7 @@
 #'
 #' \code{Lorenz.graphs} traces the Lorenz curve of a response and the concentration curve of the response and each of a series of covariates.
 #'
-#' @param formula A formula object of the form \emph{response} ~ \emph{other_variables}.
+#' @param formula A formula object of the form \emph{response} ~ \emph{other_variables}. The form \emph{response} ~ \emph{1} is used to display only the Lorenz curve of the response.
 #' @param data A dataframe containing the variables of interest
 #' @param difference A logical determining whether the vertical axis should be expressed in terms of deviation from perfect equality. Default is \code{FALSE}.
 #' @param ... Further arguments (see Section 'Arguments' in \code{\link{Lorenz.curve}}).
@@ -51,6 +51,8 @@ Lorenz.graphs <- function(formula, data, difference = FALSE, ...){
     scale_color_manual(values = 2:(ncol(mf)+1),
                        breaks = colnames(mf))
 
+  # 1 > Lorenz curve ----
+
   if(difference){
     graph <- graph + geom_hline(yintercept = 0,color=1) +
       stat_function(fun=function(p)Lorenz.curve(y, ...)(p)-p, geom="line",aes(color=colnames(mf)[1])) +
@@ -61,20 +63,27 @@ Lorenz.graphs <- function(formula, data, difference = FALSE, ...){
     labs(x = "Cumulative share of the population",y = paste0("Cumulative share of ",colnames(mf)[1]), color= "Ranking:")
   }
 
-  for (i in 1:ncol(x)){
-    if(difference){
-      graph <- local({
-        j <- i
-        graph + stat_function(fun=function(p)Lorenz.curve(y,x[,j], ...)(p)-p, geom="line", aes(color=colnames(mf)[j+1]))
-      })
-    }else{
-      graph <- local({
-        j <- i
-        graph + stat_function(fun=function(p)Lorenz.curve(y,x[,j], ...)(p), geom="line", aes(color=colnames(mf)[j+1]))
-      })
+  # 2 > Concentration curves ----
+
+  if(ncol(x) > 0){
+
+    for (i in 1:ncol(x)){
+      if(difference){
+        graph <- local({
+          j <- i
+          graph + stat_function(fun=function(p)Lorenz.curve(y,x[,j], ...)(p)-p, geom="line", aes(color=colnames(mf)[j+1]))
+        })
+      }else{
+        graph <- local({
+          j <- i
+          graph + stat_function(fun=function(p)Lorenz.curve(y,x[,j], ...)(p), geom="line", aes(color=colnames(mf)[j+1]))
+        })
+      }
+
     }
 
   }
+
   graph
 }
 
