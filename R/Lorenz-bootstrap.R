@@ -6,6 +6,7 @@
 #' @param R An integer specifying the number of bootstrap replicates.
 #' @param boot_out_only A logical value indicating whether the function should return only the raw bootstrap output. This advanced feature can help save computation time in specific use cases. See Details.
 #' @param store_LC A logical determining whether explained Lorenz curves ordinates should be stored for each bootstrap sample. The default is \code{FALSE} since it might require storing large objects. If set to \code{TRUE}, ordinates are stored and plots of the explained Lorenz curve will include confidence bands, see \code{\link{plot.LR}} and \code{\link{plot.PLR}}.
+#' @param show_progress A logical. If \code{TRUE} (default), a progress bar is displayed during bootstrap computation. Set to \code{FALSE} to disable it. Progress is not shown when parallel computing is used.
 #' @param ... Additional arguments passed to either the bootstrap function \code{\link[boot]{boot}} from the \pkg{boot} package or the underlying fit functions (\code{\link{Lorenz.GA}}, \code{\link{Lorenz.FABS}}, or \code{\link{Lorenz.SCADFABS}}). By default, the fit function uses the same parameters as in the original call to \code{Lorenz.Reg}, but these can be overridden by explicitly passing them in \code{...}.
 #'
 #' @return An object of class \code{c("LR_boot", "LR")} or \code{c("PLR_boot", "PLR")}, depending on whether a non-penalized or penalized regression was fitted.
@@ -77,10 +78,11 @@
 #' @importFrom boot boot
 #' @importFrom stats setNames
 #' @importFrom utils modifyList
+#' @importFrom progress progress_bar
 #'
 #' @export
 
-Lorenz.boot <- function(object, R, boot_out_only = FALSE, store_LC = FALSE, ...){
+Lorenz.boot <- function(object, R, boot_out_only = FALSE, store_LC = FALSE, show_progress = TRUE, ...){
 
   # 0. Checks ----
   if(!inherits(object,c("LR","PLR"))) stop("object must be the output of a (penalized) Lorenz regression.")
@@ -115,7 +117,7 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, store_LC = FALSE, ...)
   if(object$penalty == "none") fit_args$parallel.GA <- FALSE
 
   # 2. statistic in boot() ----
-  boot.f <- function(data, indices){
+  boot.f <- function(data, indices, prog){
     # Construction similar to the "Boot" function in library "car".
     # We want to avoid recomputation on the original sample
     first <- all(indices == seq(length(indices)))
@@ -197,13 +199,26 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, store_LC = FALSE, ...)
       }
       boot.vec <- c(boot.vec, LC.vec)
     }
+    # Display progress
+    if(show_progress){
+      if(first){
+        prog$tick(0)
+      }else{
+        prog$tick()
+      }
+    }
     # returning the content of bootstrap
     return(boot.vec)
 
   }
 
   # 3. boot() ----
-  boot_out <- do.call(boot, c(list(data = data, statistic = boot.f, R = R), boot_args))
+  if(show_progress){
+    pb <- progress_bar$new(total = R)
+  }else{
+    pb <- NULL
+  }
+  boot_out <- do.call(boot, c(list(data = data, statistic = boot.f, R = R, prog = pb), boot_args))
   boot_out <- boot_out[!(names(boot_out) %in% c("statistic", "data", "call"))]
   object$boot_out <- boot_out
 
