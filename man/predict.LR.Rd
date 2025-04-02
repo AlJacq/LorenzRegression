@@ -26,7 +26,7 @@ In the second case, the prediction estimates only the index of the single-index 
 A vector of predictions for \code{predict}, or a vector of fitted values for \code{fitted}.
 }
 \description{
-\code{prediction} provides predictions for an object of class \code{"LR"},
+\code{predict} provides predictions for an object of class \code{"LR"},
 while \code{fitted} extracts the fitted values.
 }
 \details{

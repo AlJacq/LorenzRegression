@@ -36,7 +36,7 @@ Or a numeric vector of length 2, where the first element is the index of the gri
 A vector of predictions for \code{predict}, or a vector of fitted values for \code{fitted}.
 }
 \description{
-\code{prediction} provides predictions for an object of class \code{"PLR"},
+\code{predict} provides predictions for an object of class \code{"PLR"},
 while \code{fitted} extracts the fitted values.
 }
 \details{

@@ -1,6 +1,6 @@
 #' Prediction and fitted values for the Lorenz regression
 #'
-#' \code{prediction} provides predictions for an object of class \code{"LR"},
+#' \code{predict} provides predictions for an object of class \code{"LR"},
 #' while \code{fitted} extracts the fitted values.
 #'
 #' @aliases predict.LR_boot fitted.LR fitted.LR_boot
@@ -72,4 +72,40 @@ fitted.LR <- function(object, type=c("index","response"), ...){
 
 fitted.LR_boot <- function(object, type=c("index","response"), ...){
   NextMethod("fitted")
+}
+
+#' Residuals for the Lorenz regression
+#'
+#' \code{residuals} provides residuals for an object of class \code{"LR"}.
+#'
+#' @aliases residuals.LR_boot
+#' @param object An object of class \code{"LR"}.
+#' @param ... Additional arguments passed to the function \code{\link{Rearrangement.estimation}}.
+#'
+#' @return A vector of residuals.
+#'
+#' @details Computing residuals entail to estimate the link function of the single-index model. This is done via the function \code{\link{Rearrangement.estimation}}.
+#'
+#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Rearrangement.estimation}}
+#'
+#' @examples
+#' ## For examples see example(Lorenz.Reg) and example(Lorenz.boot)
+#'
+#' @method residuals LR
+#' @export
+
+residuals.LR <- function(object, ...){
+
+  yhat <- fitted.LR(object, type = "response", ...)
+  y <- object$y
+  r <- y - yhat
+  return(r)
+
+}
+
+#' @method residuals LR_boot
+#' @export
+
+residuals.LR_boot <- function(object, ...){
+  NextMethod("residuals")
 }

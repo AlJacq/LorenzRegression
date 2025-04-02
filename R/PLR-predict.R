@@ -1,6 +1,6 @@
 #' Prediction and fitted values for the penalized Lorenz regression
 #'
-#' \code{prediction} provides predictions for an object of class \code{"PLR"},
+#' \code{predict} provides predictions for an object of class \code{"PLR"},
 #' while \code{fitted} extracts the fitted values.
 #'
 #' @aliases predict.PLR_boot predict.PLR_cv fitted.PLR fitted.PLR_boot fitted.PLR_cv
@@ -139,4 +139,56 @@ fitted.PLR_cv <- function(object, type=c("index","response"), pars.idx = "BIC", 
   if(all(pars.idx == "CV")) pars.idx <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
   NextMethod("fitted")
 
+}
+
+#' Residuals for the penalized Lorenz regression
+#'
+#' \code{residuals} provides residuals for an object of class \code{"PLR"}.
+#'
+#' @aliases residuals.PLR_boot residuals.PLR_cv
+#' @param object An object of class \code{"PLR"}.
+#' @param pars.idx What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
+#' \itemize{
+#'    \item \code{"BIC"} (default) - Always available.
+#'    \item \code{"Boot"} - Available if \code{object} inherits from \code{"PLR_boot"}.
+#'    \item \code{"CV"} - Available if \code{object} inherits from \code{"PLR_cv"}.
+#' }
+#' Or a numeric vector of length 2, where the first element is the index of the grid parameter and the second is the index of the penalty parameter.
+#' @param ... Additional arguments passed to the function \code{\link{Rearrangement.estimation}}.
+#'
+#' @return A vector of residuals.
+#'
+#' @details Computing residuals entail to estimate the link function of the single-index model. This is done via the function \code{\link{Rearrangement.estimation}}.
+#'
+#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Rearrangement.estimation}}
+#'
+#' @examples
+#' ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
+#'
+#' @method residuals PLR
+#' @export
+
+residuals.PLR <- function(object, pars.idx = "BIC", ...){
+
+  yhat <- fitted.PLR(object, type = "response", pars.idx = pars.idx, ...)
+  y <- object$y
+  r <- y - yhat
+  return(r)
+
+}
+
+#' @method residuals PLR_boot
+#' @export
+
+residuals.PLR_boot <- function(object, pars.idx = "BIC", ...){
+  if(all(pars.idx == "Boot")) pars.idx <- c(object$grid.idx["Boot"],object$lambda.idx["Boot"])
+  NextMethod("residuals")
+}
+
+#' @method residuals PLR_cv
+#' @export
+
+residuals.PLR_cv <- function(object, pars.idx = "BIC", ...){
+  if(all(pars.idx == "CV")) pars.idx <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
+  NextMethod("residuals")
 }
