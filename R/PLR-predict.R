@@ -6,9 +6,9 @@
 #' @aliases predict.PLR_boot predict.PLR_cv fitted.PLR fitted.PLR_boot fitted.PLR_cv
 #' @param object An object of S3 class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})
 #' @param newdata An optional data frame in which to look for variables with which to predict. If omitted, the original data are used.
-#' @param type A character string indicating the type of prediction or fitted values. Possible values are \code{"response"} and \code{"index"} (the default).
-#' In the first case, the conditional expectation of the response given the covariates is estimated.
-#' In the second case, only the index of the single-index model is estimated.
+#' @param type A character string indicating the type of prediction or fitted values. Possible values are \code{"index"} (the default) and response.
+#' In the first case, only the index of the single-index model is estimated.
+#' In the second case, the "full" conditional expectation of the response given the covariates is estimated.
 #' @param pars.idx What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
 #' \itemize{
 #'    \item \code{"BIC"} (default) - Always available.
@@ -20,7 +20,11 @@
 #'
 #' @return A vector of predictions for \code{predict}, or a vector of fitted values for \code{fitted}.
 #'
-#' @details If \code{type="response"}, the link function of the single-index model must be estimated. This is done via the function \code{\link{Rearrangement.estimation}}.
+#' @details The distinction between \code{type="index"} and \code{type="response"} is made because the main purpose of the (penalized) Lorenz regression consists in estimating the explained Gini coefficient.
+#' This quantity depends only on the ordering structure (i.e. the ranks) of the conditional expectation, which are fully captured with the index.
+#' The (penalized) Lorenz regression is able to estimate the index, without having to estimate the full conditional expectation, i.e. without having to estimate the link function of the single-index model.
+#' The predicted index is returned when \code{type="index"}.
+#' Obtaining predictions in the usual sense is made with \code{type="response"} and require a second estimation step. This is done via the function \code{\link{Rearrangement.estimation}}.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Rearrangement.estimation}}
 #'
