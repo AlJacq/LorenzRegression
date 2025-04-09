@@ -20,11 +20,10 @@
 #'
 #' @return A vector of predictions for \code{predict}, or a vector of fitted values for \code{fitted}.
 #'
-#' @details The distinction between \code{type="index"} and \code{type="response"} is made because the main purpose of the (penalized) Lorenz regression consists in estimating the explained Gini coefficient.
-#' This quantity depends only on the ordering structure (i.e. the ranks) of the conditional expectation, which are fully captured with the index.
-#' The (penalized) Lorenz regression is able to estimate the index, without having to estimate the full conditional expectation, i.e. without having to estimate the link function of the single-index model.
-#' The predicted index is returned when \code{type="index"}.
-#' Obtaining predictions in the usual sense is made with \code{type="response"} and require a second estimation step. This is done via the function \code{\link{Rearrangement.estimation}}.
+#' @details
+#' The \code{type} argument distinguishes between two types of prediction outputs, aligned with the goals of the penalized Lorenz regression.
+#' When \code{type = "index"}, the function returns the estimated index \eqn{X^\top \theta} of the single-index model. This index captures the full ordering structure of the conditional expectation and is sufficient for computing the explained Gini coefficient, which is the primary focus of the method. Crucially, this estimation does not require recovering the full nonparametric link function.
+#' When \code{type = "response"}, the function estimates the full conditional expectation \eqn{\mathbb{E}[Y | X]} by performing a second-stage estimation of the link function via \code{\link{Rearrangement.estimation}}. This is useful if fitted or predicted response values are needed for other purposes.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Rearrangement.estimation}}
 #'

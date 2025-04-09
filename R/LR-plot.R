@@ -24,7 +24,7 @@
 #' @examples
 #' ## For examples see example(Lorenz.Reg)
 #'
-#' @importFrom ggplot2 ggtitle autoplot
+#' @importFrom ggplot2 ggtitle autoplot ggplot aes geom_point geom_hline xlab ylab
 #' @importFrom stats update.formula
 #'
 #' @method autoplot LR
@@ -50,8 +50,12 @@ autoplot.LR <- function(object, type = c("explained","residuals"), band.level = 
     data <- data.frame(index = fitted.LR(object),
                        resid = residuals.LR(object))
 
-    # Scatterplot
-    # Should I include sample weights in the scatterplot ?
+    g <- ggplot(data) +
+      aes(x = index, y = resid) +
+      geom_point() +
+      geom_hline(yintercept = 0) +
+      ggtitle("Residuals vs Estimated index") +
+      xlab("Estimated index") + ylab("Residuals")
 
   }
 

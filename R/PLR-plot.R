@@ -40,7 +40,7 @@
 #' @examples
 #' ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 #'
-#' @importFrom ggplot2 ggplot aes geom_line ggtitle scale_color_hue labs theme_minimal facet_wrap labeller theme autoplot
+#' @importFrom ggplot2 ggplot aes geom_line ggtitle scale_color_hue labs theme_minimal facet_wrap labeller theme autoplot geom_point xlab ylab geom_hline
 #' @importFrom stats as.formula na.omit predict
 #'
 #' @method autoplot PLR
@@ -162,7 +162,15 @@ autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic","
 
   if (type == "residuals"){
 
+    data <- data.frame(index = fitted.PLR(object, pars.idx = pars.idx),
+                       resid = residuals.PLR(object, pars.idx = pars.idx))
 
+    g <- ggplot(data) +
+      aes(x = index, y = resid) +
+      geom_point() +
+      geom_hline(yintercept = 0) +
+      ggtitle("Residuals vs Estimated index") +
+      xlab("Estimated index") + ylab("Residuals")
 
   }
 

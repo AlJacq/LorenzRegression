@@ -30,7 +30,9 @@ A vector of predictions for \code{predict}, or a vector of fitted values for \co
 while \code{fitted} extracts the fitted values.
 }
 \details{
-If \code{type="response"}, the link function of the single-index model must be estimated. This is done via the function \code{\link{Rearrangement.estimation}}.
+The \code{type} argument distinguishes between two types of prediction outputs, aligned with the goals of the Lorenz regression.
+When \code{type = "index"}, the function returns the estimated index \eqn{X^\top \theta} of the single-index model. This index captures the full ordering structure of the conditional expectation and is sufficient for computing the explained Gini coefficient, which is the primary focus of the method. Crucially, this estimation does not require recovering the full nonparametric link function.
+When \code{type = "response"}, the function estimates the full conditional expectation \eqn{\mathbb{E}[Y | X]} by performing a second-stage estimation of the link function via \code{\link{Rearrangement.estimation}}. This is useful if fitted or predicted response values are needed for other purposes.
 }
 \examples{
 ## For examples see example(Lorenz.Reg) and example(Lorenz.boot)
