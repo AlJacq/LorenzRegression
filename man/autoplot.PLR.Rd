@@ -11,7 +11,7 @@
 \usage{
 \method{autoplot}{PLR}(
   object,
-  type = c("explained", "traceplot", "diagnostic"),
+  type = c("explained", "traceplot", "diagnostic", "residuals"),
   traceplot.which = "BIC",
   pars.idx = "BIC",
   score.df = NULL,
@@ -30,6 +30,9 @@
 If \code{object} inherits from \code{"PLR_boot"} and \code{LC_store} was set to \code{TRUE} in \code{\link{Lorenz.boot}}, pointwise confidence intervals for the concentration curve are added. Their confidence level is set via the argument \code{band.level}.
 \item If \code{"traceplot"} is selected, the graph displays a traceplot, where the horizontal axis is -log(lambda), lambda being the value of the penalty parameter. The vertical axis gives the value of the estimated coefficient attached to each covariate.
 \item If \code{"diagnostic"} is selected, the graph displays a faceted plot, where each facet corresponds to a different value of the grid parameter. Each plot shows the evolution of the scores of each available selection method. For comparability reasons, the scores are normalized such that the larger the better and the optimum is attained in 1.
+\item If \code{"residuals"} is selected, the graph displays a scatterplot of residuals with respect to the estimated index.
+The grid and penalty parameters used for estimation are chosen via the \code{pars.idx} argument.
+Obtaining residuals entail to estimate the link function of the single-index. This is performed via the function \code{\link{Rearrangement.estimation}}, as explained in \code{\link{predict.LR}}.
 }}
 
 \item{traceplot.which}{This argument indicates the value of the grid parameter for which the traceplot should be produced (see arguments \code{grid.value} and \code{grid.arg} in function \code{\link{Lorenz.Reg}}).

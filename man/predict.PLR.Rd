@@ -18,9 +18,9 @@
 
 \item{newdata}{An optional data frame in which to look for variables with which to predict. If omitted, the original data are used.}
 
-\item{type}{A character string indicating the type of prediction or fitted values. Possible values are \code{"response"} and \code{"index"} (the default).
-In the first case, the conditional expectation of the response given the covariates is estimated.
-In the second case, only the index of the single-index model is estimated.}
+\item{type}{A character string indicating the type of prediction or fitted values. Possible values are \code{"index"} (the default) and response.
+In the first case, only the index of the single-index model is estimated.
+In the second case, the "full" conditional expectation of the response given the covariates is estimated.}
 
 \item{pars.idx}{What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
 \itemize{
@@ -36,11 +36,13 @@ Or a numeric vector of length 2, where the first element is the index of the gri
 A vector of predictions for \code{predict}, or a vector of fitted values for \code{fitted}.
 }
 \description{
-\code{prediction} provides predictions for an object of class \code{"PLR"},
+\code{predict} provides predictions for an object of class \code{"PLR"},
 while \code{fitted} extracts the fitted values.
 }
 \details{
-If \code{type="response"}, the link function of the single-index model must be estimated. This is done via the function \code{\link{Rearrangement.estimation}}.
+The \code{type} argument distinguishes between two types of prediction outputs, aligned with the goals of the penalized Lorenz regression.
+When \code{type = "index"}, the function returns the estimated index \eqn{X^\top \theta} of the single-index model. This index captures the full ordering structure of the conditional expectation and is sufficient for computing the explained Gini coefficient, which is the primary focus of the method. Crucially, this estimation does not require recovering the full nonparametric link function.
+When \code{type = "response"}, the function estimates the full conditional expectation \eqn{\mathbb{E}[Y | X]} by performing a second-stage estimation of the link function via \code{\link{Rearrangement.estimation}}. This is useful if fitted or predicted response values are needed for other purposes.
 }
 \examples{
 ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)

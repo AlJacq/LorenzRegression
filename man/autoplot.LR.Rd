@@ -7,12 +7,20 @@
 \alias{plot.LR_boot}
 \title{Plots for the Lorenz regression}
 \usage{
-\method{autoplot}{LR}(object, band.level = 0.95, ...)
+\method{autoplot}{LR}(object, type = c("explained", "residuals"), band.level = 0.95, ...)
 
 \method{plot}{LR}(x, ...)
 }
 \arguments{
 \item{object}{An object of class \code{"LR"}.}
+
+\item{type}{A character string indicating the type of plot. Possible values are \code{"explained"} and \code{"residuals"}.
+\itemize{
+\item If \code{"explained"} is selected, the graph displays the Lorenz curve of the response and concentration curve of the response with respect to the estimated index.
+If \code{object} inherits from \code{"PLR_boot"} and \code{LC_store} was set to \code{TRUE} in \code{\link{Lorenz.boot}}, pointwise confidence intervals for the concentration curve are added. Their confidence level is set via the argument \code{band.level}.
+\item If \code{"residuals"} is selected, the graph displays a scatterplot of residuals with respect to the estimated index.
+Obtaining residuals entail to estimate the link function of the single-index. This is performed via the function \code{\link{Rearrangement.estimation}}, as explained in \code{\link{predict.LR}}.
+}}
 
 \item{band.level}{Confidence level for the bootstrap confidence intervals.}
 
@@ -21,8 +29,7 @@
 \item{x}{An object of class \code{"LR"}.}
 }
 \value{
-\code{autoplot} returns a \code{ggplot} object representing the Lorenz curve of the response and the concentration curve of the response with respect to the estimated index.
-If \code{object} inherits from \code{"LR_boot"} and \code{LC_store} was set to \code{TRUE} in \code{\link{Lorenz.boot}}, pointwise confidence intervals for the concentration curve are added. Their confidence level is set via the argument \code{band.level}.
+\code{autoplot} returns a \code{ggplot} object representing the desired graph. \code{plot} directly displays this plot.
 }
 \description{
 \code{autoplot} generates a plot for an object of class \code{"LR"} and returns it as a \code{ggplot} object.

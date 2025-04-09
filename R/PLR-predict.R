@@ -1,14 +1,14 @@
 #' Prediction and fitted values for the penalized Lorenz regression
 #'
-#' \code{prediction} provides predictions for an object of class \code{"PLR"},
+#' \code{predict} provides predictions for an object of class \code{"PLR"},
 #' while \code{fitted} extracts the fitted values.
 #'
 #' @aliases predict.PLR_boot predict.PLR_cv fitted.PLR fitted.PLR_boot fitted.PLR_cv
 #' @param object An object of S3 class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})
 #' @param newdata An optional data frame in which to look for variables with which to predict. If omitted, the original data are used.
-#' @param type A character string indicating the type of prediction or fitted values. Possible values are \code{"response"} and \code{"index"} (the default).
-#' In the first case, the conditional expectation of the response given the covariates is estimated.
-#' In the second case, only the index of the single-index model is estimated.
+#' @param type A character string indicating the type of prediction or fitted values. Possible values are \code{"index"} (the default) and response.
+#' In the first case, only the index of the single-index model is estimated.
+#' In the second case, the "full" conditional expectation of the response given the covariates is estimated.
 #' @param pars.idx What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
 #' \itemize{
 #'    \item \code{"BIC"} (default) - Always available.
@@ -20,7 +20,10 @@
 #'
 #' @return A vector of predictions for \code{predict}, or a vector of fitted values for \code{fitted}.
 #'
-#' @details If \code{type="response"}, the link function of the single-index model must be estimated. This is done via the function \code{\link{Rearrangement.estimation}}.
+#' @details
+#' The \code{type} argument distinguishes between two types of prediction outputs, aligned with the goals of the penalized Lorenz regression.
+#' When \code{type = "index"}, the function returns the estimated index \eqn{X^\top \theta} of the single-index model. This index captures the full ordering structure of the conditional expectation and is sufficient for computing the explained Gini coefficient, which is the primary focus of the method. Crucially, this estimation does not require recovering the full nonparametric link function.
+#' When \code{type = "response"}, the function estimates the full conditional expectation \eqn{\mathbb{E}[Y | X]} by performing a second-stage estimation of the link function via \code{\link{Rearrangement.estimation}}. This is useful if fitted or predicted response values are needed for other purposes.
 #'
 #' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Rearrangement.estimation}}
 #'
@@ -139,4 +142,56 @@ fitted.PLR_cv <- function(object, type=c("index","response"), pars.idx = "BIC", 
   if(all(pars.idx == "CV")) pars.idx <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
   NextMethod("fitted")
 
+}
+
+#' Residuals for the penalized Lorenz regression
+#'
+#' \code{residuals} provides residuals for an object of class \code{"PLR"}.
+#'
+#' @aliases residuals.PLR_boot residuals.PLR_cv
+#' @param object An object of class \code{"PLR"}.
+#' @param pars.idx What grid and penalty parameters should be used for parameter selection. Either a character string specifying the selection method, where the possible values are:
+#' \itemize{
+#'    \item \code{"BIC"} (default) - Always available.
+#'    \item \code{"Boot"} - Available if \code{object} inherits from \code{"PLR_boot"}.
+#'    \item \code{"CV"} - Available if \code{object} inherits from \code{"PLR_cv"}.
+#' }
+#' Or a numeric vector of length 2, where the first element is the index of the grid parameter and the second is the index of the penalty parameter.
+#' @param ... Additional arguments passed to the function \code{\link{Rearrangement.estimation}}.
+#'
+#' @return A vector of residuals.
+#'
+#' @details Computing residuals entail to estimate the link function of the single-index model. This is done via the function \code{\link{Rearrangement.estimation}}.
+#'
+#' @seealso \code{\link{Lorenz.Reg}}, \code{\link{Rearrangement.estimation}}
+#'
+#' @examples
+#' ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
+#'
+#' @method residuals PLR
+#' @export
+
+residuals.PLR <- function(object, pars.idx = "BIC", ...){
+
+  yhat <- fitted.PLR(object, type = "response", pars.idx = pars.idx, ...)
+  y <- object$y
+  r <- y - yhat
+  return(r)
+
+}
+
+#' @method residuals PLR_boot
+#' @export
+
+residuals.PLR_boot <- function(object, pars.idx = "BIC", ...){
+  if(all(pars.idx == "Boot")) pars.idx <- c(object$grid.idx["Boot"],object$lambda.idx["Boot"])
+  NextMethod("residuals")
+}
+
+#' @method residuals PLR_cv
+#' @export
+
+residuals.PLR_cv <- function(object, pars.idx = "BIC", ...){
+  if(all(pars.idx == "CV")) pars.idx <- c(object$grid.idx["CV"],object$lambda.idx["CV"])
+  NextMethod("residuals")
 }
