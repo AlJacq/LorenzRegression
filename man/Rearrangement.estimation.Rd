@@ -4,18 +4,33 @@
 \alias{Rearrangement.estimation}
 \title{Estimates a monotonic regression curve via Chernozhukov et al (2009)}
 \usage{
-Rearrangement.estimation(Y, Index, t = Index, weights = NULL, degree.pol = 1)
+Rearrangement.estimation(
+  y,
+  index,
+  t = index,
+  weights = NULL,
+  method = "loess",
+  ...
+)
 }
 \arguments{
-\item{Y}{The response variable.}
+\item{y}{The response variable.}
 
-\item{Index}{The estimated index. The user may obtain it using function \code{\link{Lorenz.Reg}}.}
+\item{index}{The estimated index. The user may obtain it using function \code{\link{Lorenz.Reg}}.}
 
 \item{t}{A vector of points over which the link function \eqn{H(.)} should be estimated. Default is the estimated index.}
 
-\item{weights}{vector of sample weights. By default, each observation is given the same weight.}
+\item{weights}{A vector of sample weights. By default, each observation is given the same weight.}
 
-\item{degree.pol}{degree of the polynomial used in the local polynomial regression. Default value is 1.}
+\item{method}{Either a character string specifying a smoothing method (e.g., \code{"loess"}, the default), or a list containing two elements:
+\itemize{
+  \item \code{fit_fun}: a function used to fit the model, typically taking arguments \code{y}, \code{x}, and optionally \code{weights}, and returning a fitted object.
+  \item \code{predict_fun}: a function to generate predictions from the fitted object. It must accept the fitted object and an argument \code{newdata}.
+}
+The specification of a custom method is illustrated in the Examples section.
+If a character string is provided, a \code{predict} method must exist for that function (e.g., \code{\link[stats]{predict.loess}}). If \code{weights} are provided but unsupported by the fit function, a warning is issued and the weights are ignored.}
+
+\item{...}{Additional arguments passed to the fit function defined by \code{method}.}
 }
 \value{
 A list with the following components
@@ -28,7 +43,7 @@ A list with the following components
 \code{Rearrangement.estimation} estimates the increasing link function of a single index model via the methodology proposed in Chernozhukov et al (2009).
 }
 \details{
-A first estimator of the link function, neglecting the assumption of monotonicity, is obtained with function \code{\link[locpol]{locpol}} from the \emph{locpol} package.
+A first estimator of the link function, neglecting the assumption of monotonicity, is obtained using the procedure chosen via \code{method}.
 The final estimator is obtained through the rearrangement operation explained in Chernozhukov et al (2009). This operation is carried out with function \code{\link[Rearrangement]{rearrangement}} from package \emph{Rearrangement}.
 }
 \section{References}{
@@ -40,11 +55,30 @@ Chernozhukov, V., I. Fernández-Val, and A. Galichon (2009). Improving Point and
 data(Data.Incomes)
 PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes,
                   penalty = "SCAD", eps = 0.01)
-Y <- PLR$y
-Index <- predict(PLR)
-Rearrangement.estimation(Y = Y, Index = Index)
+y <- PLR$y
+index <- predict(PLR)
+# Default method where the first step is obtained with loess()
+Rearrangement.estimation(y = y, index = index, method = "loess")
+# Custom method, where the first step is obtained with ksmooth()
+# ksmooth() lacks from a separation between fitting and predicting interfaces
+ksmooth_method <- list(
+  fit_fun = function(y, x, ...) {
+    list(y = y, x = x, args = list(...))
+  },
+  predict_fun = function(fit, newdata) {
+    if(missing(newdata)){
+      x.points <- fit$x
+    } else {
+      x.points <- newdata[,1]
+    }
+    o <- order(order(x.points))
+    yhat <- do.call(ksmooth, c(list(x = fit$x, y = fit$y, x.points = x.points), fit$args))$y
+    yhat[o]
+  }
+)
+Rearrangement.estimation(y = y, index = index, method = ksmooth_method, bandwidth = 0.1)
 
 }
 \seealso{
-\code{\link{Lorenz.Reg}}, \code{\link[locpol]{locpol}}, \code{\link[Rearrangement]{rearrangement}}
+\code{\link{Lorenz.Reg}}, \code{\link[Rearrangement]{rearrangement}}
 }
