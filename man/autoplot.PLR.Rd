@@ -51,7 +51,8 @@ Or a numeric vector of length 2, where the first element is the index of the gri
 
 \item{band.level}{Confidence level for the bootstrap confidence intervals.}
 
-\item{...}{Additional arguments passed to function \code{\link{Lorenz.graphs}}}
+\item{...}{Additional arguments passed either to \code{\link{Lorenz.graphs}} (for \code{type = "explained"})
+or to \code{\link{fitted.PLR}} and \code{\link{residuals.PLR}} (for \code{type = "residuals"}).}
 
 \item{x}{An object of class \code{"PLR"}. The object might also have S3 classes \code{"PLR_boot"} and/or \code{"PLR_cv"} (both inherit from class \code{"PLR"})}
 }
