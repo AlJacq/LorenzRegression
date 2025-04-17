@@ -15,7 +15,8 @@
 #' Obtaining residuals entail to estimate the link function of the single-index. This is performed via the function \code{\link{Rearrangement.estimation}}, as explained in \code{\link{predict.LR}}.
 #' }
 #' @param band.level Confidence level for the bootstrap confidence intervals.
-#' @param ... Additional arguments passed to \code{\link{Lorenz.graphs}}.
+#' @param ... Additional arguments passed either to \code{\link{Lorenz.graphs}} (for \code{type = "explained"})
+#' or to \code{\link{fitted.LR}} and \code{\link{residuals.LR}} (for \code{type = "residuals"}).
 #'
 #' @return \code{autoplot} returns a \code{ggplot} object representing the desired graph. \code{plot} directly displays this plot.
 #'
@@ -47,8 +48,8 @@ autoplot.LR <- function(object, type = c("explained","residuals"), band.level = 
 
   }else if (type == "residuals"){
 
-    data <- data.frame(index = fitted.LR(object),
-                       resid = residuals.LR(object))
+    data <- data.frame(index = fitted.LR(object, ...),
+                       resid = residuals.LR(object, ...))
 
     g <- ggplot(data) +
       aes(x = index, y = resid) +

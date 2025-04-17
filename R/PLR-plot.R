@@ -29,7 +29,8 @@
 #' Or a numeric vector of length 2, where the first element is the index of the grid parameter and the second is the index of the penalty parameter.
 #' @param score.df A data.frame providing the scores to be displayed if \code{type} is set to \code{"diagnostic"}. For internal use only.
 #' @param band.level Confidence level for the bootstrap confidence intervals.
-#' @param ... Additional arguments passed to function \code{\link{Lorenz.graphs}}
+#' @param ... Additional arguments passed either to \code{\link{Lorenz.graphs}} (for \code{type = "explained"})
+#' or to \code{\link{fitted.PLR}} and \code{\link{residuals.PLR}} (for \code{type = "residuals"}).
 #'
 #' @return \code{autoplot} returns a \code{ggplot} object representing the desired graph. \code{plot} directly displays this plot.
 #'
@@ -162,8 +163,8 @@ autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic","
 
   if (type == "residuals"){
 
-    data <- data.frame(index = fitted.PLR(object, pars.idx = pars.idx),
-                       resid = residuals.PLR(object, pars.idx = pars.idx))
+    data <- data.frame(index = fitted.PLR(object, pars.idx = pars.idx, ...),
+                       resid = residuals.PLR(object, pars.idx = pars.idx, ...))
 
     g <- ggplot(data) +
       aes(x = index, y = resid) +

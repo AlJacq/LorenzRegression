@@ -24,7 +24,8 @@ Obtaining residuals entail to estimate the link function of the single-index. Th
 
 \item{band.level}{Confidence level for the bootstrap confidence intervals.}
 
-\item{...}{Additional arguments passed to \code{\link{Lorenz.graphs}}.}
+\item{...}{Additional arguments passed either to \code{\link{Lorenz.graphs}} (for \code{type = "explained"})
+or to \code{\link{fitted.LR}} and \code{\link{residuals.LR}} (for \code{type = "residuals"}).}
 
 \item{x}{An object of class \code{"LR"}.}
 }
