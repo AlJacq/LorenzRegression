@@ -64,7 +64,8 @@ summary.LR_boot <- function(object, ...){
   if(length(all.vars(object$terms))>1){
     n <- nrow(object$x)
     p <- ncol(object$x)
-    theta.boot <- object$boot_out$t[,3:ncol(object$boot_out$t)]
+    idx.theta <- (1:length(object$theta))+2
+    theta.boot <- object$boot_out$t[,idx.theta]
     Sigma.star <- n*stats::var(theta.boot)
     c.std <- sqrt(diag(Sigma.star)/n)
     ans$coefficients <- cbind(ans$coefficients, c.std)

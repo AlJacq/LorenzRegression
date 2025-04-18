@@ -60,7 +60,8 @@ ci_boot_LR <- function(object, parm, level, type, bias.corr){
   }else if(parm == "LR2"){
     ci <- ci.i(2)
   }else{
-    ci <- t(sapply(3:ncol(object$boot_out$t),ci.i))
+    idx.theta <- (1:length(object$theta))+2
+    ci <- t(sapply(idx.theta,ci.i))
     rownames(ci) <- names(object$theta)
   }
 
