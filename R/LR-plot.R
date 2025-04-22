@@ -76,6 +76,8 @@ plot.LR <- function(x, ...) {
 #' @export
 autoplot.LR_boot <- function(object, type = c("explained","residuals"), band.level = 0.95, ...){
 
+  type <- match.arg(type)
+
   g <- NextMethod("autoplot")
 
   if (type == "explained"){
