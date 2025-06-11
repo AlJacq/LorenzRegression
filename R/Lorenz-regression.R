@@ -74,9 +74,12 @@
 #' predict(NPLR,type="response")
 #' predict(PLR,type="response")
 #' # Plot method
+#' ## The default displays the explained and observed Lorenz curve.
 #' plot(NPLR)
 #' plot(PLR)
-#' ## Traceplot of the penalized coefficients
+#' ## It is also possible to display a residuals plot.
+#' plot(PLR,type="residuals")
+#' ## For PLR only, one can obtain a traceplot of the penalized coefficients
 #' plot(PLR,type="traceplot")
 #'
 #' @importFrom stats model.response model.weights is.empty.model model.matrix .getXlevels setNames
