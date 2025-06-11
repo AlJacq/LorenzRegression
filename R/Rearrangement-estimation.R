@@ -67,7 +67,7 @@ Rearrangement.estimation<-function(y, index, t = index, weights = NULL, method =
   # Handling method argument
   if (is.character(method)) {
     fit_fun <- get(method, mode = "function")
-    predict_fun <- getS3method("predict", method, optional = TRUE)
+    predict_fun <- utils::getS3method("predict", method, optional = TRUE)
     if (is.null(predict_fun)) {
       stop(sprintf("No predict.%s method found. Either use another method or provide a custom predict function.", method))
     }

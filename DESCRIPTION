@@ -1,7 +1,7 @@
 Package: LorenzRegression
 Type: Package
 Title: Lorenz and Penalized Lorenz Regressions
-Version: 2.1.0
+Version: 2.2.0
 Authors@R: c(person("Alexandre","Jacquemain",email="aljacquemain@gmail.com",role=c("aut","cre"),comment = c(ORCID = "0000-0001-9349-780X")),
              person("Xingjie","Shi",email="xingjieshi@njue.edu.cn",role="ctb",
              comment="Author of an R implementation of the FABS algorithm available at https://github.com/shuanggema/Fabs, of which function Lorenz.FABS is derived"))
@@ -13,7 +13,6 @@ LazyData: true
 Imports:
   stats,
   ggplot2,
-  scales,
   parsnip,
   boot,
   rsample,
