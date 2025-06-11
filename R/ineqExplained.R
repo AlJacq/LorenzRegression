@@ -50,7 +50,7 @@ ineqExplained.lm <- function(object, type = c("Gini.explained","Lorenz-R2"), ...
 
   }
 
-  yhat <- fitted(object)
+  yhat <- stats::fitted(object)
   w <- object$weights
 
   Gi.expl <- Gini.coef(y, x = yhat, weights = w, ...)

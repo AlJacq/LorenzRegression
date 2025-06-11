@@ -1,3 +1,16 @@
+# LorenzRegression 2.2.0
+
+**Usage Changes**:
+
+* Function `Lorenz.curve` no longer displays a graph but only returns the function. Graph of Lorenz curves are obtained with `Lorenz.graphs`.
+* Function `Lorenz.boot` has a `show_progress` argument to display a progress bar.
+* Confidence bands can be obtained for the explained Lorenz curve. This requires setting `store_LC=TRUE` in function `Lorenz.boot`.
+* Function `Lorenz.GA` has a `suggestions` argument to provide initial guesses to the genetic algorithm. 
+
+**Technical Changes**:
+
+* Bug solved in handling of missing values in `Gini.coef`. 
+
 # LorenzRegression 2.1.0
 
 **Usage Changes**:

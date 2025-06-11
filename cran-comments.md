@@ -6,7 +6,15 @@ There were no ERRORs, WARNINGs or NOTEs
 
 ## Output of revdepcheck::revdep_check()
 
-There is no reverse dependency
+We checked 1 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
+
+We saw 1 new problems
+
+* glorenz
+
+The problem is a very slight breaking change. Maintainer was notified on Jun 11 and supplied with patch.
+
+We failed to check 0 packages
 
 ## Output of devtools::check_win_devel()
 
