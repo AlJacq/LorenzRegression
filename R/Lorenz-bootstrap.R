@@ -220,6 +220,7 @@ Lorenz.boot <- function(object, R, boot_out_only = FALSE, store_LC = FALSE, show
   }
   boot_out <- do.call(boot, c(list(data = data, statistic = boot.f, R = R, prog = pb), boot_args))
   boot_out <- boot_out[!(names(boot_out) %in% c("statistic", "data", "call"))]
+  class(boot_out) <- "boot"
   object$boot_out <- boot_out
 
   if(!boot_out_only){
