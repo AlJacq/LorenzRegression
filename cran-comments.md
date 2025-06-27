@@ -12,7 +12,7 @@ We saw 1 new problems
 
 * glorenz
 
-The problem is a very slight breaking change. Maintainer was notified on Jun 11 and supplied with patch.
+Maintainer was notified more than two weeks ago (Jun 11) and supplied with patch.
 
 We failed to check 0 packages
 

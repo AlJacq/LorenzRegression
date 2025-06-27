@@ -10,7 +10,7 @@
 |collate  |en_US.UTF-8                                                                 |
 |ctype    |en_US.UTF-8                                                                 |
 |tz       |Europe/Brussels                                                             |
-|date     |2025-06-11                                                                  |
+|date     |2025-06-27                                                                  |
 |rstudio  |2025.05.0+496 Mariposa Orchid (desktop)                                     |
 |pandoc   |NA                                                                          |
 |quarto   |1.6.42 @ /Applications/RStudio.app/Contents/Resources/app/quarto/bin/quarto |
