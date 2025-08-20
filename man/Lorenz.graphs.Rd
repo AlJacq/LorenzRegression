@@ -4,7 +4,7 @@
 \alias{Lorenz.graphs}
 \title{Graphs of concentration curves}
 \usage{
-Lorenz.graphs(formula, data, difference = FALSE, ...)
+Lorenz.graphs(formula, data, difference = FALSE, palette = NULL, ...)
 }
 \arguments{
 \item{formula}{A formula object of the form \emph{response} ~ \emph{other_variables}. The form \emph{response} ~ \emph{1} is used to display only the Lorenz curve of the response.}
@@ -12,6 +12,10 @@ Lorenz.graphs(formula, data, difference = FALSE, ...)
 \item{data}{A dataframe containing the variables of interest}
 
 \item{difference}{A logical determining whether the vertical axis should be expressed in terms of deviation from perfect equality. Default is \code{FALSE}.}
+
+\item{palette}{A vector of colors. If \code{NULL} (default), the base R
+palette is used. When provided, the first color is reserved for the line of equality
+(typically "black"), and the remaining colors are used for the Lorenz and concentration curves.}
 
 \item{...}{Further arguments (see Section 'Arguments' in \code{\link{Lorenz.curve}}).}
 }

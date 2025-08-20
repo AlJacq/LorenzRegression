@@ -7,7 +7,13 @@
 \alias{plot.LR_boot}
 \title{Plots for the Lorenz regression}
 \usage{
-\method{autoplot}{LR}(object, type = c("explained", "residuals"), band.level = 0.95, ...)
+\method{autoplot}{LR}(
+  object,
+  type = c("explained", "residuals"),
+  band.level = 0.95,
+  palette = NULL,
+  ...
+)
 
 \method{plot}{LR}(x, ...)
 }
@@ -23,6 +29,10 @@ Obtaining residuals entail to estimate the link function of the single-index. Th
 }}
 
 \item{band.level}{Confidence level for the bootstrap confidence intervals.}
+
+\item{palette}{A vector of colors. If \code{NULL} (default), the base R
+palette is used. When provided, the first color is reserved for the baseline
+(typically "black"), and the remaining colors are used to distinguish the curves.}
 
 \item{...}{Additional arguments passed either to \code{\link{Lorenz.graphs}} (for \code{type = "explained"})
 or to \code{\link{fitted.LR}} and \code{\link{residuals.LR}} (for \code{type = "residuals"}).}

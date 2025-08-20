@@ -15,6 +15,9 @@
 #' Obtaining residuals entail to estimate the link function of the single-index. This is performed via the function \code{\link{Rearrangement.estimation}}, as explained in \code{\link{predict.LR}}.
 #' }
 #' @param band.level Confidence level for the bootstrap confidence intervals.
+#' @param palette A vector of colors. If \code{NULL} (default), the base R
+#' palette is used. When provided, the first color is reserved for the baseline
+#' (typically "black"), and the remaining colors are used to distinguish the curves.
 #' @param ... Additional arguments passed either to \code{\link{Lorenz.graphs}} (for \code{type = "explained"})
 #' or to \code{\link{fitted.LR}} and \code{\link{residuals.LR}} (for \code{type = "residuals"}).
 #'
@@ -31,7 +34,7 @@
 #' @method autoplot LR
 #' @export
 
-autoplot.LR <- function(object, type = c("explained","residuals"), band.level = 0.95, ...){
+autoplot.LR <- function(object, type = c("explained","residuals"), band.level = 0.95, palette = NULL, ...){
 
   type <- match.arg(type)
 
@@ -43,7 +46,7 @@ autoplot.LR <- function(object, type = c("explained","residuals"), band.level = 
     data <- data.frame(object$y,fitted.LR(object))
     names(data) <- all.vars(formula)
 
-    g <- Lorenz.graphs(formula, data, weights = object$weights, ...)
+    g <- Lorenz.graphs(formula, data, weights = object$weights, palette = palette, ...)
     g <- g + ggtitle("Observed and explained inequality")
 
   }else if (type == "residuals"){
@@ -74,7 +77,7 @@ plot.LR <- function(x, ...) {
 
 #' @method autoplot LR_boot
 #' @export
-autoplot.LR_boot <- function(object, type = c("explained","residuals"), band.level = 0.95, ...){
+autoplot.LR_boot <- function(object, type = c("explained","residuals"), band.level = 0.95, palette = NULL, ...){
 
   type <- match.arg(type)
 
@@ -88,7 +91,7 @@ autoplot.LR_boot <- function(object, type = c("explained","residuals"), band.lev
       LC_lth <- 100
       LC_ordinates <- object$boot_out$t[,LC_start + 1:LC_lth]
 
-      g <- Lorenz.bands(g, LC_ordinates, level = band.level, ...)
+      g <- Lorenz.bands(g, LC_ordinates, level = band.level, palette = palette, ...)
 
     }
 
