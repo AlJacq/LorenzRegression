@@ -29,6 +29,9 @@
 #' Or a numeric vector of length 2, where the first element is the index of the grid parameter and the second is the index of the penalty parameter.
 #' @param score.df A data.frame providing the scores to be displayed if \code{type} is set to \code{"diagnostic"}. For internal use only.
 #' @param band.level Confidence level for the bootstrap confidence intervals.
+#' @param palette A vector of colors. If \code{NULL} (default), the base R
+#' palette is used. When provided, the first color is reserved for the baseline
+#' (typically "black"), and the remaining colors are used to distinguish the curves.
 #' @param ... Additional arguments passed either to \code{\link{Lorenz.graphs}} (for \code{type = "explained"})
 #' or to \code{\link{fitted.PLR}} and \code{\link{residuals.PLR}} (for \code{type = "residuals"}).
 #'
@@ -41,13 +44,13 @@
 #' @examples
 #' ## For examples see example(Lorenz.Reg), example(Lorenz.boot) and example(PLR.CV)
 #'
-#' @importFrom ggplot2 ggplot aes geom_line ggtitle scale_color_hue labs theme_minimal facet_wrap labeller theme autoplot geom_point xlab ylab geom_hline
+#' @importFrom ggplot2 ggplot aes geom_line ggtitle scale_color_hue labs theme_minimal facet_wrap labeller theme autoplot geom_point xlab ylab geom_hline scale_color_manual
 #' @importFrom stats as.formula na.omit predict
 #'
 #' @method autoplot PLR
 #' @export
 
-autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic","residuals"), traceplot.which = "BIC", pars.idx = "BIC", score.df = NULL, band.level = 0.95, ...){
+autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic","residuals"), traceplot.which = "BIC", pars.idx = "BIC", score.df = NULL, band.level = 0.95, palette = NULL, ...){
 
   type <- match.arg(type)
 
@@ -88,7 +91,7 @@ autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic","
                        predict.PLR(object, pars.idx = pars.idx))
     names(data) <- c(all.vars(formula)[1],"index")
 
-    g <- Lorenz.graphs(formula, data, weights = object$weights, ...)
+    g <- Lorenz.graphs(formula, data, weights = object$weights, palette = palette, ...)
     g <- g + ggtitle("Observed and explained inequality")
 
   }
@@ -107,12 +110,19 @@ autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic","
       "minloglambda" = rep(-log(lambda),each=nrow(path.theta))
     )
 
+    lth.palette <- nrow(path.theta)+1
+    if (is.null(palette)) palette <- 1:lth.palette
+    if (length(palette) < lth.palette)
+      stop(paste0("The proposed palette should be a vector of length greater or equal to ",lth.palette,"."))
+    palette <- palette[1:lth.palette]
+
     g <- ggplot(df.long) +
       aes(x = minloglambda, y = theta, colour = Variable) +
-      geom_line(linewidth = 1L) +
+      geom_line() +
       labs(x = expression(paste("-log(", symbol(lambda), ")",sep="")),
            y = expression(symbol(theta)[k]),
-           title = "Traceplot")
+           title = "Traceplot") +
+      scale_color_manual(values = palette[-1], breaks = rownames(path.theta))
 
   }
 
@@ -151,11 +161,18 @@ autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic","
 
     lambda <- score <- method <- NULL
 
+    lth.palette <- length(names(scores.only))+1
+    if (is.null(palette)) palette <- 1:lth.palette
+    if (length(palette) < lth.palette)
+      stop(paste0("The proposed palette should be a vector of length greater or equal to ",lth.palette,"."))
+    palette <- palette[1:lth.palette]
+
     g <- ggplot(df.long, aes(x = lambda, y = score, color = method)) +
       geom_line() +
       facet_wrap(~ grid, scales = "free_x", labeller = labeller(grid = custom_labels)) +
       labs(x = expression(paste("-log(", symbol(lambda), ")",sep="")), y = "Score", color = "Selection method") +
-      theme(legend.position = "bottom")
+      theme(legend.position = "bottom") +
+      scale_color_manual(values = palette[-1], breaks = names(scores.only))
 
   }
 
@@ -184,7 +201,7 @@ autoplot.PLR <- function(object, type = c("explained","traceplot","diagnostic","
 #' @method autoplot PLR_boot
 #' @export
 
-autoplot.PLR_boot <- function(object, type = c("explained","traceplot","diagnostic","residuals"), traceplot.which = "BIC", pars.idx = "BIC", score.df = NULL, band.level = 0.95, ...){
+autoplot.PLR_boot <- function(object, type = c("explained","traceplot","diagnostic","residuals"), traceplot.which = "BIC", pars.idx = "BIC", score.df = NULL, band.level = 0.95, palette = NULL, ...){
 
   type <- match.arg(type)
 
@@ -208,7 +225,7 @@ autoplot.PLR_boot <- function(object, type = c("explained","traceplot","diagnost
       LC_i_start <- LC_path_start + LC_lth * (i-1)
       LC_ordinates <- object$boot_out$t[,LC_i_start + 1:LC_lth]
 
-      g <- Lorenz.bands(g, LC_ordinates, level = band.level, ...)
+      g <- Lorenz.bands(g, LC_ordinates, level = band.level, palette = palette, ...)
 
     }
 
@@ -260,7 +277,7 @@ autoplot.PLR_boot <- function(object, type = c("explained","traceplot","diagnost
 #' @method autoplot PLR_cv
 #' @export
 
-autoplot.PLR_cv <- function(object, type = c("explained","traceplot","diagnostic","residuals"), traceplot.which = "BIC", pars.idx = "BIC", score.df = NULL, band.level = 0.95, ...){
+autoplot.PLR_cv <- function(object, type = c("explained","traceplot","diagnostic","residuals"), traceplot.which = "BIC", pars.idx = "BIC", score.df = NULL, band.level = 0.95, palette = NULL, ...){
 
   type <- match.arg(type)
 

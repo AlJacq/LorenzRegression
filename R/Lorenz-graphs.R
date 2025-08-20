@@ -5,6 +5,9 @@
 #' @param formula A formula object of the form \emph{response} ~ \emph{other_variables}. The form \emph{response} ~ \emph{1} is used to display only the Lorenz curve of the response.
 #' @param data A dataframe containing the variables of interest
 #' @param difference A logical determining whether the vertical axis should be expressed in terms of deviation from perfect equality. Default is \code{FALSE}.
+#' @param palette A vector of colors. If \code{NULL} (default), the base R
+#' palette is used. When provided, the first color is reserved for the line of equality
+#' (typically "black"), and the remaining colors are used for the Lorenz and concentration curves.
 #' @param ... Further arguments (see Section 'Arguments' in \code{\link{Lorenz.curve}}).
 #'
 #' @return A plot comprising
@@ -26,7 +29,7 @@
 #'
 #' @export
 
-Lorenz.graphs <- function(formula, data, difference = FALSE, ...){
+Lorenz.graphs <- function(formula, data, difference = FALSE, palette = NULL, ...){
 
   # 0 > Calls ----
   cl <- match.call()
@@ -47,18 +50,20 @@ Lorenz.graphs <- function(formula, data, difference = FALSE, ...){
 
   p <- NULL
 
+  if(is.null(palette)) palette <- 1:(ncol(mf)+1)
+
   graph <- ggplot(data.frame(p=c(0,1)),aes(p)) +
-    scale_color_manual(values = 2:(ncol(mf)+1),
+    scale_color_manual(values = palette[-1],
                        breaks = colnames(mf))
 
   # 1 > Lorenz curve ----
 
   if(difference){
-    graph <- graph + geom_hline(yintercept = 0,color=1) +
+    graph <- graph + geom_hline(yintercept = 0,color=palette[1]) +
       stat_function(fun=function(p)Lorenz.curve(y, ...)(p)-p, geom="line",aes(color=colnames(mf)[1])) +
       labs(x = "Cumulative share of the population",y = "Deviation from perfect equality", color= "Ranking:")
   }else{
-    graph <- graph + stat_function(fun=function(p)p, geom="line", color=1) +
+    graph <- graph + stat_function(fun=function(p)p, geom="line", color=palette[1]) +
     stat_function(fun=function(p)Lorenz.curve(y, ...)(p), geom="line",aes(color=colnames(mf)[1])) +
     labs(x = "Cumulative share of the population",y = paste0("Cumulative share of ",colnames(mf)[1]), color= "Ranking:")
   }
@@ -87,39 +92,11 @@ Lorenz.graphs <- function(formula, data, difference = FALSE, ...){
   graph
 }
 
-# This is no longer used because plot(PLR) now only plots one explained LC
-# #' @importFrom ggplot2 stat_function aes scale_color_manual ggplot
-# #' @importFrom scales hue_pal
-# #' @keywords internal
-#
-# Lorenz.graphs_add <- function(g, y, x, difference = FALSE, curve_label, ...) {
-#
-#   # Determine the new color that will be applied to the new curve
-#   color_scale <- g$scales$scales[[1]]
-#   existing_colors <- color_scale$palette(length(g$layers) - 1)
-#   next_color <- hue_pal()(length(existing_colors) + 1)[length(existing_colors) + 1]
-#
-#   # Add the new curve to the plot
-#   g <- g + stat_function(
-#     fun = if (difference) function(p) Lorenz.curve(y, x, ...)(p) - p
-#     else function(p) Lorenz.curve(y, x, ...)(p),
-#     geom = "line", aes(color = curve_label)
-#   )
-#
-#   # Update the color scale to include the new color
-#   new_colors <- c(existing_colors, next_color)
-#   names(new_colors) <- c(names(existing_colors), curve_label)
-#
-#   g <- suppressMessages( g + scale_color_manual(values = new_colors) )
-#
-#   g
-# }
-
 #' @importFrom ggplot2 geom_ribbon aes
 #' @importFrom stats quantile
 #' @keywords internal
 
-Lorenz.bands <- function(g, LC_ordinates, level, difference = FALSE) {
+Lorenz.bands <- function(g, LC_ordinates, level, difference = FALSE, palette = NULL) {
 
   # Determine the upper and lower bounds
   lci <- apply(LC_ordinates, 2, quantile, probs = (1-level)/2)
@@ -132,6 +109,7 @@ Lorenz.bands <- function(g, LC_ordinates, level, difference = FALSE) {
 
   # Add the bands
   df_band <- data.frame(p = p, lci = lci, uci = uci)
-  g <- g + geom_ribbon(data = df_band, aes(x = p, ymin = lci, ymax = uci), fill = 3, alpha = 0.3)
+  if(is.null(palette)) palette <- 1:3
+  g <- g + geom_ribbon(data = df_band, aes(x = p, ymin = lci, ymax = uci), fill = palette[3], alpha = 0.3)
   g
 }

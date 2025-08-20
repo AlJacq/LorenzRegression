@@ -16,6 +16,7 @@
   pars.idx = "BIC",
   score.df = NULL,
   band.level = 0.95,
+  palette = NULL,
   ...
 )
 
@@ -50,6 +51,10 @@ Or a numeric vector of length 2, where the first element is the index of the gri
 \item{score.df}{A data.frame providing the scores to be displayed if \code{type} is set to \code{"diagnostic"}. For internal use only.}
 
 \item{band.level}{Confidence level for the bootstrap confidence intervals.}
+
+\item{palette}{A vector of colors. If \code{NULL} (default), the base R
+palette is used. When provided, the first color is reserved for the baseline
+(typically "black"), and the remaining colors are used to distinguish the curves.}
 
 \item{...}{Additional arguments passed either to \code{\link{Lorenz.graphs}} (for \code{type = "explained"})
 or to \code{\link{fitted.PLR}} and \code{\link{residuals.PLR}} (for \code{type = "residuals"}).}
