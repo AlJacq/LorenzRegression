@@ -8,13 +8,8 @@ There were no ERRORs, WARNINGs or NOTEs
 
 We checked 1 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
 
-We saw 1 new problems
-
-* glorenz
-
-Maintainer was notified more than two weeks ago (Jun 11) and supplied with patch.
-
-We failed to check 0 packages
+ * We saw 0 new problems
+ * We failed to check 0 packages
 
 ## Output of devtools::check_win_devel()
 
