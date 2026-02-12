@@ -1,3 +1,7 @@
+# LorenzRegression 2.3.1
+
+**Minor Changes** : Deleted reference to a non-existing vignette.
+
 # LorenzRegression 2.3.0
 
 **Usage Changes** : Added a `palette` argument to `Lorenz.graphs()` and to the `plot()` methods of `"LR"` and `"PLR"` objects.
