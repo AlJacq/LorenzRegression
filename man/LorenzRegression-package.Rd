@@ -13,7 +13,7 @@ The obtained concentration index is called the explained Gini coefficient. If a 
 This package rests on two main functions: \code{\link{Lorenz.Reg}} for the estimation process and \code{\link{Lorenz.boot}} for more complete inference (tests and confidence intervals).
 }
 \details{
-We direct the user to Heuchenne and Jacquemain (2020) and Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024) for a rigorous exposition of the methodology and to the vignette \href{../doc/Vignette.html}{Learning Lorenz regressions with examples} for a motivational introduction of the \code{LorenzRegression} package.
+We direct the user to Heuchenne and Jacquemain (2020) and Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024) for a rigorous exposition of the methodology.
 }
 \section{References}{
 
