@@ -1,0 +1,16 @@
+bibentry(bibtype = "Article",
+  title        = "{LorenzRegression}: An Implementation of the {L}orenz and Penalized {L}orenz Regressions in {R}",
+  author       = c(person(given = "Alexandre",
+                          family = "Jacquemain",
+                          email = "alexandre.jacquemain@uclouvain.be"),
+                   person(given = "C{\\'e}dric",
+                          family = "Heuchenne",
+                          email = "cedric.heuchenne@uclouvain.be")),
+  journal      = "Journal of Statistical Software",
+  year         = "2026",
+  volume       = "117",
+  number       = "6",
+  pages        = "1--33",
+  doi          = "10.18637/jss.v117.i06"
+)
+
