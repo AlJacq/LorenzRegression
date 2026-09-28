@@ -66,13 +66,6 @@ In the penalized case, the model is fitted for a grid of values of two parameter
 The possibles values for \code{grid.arg} are tuning parameters of the functions \code{\link{Lorenz.FABS}} and \code{\link{Lorenz.SCADFABS}} : \code{''h''} (the default), \code{''SCAD.nfwd''},\code{''eps''}, \code{''kernel''}, \code{''a''} and \code{''gamma''}.
 The values for the grid are specified with \code{grid.value}. The default is \code{NULL}, in which case no grid is constructed
 }
-\section{References}{
-
-Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
-
-Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
-}
-
 \examples{
 data(Data.Incomes)
 set.seed(123)
@@ -108,6 +101,13 @@ plot(PLR,type="residuals")
 ## For PLR only, one can obtain a traceplot of the penalized coefficients
 plot(PLR,type="traceplot")
 
+}
+\references{
+Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
+
+Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
+
+Jacquemain, A. and C. Heuchenne (2026). LorenzRegression: An Implementation of the Lorenz and Penalized Lorenz Regressions in R. \emph{Journal of Statistical Software 117(6)}, 1-33. \doi{10.18637/jss.v117.i06}.
 }
 \seealso{
 \code{\link{Lorenz.GA}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.boot}}

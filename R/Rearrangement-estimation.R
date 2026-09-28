@@ -27,7 +27,7 @@
 #'
 #' @seealso \code{\link{Lorenz.Reg}}, \code{\link[Rearrangement]{rearrangement}}
 #'
-#' @section References:
+#' @references
 #' Chernozhukov, V., I. Fernández-Val, and A. Galichon (2009). Improving Point and Interval Estimators of Monotone Functions by Rearrangement. \emph{Biometrika 96 (3)}. 559–75.
 #'
 #' @examples

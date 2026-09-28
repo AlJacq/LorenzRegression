@@ -46,11 +46,6 @@ A list with the following components
 A first estimator of the link function, neglecting the assumption of monotonicity, is obtained using the procedure chosen via \code{method}.
 The final estimator is obtained through the rearrangement operation explained in Chernozhukov et al (2009). This operation is carried out with function \code{\link[Rearrangement]{rearrangement}} from package \emph{Rearrangement}.
 }
-\section{References}{
-
-Chernozhukov, V., I. Fernández-Val, and A. Galichon (2009). Improving Point and Interval Estimators of Monotone Functions by Rearrangement. \emph{Biometrika 96 (3)}. 559–75.
-}
-
 \examples{
 data(Data.Incomes)
 PLR <- Lorenz.Reg(Income ~ ., data = Data.Incomes,
@@ -78,6 +73,9 @@ ksmooth_method <- list(
 )
 Rearrangement.estimation(y = y, index = index, method = ksmooth_method, bandwidth = 0.1)
 
+}
+\references{
+Chernozhukov, V., I. Fernández-Val, and A. Galichon (2009). Improving Point and Interval Estimators of Monotone Functions by Rearrangement. \emph{Biometrika 96 (3)}. 559–75.
 }
 \seealso{
 \code{\link{Lorenz.Reg}}, \code{\link[Rearrangement]{rearrangement}}

@@ -38,7 +38,7 @@
 #'
 #' @seealso \code{\link{Lorenz.Reg}}, \code{\link[GA]{ga}}
 #'
-#' @section References:
+#' @references
 #' Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
 #'
 #' @examples
