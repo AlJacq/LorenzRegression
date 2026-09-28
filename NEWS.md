@@ -1,3 +1,7 @@
+# LorenzRegression 2.3.2
+
+**Minor Changes** : Added references to the accompanying paper in the Journal of Statistical Software (<doi:10.18637/jss.v117.i06>), in the `CITATION` file, the `DESCRIPTION` and the documentation.
+
 # LorenzRegression 2.3.1
 
 **Minor Changes** : Deleted reference to a non-existing vignette.
