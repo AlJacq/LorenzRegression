@@ -93,7 +93,7 @@ confint(PLR_boot, pars.idx = "Boot") # Using bootstrap-selected tuning parameter
 \references{
 Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
 
-Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalized bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
+Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
 
 Jacquemain, A. and C. Heuchenne (2026). LorenzRegression: An Implementation of the Lorenz and Penalized Lorenz Regressions in R. \emph{Journal of Statistical Software 117(6)}, 1-33. \doi{10.18637/jss.v117.i06}.
 }
