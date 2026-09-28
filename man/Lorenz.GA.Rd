@@ -74,17 +74,15 @@ The parameters \code{seed.random}, \code{seed.Gini}, and \code{seed.GA} allow fo
 Each seed is applied to the respective part of the computation, and the seed is reverted to its previous state after the operation.
 This ensures that the seed settings do not interfere with the global random state or other parts of the code.
 }
-\section{References}{
-
-Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
-}
-
 \examples{
 data(Data.Incomes)
 y <- Data.Incomes$Income
 x <- cbind(Data.Incomes$Age, Data.Incomes$Work.Hours)
 Lorenz.GA(y, x, popSize = 40)
 
+}
+\references{
+Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
 }
 \seealso{
 \code{\link{Lorenz.Reg}}, \code{\link[GA]{ga}}

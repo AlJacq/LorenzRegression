@@ -36,11 +36,6 @@ The parameter \code{seed.CV} allows for local seed setting to control randomness
 The specified seed is applied to the respective part of the computation, and the seed is reverted to its previous state after the operation.
 This ensures that the seed settings do not interfere with the global random state or other parts of the code.
 }
-\section{References}{
-
-Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
-}
-
 \examples{
 \dontshow{
 utils::example(Lorenz.Reg, echo = FALSE)
@@ -56,6 +51,11 @@ predict(PLR_CV, pars.idx = "CV")
 plot(PLR_CV)
 plot(PLR_CV, type = "diagnostic") # Plot of the scores depending on the grid and penalty parameters
 
+}
+\references{
+Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
+
+Jacquemain, A. and C. Heuchenne (2026). LorenzRegression: An Implementation of the Lorenz and Penalized Lorenz Regressions in R. \emph{Journal of Statistical Software 117(6)}, 1-33. \doi{10.18637/jss.v117.i06}.
 }
 \seealso{
 \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.SCADFABS}}, \code{\link{Lorenz.FABS}}, \code{\link{Lorenz.boot}}

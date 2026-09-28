@@ -67,19 +67,17 @@ The regression is solved using the FABS algorithm developed by Shi et al (2018) 
 For a comprehensive explanation of the Penalized Lorenz Regression, see Jacquemain et al.
 In order to ensure identifiability, theta is forced to have a L2-norm equal to one.
 }
-\section{References}{
-
-Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
-
-Shi, X., Y. Huang, J. Huang, and S. Ma (2018). A Forward and Backward Stagewise Algorithm for Nonconvex Loss Function with Adaptive Lasso, \emph{Computational Statistics & Data Analysis 124}, 235-251.
-}
-
 \examples{
 data(Data.Incomes)
 y <- Data.Incomes[,1]
 x <- as.matrix(Data.Incomes[,-c(1,2)])
 Lorenz.FABS(y, x)
 
+}
+\references{
+Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
+
+Shi, X., Y. Huang, J. Huang, and S. Ma (2018). A Forward and Backward Stagewise Algorithm for Nonconvex Loss Function with Adaptive Lasso, \emph{Computational Statistics & Data Analysis 124}, 235-251.
 }
 \seealso{
 \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.SCADFABS}}

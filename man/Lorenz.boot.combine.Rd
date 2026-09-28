@@ -32,13 +32,6 @@ Note: The returned object may have additional classes such as \code{"PLR_cv"} if
 \description{
 \code{Lorenz.boot.combine} combine outputs of different instances of the \code{\link{Lorenz.boot}} function.
 }
-\section{References}{
-
-Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
-
-Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
-}
-
 \examples{
 \dontshow{
 utils::example(Lorenz.Reg, echo = FALSE)
@@ -52,6 +45,13 @@ boot_list[[2]] <- Lorenz.boot(PLR, R = 10, boot_out_only = TRUE)
 PLR_boot <- Lorenz.boot.combine(boot_list)
 summary(PLR_boot)
 
+}
+\references{
+Heuchenne, C. and A. Jacquemain (2022). Inference for monotone single-index conditional means: A Lorenz regression approach. \emph{Computational Statistics & Data Analysis 167(C)}.
+
+Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
+
+Jacquemain, A. and C. Heuchenne (2026). LorenzRegression: An Implementation of the Lorenz and Penalized Lorenz Regressions in R. \emph{Journal of Statistical Software 117(6)}, 1-33. \doi{10.18637/jss.v117.i06}.
 }
 \seealso{
 \code{\link{Lorenz.boot}}

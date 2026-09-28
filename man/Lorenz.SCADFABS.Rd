@@ -70,17 +70,15 @@ The regression is solved using the SCAD-FABS algorithm developed by Jacquemain e
 For a comprehensive explanation of the Penalized Lorenz Regression, see Heuchenne et al.
 In order to ensure identifiability, theta is forced to have a L2-norm equal to one.
 }
-\section{References}{
-
-Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
-}
-
 \examples{
 data(Data.Incomes)
 y <- Data.Incomes[,1]
 x <- as.matrix(Data.Incomes[,-c(1,2)])
 Lorenz.SCADFABS(y, x)
 
+}
+\references{
+Jacquemain, A., C. Heuchenne, and E. Pircalabelu (2024). A penalised bootstrap estimation procedure for the explained Gini coefficient. \emph{Electronic Journal of Statistics 18(1) 247-300}.
 }
 \seealso{
 \code{\link{Lorenz.Reg}}, \code{\link{Lorenz.FABS}}
